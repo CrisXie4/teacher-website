@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="student-manager.js"></script>
+    <style>
+        .container {
+            max-width: 1300px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            text-align: left;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .instructions ol {
+            padding-left: 2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .instructions strong {
+            color: #4b6cb7;
+            font-weight: 600;
+        }
+        
+        /* 工具卡片图标 */
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 1.2rem;
+            color: #4b6cb7;
+        }
+        
+        /* 学生管理区域 */
+        .student-management {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin: 2.5rem 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: none; /* 默认隐藏 */
+        }
+        
+        .student-management.visible {
+            display: block;
+        }
+        
+        .student-management h2 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .student-input-section {
+            margin-bottom: 2rem;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .input-group input {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(75, 108, 183, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(75, 108, 183, 0.5);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.add {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        
+        .btn.import {
+            background: linear-gradient(135deg, #9C27B0, #E040FB);
+        }
+        
+        .btn.clear {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+        
+        .btn.toggle-students {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            display: block;
+            margin: 1.5rem auto;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn.feedback {
+            background: linear-gradient(135deg, #FF9800, #FFC107);
+            display: block;
+            margin: 1rem auto;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .batch-import {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        
+        .batch-import h3 {
+            color: #182848;
+            margin-bottom: 0.5rem;
+        }
+        
+        .batch-import textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-bottom: 1rem;
+        }
+        
+        .file-import {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        
+        .file-import h3 {
+            color: #182848;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-import input {
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .student-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #f8f9fa;
+            margin-top: 1rem;
+        }
+        
+        .student-item {
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        
+        .student-info {
+            flex: 1;
+        }
+        
+        .student-id {
+            font-weight: bold;
+            color: #4b6cb7;
+        }
+        
+        .remove-student {
+            background: #ff416c;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .student-summary {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .summary-card {
+            background: #e3f2fd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .summary-label {
+            font-size: 1rem;
+            color: #555;
+        }
+        
+        /* 反馈模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: #182848;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-modal:hover {
+            color: #ff416c;
+        }
+        
+        .feedback-form {
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .feedback-form input,
+        .feedback-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-form textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn.submit-feedback {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            display: block;
+            margin: 1rem auto;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .instructions {
+                padding: 1.5rem;
+            }
+            
+            .instructions h3 {
+                font-size: 1.5rem;
+            }
+            
+            .instructions li {
+                font-size: 1rem;
+            }
+            
+            .student-management {
+                padding: 1.5rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .student-summary {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>教师工具箱</h1>
+        <p>专为教师设计的实用工具集合</p>
+    </header>
+    
+    <div class="container">
+        <!-- 工具卡片 -->
+        <div class="tools-container">
+            <div class="tool-card" id="sound-detector-card">
+                <div class="tool-icon">🔊</div>
+                <h2>声音检测器</h2>
+                <p>实时检测环境声音强度，声音越高小球越高</p>
+                <button onclick="navigateTo('sound-detector.html')">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="roll-call-card">
+                <div class="tool-icon">🎲</div>
+                <h2>随机点名器</h2>
+                <p>随机选择学生回答问题，增加课堂互动</p>
+                <button onclick="navigateTo('roll-call.html')">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="timer-card">
+                <div class="tool-icon">⏱️</div>
+                <h2>课堂计时器</h2>
+                <p>管理课堂活动时间，提高教学效率</p>
+                <button onclick="navigateTo('timer.html')">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="grouping-card">
+                <div class="tool-icon">👥</div>
+                <h2>小组分组器</h2>
+                <p>随机分组学生，便于小组活动</p>
+                <button onclick="navigateTo('grouping.html')">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="whiteboard-card">
+                <div class="tool-icon">✏️</div>
+                <h2>电子白板</h2>
+                <p>在线绘制和演示，支持多点触控</p>
+                <button onclick="navigateTo('whiteboard.html')">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="tracker-card">
+                <div class="tool-icon">📈</div>
+                <h2>课堂表现记录器</h2>
+                <p>记录学生课堂表现，提升教学效果</p>
+                <button onclick="navigateTo('classroom-tracker.html')">立即使用</button>
+            </div>
+        </div>
+        
+        <!-- 切换学生管理按钮 -->
+        <button id="toggleStudentsBtn" class="btn toggle-students">管理学生信息</button>
+        
+        <!-- 学生管理区域 -->
+        <div class="student-management" id="studentManagement">
+            <h2>学生管理</h2>
+            
+            <div class="student-input-section">
+                <div class="input-group">
+                    <input type="text" id="studentId" placeholder="学号（可选）">
+                    <input type="text" id="studentName" placeholder="学生姓名">
+                    <button id="addStudentBtn" class="btn add">添加学生</button>
+                </div>
+                
+                <div class="batch-import">
+                    <h3>批量导入（CSV格式：学号,姓名）</h3>
+                    <textarea id="csvInput" placeholder="例如：
+2021001,张三
+2021002,李四
+2021003,王五"></textarea>
+                    <button id="importBtn" class="btn import">导入CSV</button>
+                </div>
+                
+                <div class="file-import">
+                    <h3>文件导入（支持CSV、TXT、Excel格式）</h3>
+                    <input type="file" id="fileInput" accept=".csv,.txt,.xlsx,.xls">
+                    <button id="importFileBtn" class="btn import">导入文件</button>
+                    <div id="fileInfo" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></div>
+                </div>
+                
+                <button id="clearStudentsBtn" class="btn clear">清空学生列表</button>
+            </div>
+            
+            <div class="student-list-container">
+                <div id="studentList">
+                    <div class="empty-list">暂无学生，请添加学生</div>
+                </div>
+            </div>
+            
+            <div class="student-summary">
+                <div class="summary-card">
+                    <div class="summary-value" id="totalStudents">0</div>
+                    <div class="summary-label">总学生数</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="totalGroups">0</div>
+                    <div class="summary-label">建议分组数</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 反馈建议按钮 -->
+        <button id="feedbackBtn" class="btn feedback">反馈建议</button>
+    </div>
+    
+    <!-- 反馈模态框 -->
+    <div class="modal" id="feedbackModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">反馈建议</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="feedback-form">
+                <label for="feedbackName">您的姓名:</label>
+                <input type="text" id="feedbackName" placeholder="请输入您的姓名">
+                
+                <label for="feedbackEmail">您的邮箱:</label>
+                <input type="email" id="feedbackEmail" placeholder="请输入您的邮箱">
+                
+                <label for="feedbackSubject">主题:</label>
+                <input type="text" id="feedbackSubject" placeholder="请输入反馈主题">
+                
+                <label for="feedbackMessage">反馈内容:</label>
+                <textarea id="feedbackMessage" placeholder="请输入您的建议或意见..."></textarea>
+                
+                <button id="submitFeedbackBtn" class="btn submit-feedback">提交反馈</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li><strong>学生管理</strong> - 点击"管理学生信息"按钮显示学生管理界面，支持单个添加、批量导入和文件导入</li>
+                <li><strong>声音检测器</strong> - 实时检测环境声音强度，声音越高小球越高，可用于课堂活跃度监测</li>
+                <li><strong>随机点名器</strong> - 随机选择学生回答问题，增加课堂互动，支持导入学生名单</li>
+                <li><strong>课堂计时器</strong> - 管理课堂活动时间，提高教学效率，支持全屏模式和预设时间</li>
+                <li><strong>小组分组器</strong> - 随机分组学生，便于小组活动，支持自定义分组人数</li>
+                <li><strong>电子白板</strong> - 在线绘制和演示，支持多点触控、多种颜色和线条粗细调节</li>
+                <li><strong>课堂表现记录器</strong> - 记录学生课堂表现，帮助教师了解学生参与度</li>
+                <li><strong>反馈建议</strong> - 点击"反馈建议"按钮提交您的宝贵意见</li>
+            </ol>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const toggleStudentsBtn = document.getElementById('toggleStudentsBtn');
+        const studentManagement = document.getElementById('studentManagement');
+        const studentId = document.getElementById('studentId');
+        const studentName = document.getElementById('studentName');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const csvInput = document.getElementById('csvInput');
+        const importBtn = document.getElementById('importBtn');
+        const fileInput = document.getElementById('fileInput');
+        const importFileBtn = document.getElementById('importFileBtn');
+        const clearStudentsBtn = document.getElementById('clearStudentsBtn');
+        const studentList = document.getElementById('studentList');
+        const totalStudentsEl = document.getElementById('totalStudents');
+        const totalGroupsEl = document.getElementById('totalGroups');
+        const fileInfo = document.getElementById('fileInfo');
+        const feedbackBtn = document.getElementById('feedbackBtn');
+        const feedbackModal = document.getElementById('feedbackModal');
+        const closeModal = document.querySelector('.close-modal');
+        const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+        
+        // 切换学生管理界面显示/隐藏
+        function toggleStudentManagement() {
+            studentManagement.classList.toggle('visible');
+            toggleStudentsBtn.textContent = studentManagement.classList.contains('visible') ? 
+                '隐藏学生管理' : '管理学生信息';
+        }
+        
+        // 添加学生
+        function addStudent() {
+            const id = studentId.value.trim();
+            const name = studentName.value.trim();
+            
+            if (!name) {
+                alert('请输入学生姓名');
+                return;
+            }
+            
+            // 使用StudentManager来处理学生输入
+            const student = { id, name };
+            if (StudentManager.addStudent(student)) {
+                renderStudentList();
+                updateSummary();
+                studentId.value = '';
+                studentName.value = '';
+                studentName.focus();
+            } else {
+                alert('学生已存在（学号或姓名重复）');
+            }
+        }
+        
+        // 批量导入学生
+        function importStudents() {
+            const csvText = csvInput.value.trim();
+            if (csvText === '') {
+                alert('请输入CSV数据');
+                return;
+            }
+            
+            try {
+                const students = StudentManager.parseCSV(csvText);
+                if (students.length === 0) {
+                    alert('未解析到有效学生数据');
+                    return;
+                }
+                
+                const addedCount = StudentManager.addStudents(students);
+                renderStudentList();
+                updateSummary();
+                csvInput.value = '';
+                alert(`成功导入 ${addedCount} 名学生`);
+            } catch (e) {
+                alert('导入失败：' + e.message);
+            }
+        }
+        
+        // 文件导入学生
+        function importFromFile() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('请选择一个文件');
+                return;
+            }
+            
+            // 显示文件信息
+            fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(1)} KB | 类型: ${file.type || '未知'}`;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    let students = [];
+                    
+                    // 根据文件类型处理
+                    if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+                        students = StudentManager.parseCSV(content);
+                    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                        // 对于Excel文件，这里简化处理
+                        // 实际项目中需要使用xlsx库，这里提供一个友好的提示
+                        alert('Excel文件需要使用专门的库处理。为了演示，我们将尝试将其作为CSV处理。如果失败，请将Excel文件另存为CSV格式再导入。');
+                        try {
+                            students = StudentManager.parseCSV(content);
+                        } catch (excelError) {
+                            // 如果CSV解析失败，尝试其他方式
+                            alert('Excel文件解析失败。请将Excel文件另存为CSV格式再导入。');
+                            return;
+                        }
+                    } else {
+                        alert('不支持的文件格式，请使用CSV、TXT或Excel格式');
+                        return;
+                    }
+                    
+                    if (students.length === 0) {
+                        alert('未解析到有效学生数据');
+                        return;
+                    }
+                    
+                    const addedCount = StudentManager.addStudents(students);
+                    renderStudentList();
+                    updateSummary();
+                    fileInput.value = '';
+                    fileInfo.textContent = '';
+                    alert(`成功导入 ${addedCount} 名学生`);
+                } catch (e) {
+                    alert('导入失败：' + e.message);
+                }
+            };
+            
+            // 读取文件内容
+            if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+                reader.readAsText(file, 'UTF-8');
+            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                // Excel文件尝试以文本方式读取
+                reader.readAsText(file, 'UTF-8');
+            } else {
+                alert('不支持的文件格式，请使用CSV、TXT或Excel格式');
+            }
+        }
+        
+        // 删除学生
+        function removeStudent(index) {
+            StudentManager.removeStudent(index);
+            renderStudentList();
+            updateSummary();
+        }
+        
+        // 清空学生列表
+        function clearStudents() {
+            if (confirm('确定要清空所有学生吗？')) {
+                StudentManager.clearStudents();
+                renderStudentList();
+                updateSummary();
+            }
+        }
+        
+        // 渲染学生列表
+        function renderStudentList() {
+            const students = StudentManager.getStudents();
+            studentList.innerHTML = '';
+            
+            if (students.length === 0) {
+                studentList.innerHTML = '<div class="empty-list">暂无学生，请添加学生</div>';
+                return;
+            }
+            
+            students.forEach((student, index) => {
+                const studentItem = document.createElement('div');
+                studentItem.className = 'student-item';
+                
+                const studentInfo = student.id ? 
+                    `<span class="student-info"><span class="student-id">${student.id}</span> - ${student.name}</span>` : 
+                    `<span class="student-info">${student.name}</span>`;
+                
+                studentItem.innerHTML = `
+                    ${studentInfo}
+                    <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                `;
+                studentList.appendChild(studentItem);
+            });
+        }
+        
+        // 更新统计摘要
+        function updateSummary() {
+            const students = StudentManager.getStudents();
+            totalStudentsEl.textContent = students.length;
+            
+            // 建议分组数（每组4-6人）
+            const suggestedGroups = Math.max(1, Math.floor(students.length / 5));
+            totalGroupsEl.textContent = suggestedGroups;
+        }
+        
+        // 显示反馈模态框
+        function showFeedbackModal() {
+            feedbackModal.style.display = 'flex';
+        }
+        
+        // 隐藏反馈模态框
+        function hideFeedbackModal() {
+            feedbackModal.style.display = 'none';
+        }
+        
+        // 提交反馈
+        function submitFeedback() {
+            const name = document.getElementById('feedbackName').value.trim();
+            const email = document.getElementById('feedbackEmail').value.trim();
+            const subject = document.getElementById('feedbackSubject').value.trim();
+            const message = document.getElementById('feedbackMessage').value.trim();
+            
+            if (!name || !email || !subject || !message) {
+                alert('请填写所有必填字段');
+                return;
+            }
+            
+            // 更宽松的邮箱验证（支持更多格式，包括a13662282499@163.com这样的格式）
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('请输入有效的邮箱地址');
+                return;
+            }
+            
+            // 构造mailto链接
+            const mailtoLink = `mailto:crisweiming@hotmail.com?subject=${encodeURIComponent('【教师工具箱反馈】' + subject)}&body=${encodeURIComponent(`反馈者: ${name}\n邮箱: ${email}\n\n反馈内容:\n${message}\n\n--------\n此邮件来自教师工具箱反馈系统`)}`;
+            
+            // 尝试打开邮件客户端
+            try {
+                window.open(mailtoLink, '_blank');
+                alert('感谢您的反馈！邮件客户端已打开，请发送邮件。\n如果未自动打开邮件客户端，请手动发送邮件至: crisweiming@hotmail.com');
+                hideFeedbackModal();
+                
+                // 清空表单
+                document.getElementById('feedbackName').value = '';
+                document.getElementById('feedbackEmail').value = '';
+                document.getElementById('feedbackSubject').value = '';
+                document.getElementById('feedbackMessage').value = '';
+            } catch (e) {
+                alert('无法自动打开邮件客户端，请手动发送邮件至: crisweiming@hotmail.com\n\n邮件主题: 【教师工具箱反馈】' + subject + '\n\n邮件内容:\n反馈者: ' + name + '\n邮箱: ' + email + '\n\n反馈内容:\n' + message);
+                hideFeedbackModal();
+            }
+        }
+        
+        // 导航到其他页面
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        // 初始化
+        function init() {
+            // 初始化学生管理器
+            StudentManager.init();
+            
+            // 渲染学生列表
+            renderStudentList();
+            updateSummary();
+            
+            // 绑定事件监听器
+            toggleStudentsBtn.addEventListener('click', toggleStudentManagement);
+            addStudentBtn.addEventListener('click', addStudent);
+            
+            studentName.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addStudent();
+                }
+            });
+            
+            importBtn.addEventListener('click', importStudents);
+            importFileBtn.addEventListener('click', importFromFile);
+            clearStudentsBtn.addEventListener('click', clearStudents);
+            
+            // 文件选择变化时显示文件信息
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(1)} KB | 类型: ${file.type || '未知'}`;
+                } else {
+                    fileInfo.textContent = '';
+                }
+            });
+            
+            // 反馈模态框事件
+            feedbackBtn.addEventListener('click', showFeedbackModal);
+            closeModal.addEventListener('click', hideFeedbackModal);
+            submitFeedbackBtn.addEventListener('click', submitFeedback);
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', (e) => {
+                if (e.target === feedbackModal) {
+                    hideFeedbackModal();
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

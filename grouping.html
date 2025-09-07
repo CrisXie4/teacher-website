@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小组分组器 - 教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="student-manager.js"></script>
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .grouping-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #182848;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .group-settings {
+            max-width: 500px;
+            margin: 0 auto 2rem;
+        }
+        
+        .group-settings label {
+            display: block;
+            margin: 1rem 0 0.5rem;
+            font-weight: bold;
+        }
+        
+        .group-settings input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(75, 108, 183, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.generate {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            display: block;
+            margin: 1.5rem auto;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn.import {
+            background: linear-gradient(90deg, #9C27B0, #E040FB);
+        }
+        
+        .btn.manage-students {
+            background: linear-gradient(90deg, #2196F3, #21CBF3);
+            margin-bottom: 1rem;
+        }
+        
+        .btn.clear {
+            background: linear-gradient(90deg, #FF5722, #FF9800);
+            display: block;
+            margin: 1rem auto;
+        }
+        
+        .groups-container {
+            margin-top: 2rem;
+        }
+        
+        .groups-title {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #182848;
+            margin-bottom: 1.5rem;
+        }
+        
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .group-card {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .group-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #182848;
+            margin-bottom: 1rem;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4b6cb7;
+        }
+        
+        .group-members {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .group-members li {
+            padding: 0.5rem;
+            border-bottom: 1px solid #bbdefb;
+        }
+        
+        .group-members li:last-child {
+            border-bottom: none;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1rem;
+        }
+        
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        /* 修复UI问题：确保分组结果显示正确 */
+        .empty-groups {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+        }
+        
+        /* 学生统计 */
+        .student-stats {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        
+        .stat-item {
+            display: inline-block;
+            margin: 0 1rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #182848;
+        }
+        
+        /* 提示信息 */
+        .info-message {
+            text-align: center;
+            padding: 1rem;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            color: #856404;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>小组分组器</h1>
+        <p>随机分组学生，便于小组活动</p>
+    </header>
+    
+    <div class="container">
+        <div class="grouping-container">
+            <div class="info-message">
+                请先在<a href="index.html" style="color: #4b6cb7; font-weight: bold;">主页</a>添加学生，然后在此处生成分组
+            </div>
+            
+            <div class="student-stats">
+                <div class="stat-item">
+                    总学生数: <span class="stat-value" id="totalStudents">0</span>
+                </div>
+                <div class="stat-item">
+                    已分组: <span class="stat-value" id="groupedStudents">0</span>
+                </div>
+            </div>
+            
+            <div class="group-settings">
+                <h3 class="section-title">分组设置</h3>
+                <label for="groupCount">小组数量:</label>
+                <input type="number" id="groupCount" min="1" max="20" value="4">
+                
+                <label for="studentsPerGroup">每组人数:</label>
+                <input type="number" id="studentsPerGroup" min="1" max="20" value="5">
+                
+                <button id="generateBtn" class="btn generate">生成分组</button>
+                <button id="clearBtn" class="btn clear">清空分组</button>
+                <a href="index.html" class="btn manage-students" style="text-align: center; display: block; text-decoration: none;">管理学生</a>
+            </div>
+            
+            <div class="groups-container">
+                <h3 class="groups-title">分组结果</h3>
+                <div class="groups-grid" id="groupsContainer">
+                    <!-- 分组结果将在这里显示 -->
+                    <div class="empty-groups">请设置分组参数并生成分组</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li>在主页添加和管理学生信息</li>
+                <li>设置小组数量或每组人数（两者只需设置一个，另一个会自动计算）</li>
+                <li>点击"生成分组"按钮随机分配学生到各小组</li>
+                <li>可以随时重新生成分组</li>
+            </ol>
+        </div>
+        
+        <a href="index.html" class="back-btn">返回主页</a>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 小组分组器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const groupCountInput = document.getElementById('groupCount');
+        const studentsPerGroupInput = document.getElementById('studentsPerGroup');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const groupsContainer = document.getElementById('groupsContainer');
+        const totalStudentsEl = document.getElementById('totalStudents');
+        const groupedStudentsEl = document.getElementById('groupedStudents');
+        
+        // 随机打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // 生成分组
+        function generateGroups() {
+            // 从学生管理器获取学生
+            const students = StudentManager.getStudents();
+            if (students.length === 0) {
+                alert('请先在主页添加学生');
+                return;
+            }
+            
+            const groupCount = parseInt(groupCountInput.value);
+            const studentsPerGroup = parseInt(studentsPerGroupInput.value);
+            
+            // 验证输入
+            if (isNaN(groupCount) && isNaN(studentsPerGroup)) {
+                alert('请设置小组数量或每组人数');
+                return;
+            }
+            
+            // 随机打乱学生名单
+            const shuffledStudents = shuffleArray([...students]);
+            
+            // 创建分组
+            const groups = [];
+            
+            if (studentsPerGroup > 0) {
+                // 按每组人数分组
+                const calculatedGroupCount = Math.ceil(shuffledStudents.length / studentsPerGroup);
+                groupCountInput.value = calculatedGroupCount;
+                
+                for (let i = 0; i < calculatedGroupCount; i++) {
+                    groups.push(shuffledStudents.slice(i * studentsPerGroup, (i + 1) * studentsPerGroup));
+                }
+            } else if (groupCount > 0) {
+                // 按组数分组
+                const calculatedStudentsPerGroup = Math.ceil(shuffledStudents.length / groupCount);
+                studentsPerGroupInput.value = calculatedStudentsPerGroup;
+                
+                for (let i = 0; i < groupCount; i++) {
+                    groups.push(shuffledStudents.slice(i * calculatedStudentsPerGroup, (i + 1) * calculatedStudentsPerGroup));
+                }
+            }
+            
+            // 显示分组结果
+            renderGroups(groups);
+            updateStats();
+        }
+        
+        // 渲染分组结果
+        function renderGroups(groups) {
+            groupsContainer.innerHTML = '';
+            
+            if (groups.length === 0) {
+                groupsContainer.innerHTML = '<div class="empty-groups">请设置分组参数并生成分组</div>';
+                return;
+            }
+            
+            groups.forEach((group, index) => {
+                const groupCard = document.createElement('div');
+                groupCard.className = 'group-card';
+                
+                let groupMembersHTML = '';
+                group.forEach(student => {
+                    const studentInfo = student.id ? 
+                        `<span class="student-id">${student.id}</span> - ${student.name}` : 
+                        student.name;
+                    groupMembersHTML += `<li>${studentInfo}</li>`;
+                });
+                
+                groupCard.innerHTML = `
+                    <div class="group-header">第 ${index + 1} 组</div>
+                    <ul class="group-members">
+                        ${groupMembersHTML}
+                    </ul>
+                `;
+                
+                groupsContainer.appendChild(groupCard);
+            });
+        }
+        
+        // 清空分组
+        function clearGroups() {
+            groupsContainer.innerHTML = '<div class="empty-groups">请设置分组参数并生成分组</div>';
+            updateStats();
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            const students = StudentManager.getStudents();
+            totalStudentsEl.textContent = students.length;
+            
+            // 计算已分组的学生数
+            const groupedStudents = students.length; // 所有学生都被分组
+            groupedStudentsEl.textContent = groupedStudents;
+        }
+        
+        // 初始化
+        function init() {
+            // 初始化学生管理器
+            StudentManager.init();
+            
+            // 更新统计信息
+            updateStats();
+            
+            // 绑定事件监听器
+            generateBtn.addEventListener('click', generateGroups);
+            clearBtn.addEventListener('click', clearGroups);
+            
+            // 绑定分组设置输入框事件
+            groupCountInput.addEventListener('change', () => {
+                if (groupCountInput.value > 0) {
+                    studentsPerGroupInput.value = '';
+                }
+            });
+            
+            studentsPerGroupInput.addEventListener('change', () => {
+                if (studentsPerGroupInput.value > 0) {
+                    groupCountInput.value = '';
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

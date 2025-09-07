@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课堂表现记录器 - 教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .students-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tracker-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .input-group input {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(75, 108, 183, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.add {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .btn.remove {
+            background: #ff416c;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn.track {
+            background: linear-gradient(90deg, #2196F3, #21CBF3);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .students-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background: #f8f9fa;
+            margin-bottom: 1.5rem;
+        }
+        
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        
+        .student-info {
+            flex: 1;
+        }
+        
+        .student-name {
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .student-id {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .tracker-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .tracker-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tracker-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .good-btn {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+        
+        .average-btn {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+            color: white;
+        }
+        
+        .poor-btn {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+            color: white;
+        }
+        
+        .tracker-history {
+            margin-top: 2rem;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        #clearHistoryBtn {
+            background: #ff416c;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        #historyEntries {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .history-entry {
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        
+        .history-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .history-time {
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .history-student {
+            font-weight: bold;
+            color: #4b6cb7;
+        }
+        
+        .history-action {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .good-action {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .average-action {
+            background: #FFC107;
+            color: black;
+        }
+        
+        .poor-action {
+            background: #FF5722;
+            color: white;
+        }
+        
+        .summary-container {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .summary-card {
+            flex: 1;
+            min-width: 120px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1rem;
+        }
+        
+        .instructions ol {
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        .empty-list {
+            text-align: center;
+            color: #666;
+            padding: 2rem;
+        }
+        
+        .tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        #currentStudent {
+            font-weight: bold;
+            color: #4b6cb7;
+            font-size: 1.2rem;
+        }
+        
+        .tracker-display {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .tracker-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .tracker-label {
+            color: #666;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>课堂表现记录器</h1>
+        <p>记录学生课堂表现，提升教学效果</p>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="students-container">
+                <h2 class="section-title">学生管理</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="studentId" placeholder="学号（可选）">
+                    <input type="text" id="studentName" placeholder="学生姓名">
+                    <button id="addStudentBtn" class="btn add">添加学生</button>
+                </div>
+                
+                <div class="students-list" id="studentsList">
+                    <div class="empty-list">暂无学生，请添加学生</div>
+                </div>
+                
+                <div class="summary-container">
+                    <div class="summary-card">
+                        <div class="summary-value" id="totalStudents">0</div>
+                        <div class="summary-label">总学生数</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="totalRecords">0</div>
+                        <div class="summary-label">总记录数</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tracker-container">
+                <h2 class="section-title">表现记录</h2>
+                
+                <div class="tracker-header">
+                    <div>当前学生: <span id="currentStudent">未选择</span></div>
+                </div>
+                
+                <div class="tracker-display">
+                    <div class="tracker-value" id="currentScore">-</div>
+                    <div class="tracker-label">当前评分</div>
+                </div>
+                
+                <div class="tracker-controls">
+                    <button class="tracker-btn good-btn" id="goodBtn">
+                        <span>👍</span>
+                        <span>积极参与</span>
+                    </button>
+                    <button class="tracker-btn average-btn" id="averageBtn">
+                        <span>👌</span>
+                        <span>一般表现</span>
+                    </button>
+                    <button class="tracker-btn poor-btn" id="poorBtn">
+                        <span>👎</span>
+                        <span>需要改进</span>
+                    </button>
+                </div>
+                
+                <div class="tracker-history">
+                    <div class="history-header">
+                        <h3>记录历史</h3>
+                        <button id="clearHistoryBtn" class="btn">清空历史</button>
+                    </div>
+                    <div id="historyEntries">
+                        <div class="empty-list">暂无记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li>在左侧"学生管理"区域添加学生信息（学号可选）</li>
+                <li>点击学生姓名选择要记录表现的学生</li>
+                <li>在右侧"表现记录"区域点击相应的按钮记录学生表现</li>
+                <li>系统会自动计算学生的平均评分</li>
+                <li>所有记录会保存在本地，下次访问时会自动加载</li>
+                <li>可以随时清空历史记录或添加更多学生</li>
+            </ol>
+        </div>
+        
+        <a href="index.html" class="back-btn">返回主页</a>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 课堂表现记录器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const studentIdInput = document.getElementById('studentId');
+        const studentNameInput = document.getElementById('studentName');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const studentsList = document.getElementById('studentsList');
+        const totalStudentsEl = document.getElementById('totalStudents');
+        const totalRecordsEl = document.getElementById('totalRecords');
+        const currentStudentEl = document.getElementById('currentStudent');
+        const currentScoreEl = document.getElementById('currentScore');
+        const goodBtn = document.getElementById('goodBtn');
+        const averageBtn = document.getElementById('averageBtn');
+        const poorBtn = document.getElementById('poorBtn');
+        const historyEntries = document.getElementById('historyEntries');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        
+        // 存储数据
+        let students = [];
+        let records = [];
+        let currentStudent = null;
+        
+        // 存储键名
+        const STUDENTS_STORAGE_KEY = 'classroom_tracker_students';
+        const RECORDS_STORAGE_KEY = 'classroom_tracker_records';
+        
+        // 学生类
+        class Student {
+            constructor(id, name) {
+                this.id = id;
+                this.name = name;
+                this.scores = [];
+            }
+            
+            addScore(score) {
+                this.scores.push(score);
+            }
+            
+            getAverageScore() {
+                if (this.scores.length === 0) return 0;
+                const sum = this.scores.reduce((acc, score) => acc + score, 0);
+                return Math.round(sum / this.scores.length * 10) / 10;
+            }
+            
+            getScoreCount() {
+                return this.scores.length;
+            }
+        }
+        
+        // 添加学生
+        function addStudent() {
+            const id = studentIdInput.value.trim();
+            const name = studentNameInput.value.trim();
+            
+            if (!name) {
+                alert('请输入学生姓名');
+                return;
+            }
+            
+            // 检查是否已存在
+            const exists = students.some(student => 
+                student.name === name || (id && student.id === id)
+            );
+            
+            if (exists) {
+                alert('学生已存在');
+                return;
+            }
+            
+            const student = new Student(id, name);
+            students.push(student);
+            
+            // 保存到本地存储
+            saveStudents();
+            
+            // 更新UI
+            renderStudentsList();
+            updateSummary();
+            
+            // 清空输入
+            studentIdInput.value = '';
+            studentNameInput.value = '';
+            studentNameInput.focus();
+        }
+        
+        // 删除学生
+        function removeStudent(index) {
+            if (confirm('确定要删除这名学生吗？这将同时删除该学生的所有记录。')) {
+                const student = students[index];
+                
+                // 删除相关记录
+                records = records.filter(record => record.studentName !== student.name);
+                
+                // 从学生列表中删除
+                students.splice(index, 1);
+                
+                // 保存到本地存储
+                saveStudents();
+                saveRecords();
+                
+                // 更新UI
+                renderStudentsList();
+                updateSummary();
+                renderHistory();
+                
+                // 如果删除的是当前选中的学生，取消选择
+                if (currentStudent && currentStudent.name === student.name) {
+                    selectStudent(null);
+                }
+            }
+        }
+        
+        // 选择学生
+        function selectStudent(student) {
+            currentStudent = student;
+            
+            if (student) {
+                currentStudentEl.textContent = student.id ? `${student.id} - ${student.name}` : student.name;
+                currentScoreEl.textContent = student.getAverageScore() || '-';
+            } else {
+                currentStudentEl.textContent = '未选择';
+                currentScoreEl.textContent = '-';
+            }
+        }
+        
+        // 渲染学生列表
+        function renderStudentsList() {
+            if (students.length === 0) {
+                studentsList.innerHTML = '<div class="empty-list">暂无学生，请添加学生</div>';
+                return;
+            }
+            
+            studentsList.innerHTML = '';
+            
+            students.forEach((student, index) => {
+                const studentItem = document.createElement('div');
+                studentItem.className = 'student-item';
+                
+                const studentInfo = document.createElement('div');
+                studentInfo.className = 'student-info';
+                
+                const studentName = document.createElement('div');
+                studentName.className = 'student-name';
+                studentName.textContent = student.name;
+                
+                const studentId = document.createElement('div');
+                studentId.className = 'student-id';
+                studentId.textContent = student.id ? `学号: ${student.id}` : '无学号';
+                
+                studentInfo.appendChild(studentName);
+                studentInfo.appendChild(studentId);
+                
+                const trackBtn = document.createElement('button');
+                trackBtn.className = 'btn track';
+                trackBtn.textContent = '记录';
+                trackBtn.onclick = () => selectStudent(student);
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn remove';
+                removeBtn.textContent = '删除';
+                removeBtn.onclick = () => removeStudent(index);
+                
+                studentItem.appendChild(studentInfo);
+                studentItem.appendChild(trackBtn);
+                studentItem.appendChild(removeBtn);
+                
+                studentsList.appendChild(studentItem);
+            });
+        }
+        
+        // 记录表现
+        function recordPerformance(score, actionText) {
+            if (!currentStudent) {
+                alert('请先选择学生');
+                return;
+            }
+            
+            // 添加分数到学生
+            currentStudent.addScore(score);
+            
+            // 创建记录
+            const record = {
+                id: Date.now(),
+                studentName: currentStudent.name,
+                score: score,
+                action: actionText,
+                time: new Date()
+            };
+            
+            records.unshift(record); // 添加到开头
+            
+            // 保存到本地存储
+            saveStudents();
+            saveRecords();
+            
+            // 更新UI
+            currentScoreEl.textContent = currentStudent.getAverageScore();
+            renderHistory();
+            updateSummary();
+        }
+        
+        // 渲染历史记录
+        function renderHistory() {
+            if (records.length === 0) {
+                historyEntries.innerHTML = '<div class="empty-list">暂无记录</div>';
+                return;
+            }
+            
+            historyEntries.innerHTML = '';
+            
+            records.forEach(record => {
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'history-entry';
+                
+                const timeString = record.time.toLocaleTimeString('zh-CN');
+                const dateString = record.time.toLocaleDateString('zh-CN');
+                
+                // 确定动作样式
+                let actionClass = '';
+                if (record.action.includes('积极参与')) {
+                    actionClass = 'good-action';
+                } else if (record.action.includes('一般表现')) {
+                    actionClass = 'average-action';
+                } else if (record.action.includes('需要改进')) {
+                    actionClass = 'poor-action';
+                }
+                
+                historyEntry.innerHTML = `
+                    <span class="history-time">${dateString} ${timeString}</span>
+                    <span class="history-student">${record.studentName}</span>
+                    <span class="history-action ${actionClass}">${record.action}</span>
+                    <span>(${record.score}分)</span>
+                `;
+                
+                historyEntries.appendChild(historyEntry);
+            });
+        }
+        
+        // 清空历史记录
+        function clearHistory() {
+            if (confirm('确定要清空所有记录吗？')) {
+                records = [];
+                students.forEach(student => student.scores = []);
+                
+                // 保存到本地存储
+                saveStudents();
+                saveRecords();
+                
+                // 更新UI
+                renderHistory();
+                updateSummary();
+                currentScoreEl.textContent = '-';
+            }
+        }
+        
+        // 更新统计摘要
+        function updateSummary() {
+            totalStudentsEl.textContent = students.length;
+            
+            const totalScores = students.reduce((sum, student) => sum + student.getScoreCount(), 0);
+            totalRecordsEl.textContent = totalScores;
+        }
+        
+        // 保存学生到本地存储
+        function saveStudents() {
+            try {
+                localStorage.setItem(STUDENTS_STORAGE_KEY, JSON.stringify(students));
+            } catch (e) {
+                console.error('保存学生数据失败:', e);
+            }
+        }
+        
+        // 保存记录到本地存储
+        function saveRecords() {
+            try {
+                // 转换日期对象为字符串以便存储
+                const recordsToSave = records.map(record => ({
+                    ...record,
+                    time: record.time.toISOString()
+                }));
+                
+                localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(recordsToSave));
+            } catch (e) {
+                console.error('保存记录数据失败:', e);
+            }
+        }
+        
+        // 加载学生从本地存储
+        function loadStudents() {
+            try {
+                const stored = localStorage.getItem(STUDENTS_STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    students = parsed.map(data => {
+                        const student = new Student(data.id, data.name);
+                        student.scores = data.scores || [];
+                        return student;
+                    });
+                }
+            } catch (e) {
+                console.error('加载学生数据失败:', e);
+                students = [];
+            }
+        }
+        
+        // 加载记录从本地存储
+        function loadRecords() {
+            try {
+                const stored = localStorage.getItem(RECORDS_STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    records = parsed.map(data => ({
+                        ...data,
+                        time: new Date(data.time)
+                    }));
+                }
+            } catch (e) {
+                console.error('加载记录数据失败:', e);
+                records = [];
+            }
+        }
+        
+        // 初始化
+        function init() {
+            // 加载数据
+            loadStudents();
+            loadRecords();
+            
+            // 渲染UI
+            renderStudentsList();
+            renderHistory();
+            updateSummary();
+            
+            // 绑定事件监听器
+            addStudentBtn.addEventListener('click', addStudent);
+            
+            studentNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addStudent();
+                }
+            });
+            
+            goodBtn.addEventListener('click', () => {
+                recordPerformance(3, '积极参与');
+            });
+            
+            averageBtn.addEventListener('click', () => {
+                recordPerformance(2, '一般表现');
+            });
+            
+            poorBtn.addEventListener('click', () => {
+                recordPerformance(1, '需要改进');
+            });
+            
+            clearHistoryBtn.addEventListener('click', clearHistory);
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
