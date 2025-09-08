@@ -13,111 +13,202 @@
             padding: 0 1.5rem;
         }
         
-        .instructions {
-            background: rgba(227, 242, 253, 0.8);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-top: 2.5rem;
-            text-align: left;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(179, 219, 255, 0.5);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        /* 工具卡片容器 */
+        .tools-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.2rem;
+            margin: 2.5rem 0;
         }
         
-        .instructions h3 {
+        /* 工具卡片 */
+        .tool-card {
+            background: white;
+            border-radius: 18px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transform: translateY(0);
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 18px 18px 0 0;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tool-card h2 {
             color: #182848;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
+            margin-bottom: 1.3rem;
+            font-size: 1.9rem;
             font-weight: 700;
         }
         
-        .instructions ol {
-            padding-left: 2rem;
-        }
-        
-        .instructions li {
-            margin-bottom: 0.8rem;
+        .tool-card p {
+            color: #555;
+            margin-bottom: 1.8rem;
             line-height: 1.7;
-            font-size: 1.1rem;
-            color: #444;
+            font-size: 1.15rem;
         }
         
-        .instructions strong {
-            color: #4b6cb7;
+        .tool-card button {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 1.1rem 2.3rem;
+            font-size: 1.15rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             font-weight: 600;
+            box-shadow: 0 5px 18px rgba(75, 108, 183, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(75, 108, 183, 0.6);
+        }
+        
+        .tool-card button:active {
+            transform: scale(0.95);
         }
         
         /* 工具卡片图标 */
         .tool-icon {
-            font-size: 3rem;
-            margin-bottom: 1.2rem;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
             color: #4b6cb7;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .tool-card:hover .tool-icon {
+            transform: scale(1.2) rotate(5deg);
         }
         
         /* 学生管理区域 */
-        .student-management {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            margin: 2.5rem 0;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            display: none; /* 默认隐藏 */
+        .student-management-container {
+            transition: all 0.4s ease;
         }
         
-        .student-management.visible {
-            display: block;
+        .student-management-container.hidden {
+            display: none;
+        }
+        
+        .student-management {
+            background: white;
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin: 2.5rem 0;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: visible;
+        }
+        
+        .student-management::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            border-radius: 18px 18px 0 0;
+        }
+        
+        .student-management.hidden {
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+            max-height: 0;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none;
+            overflow: hidden;
+            display: none;
         }
         
         .student-management h2 {
             color: #182848;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
+            margin-bottom: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             text-align: center;
         }
         
         .student-input-section {
-            margin-bottom: 2rem;
+            margin-bottom: 2.2rem;
         }
         
         .input-group {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
             flex-wrap: wrap;
         }
         
         .input-group input {
             flex: 1;
             min-width: 150px;
-            padding: 0.8rem;
+            padding: 1rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .input-group input:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+            outline: none;
         }
         
         .btn {
             background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
-            box-shadow: 0 4px 10px rgba(75, 108, 183, 0.3);
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+            position: relative;
+            overflow: hidden;
         }
         
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(75, 108, 183, 0.5);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
         }
         
         .btn:disabled {
-            background: #cccccc;
+            background: linear-gradient(135deg, #cccccc, #999999);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
@@ -138,77 +229,135 @@
         .btn.toggle-students {
             background: linear-gradient(135deg, #2196F3, #21CBF3);
             display: block;
-            margin: 1.5rem auto;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
+            margin: 1.8rem auto;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
         }
         
         .btn.feedback {
             background: linear-gradient(135deg, #FF9800, #FFC107);
             display: block;
-            margin: 1rem auto;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
+            margin: 1.2rem auto;
+            padding: 1.1rem 2.2rem;
+            font-size: 1.15rem;
         }
         
         .batch-import {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #e3f2fd;
-            border-radius: 8px;
+            margin: 1.3rem 0;
+            padding: 1.3rem;
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
         }
         
         .batch-import h3 {
             color: #182848;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
         
         .batch-import textarea {
             width: 100%;
-            min-height: 100px;
-            padding: 0.8rem;
+            min-height: 120px;
+            padding: 1rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             font-family: monospace;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .batch-import textarea:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+            outline: none;
         }
         
         .file-import {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #e3f2fd;
-            border-radius: 8px;
+            margin: 1.3rem 0;
+            padding: 1.3rem;
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
         }
         
         .file-import h3 {
             color: #182848;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
         
         .file-import input {
             width: 100%;
-            margin-bottom: 1rem;
-            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            padding: 1rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .file-import input:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+            outline: none;
         }
         
         .student-list-container {
-            max-height: 300px;
+            max-height: 320px;
             overflow-y: auto;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1rem;
-            background: #f8f9fa;
-            margin-top: 1rem;
+            border-radius: 12px;
+            padding: 1.2rem;
+            background: rgba(248, 249, 250, 0.9);
+            margin-top: 1.5rem;
+            backdrop-filter: blur(5px);
+            /* 确保滚动条始终可用 */
+            -webkit-overflow-scrolling: touch;
+            /* 确保在所有设备上都能正常滚动 */
+            scrollbar-width: thin;
+            scrollbar-color: #4b6cb7 rgba(248, 249, 250, 0.9);
+        }
+        
+        /* 自定义滚动条样式（WebKit浏览器） */
+        .student-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .student-list-container::-webkit-scrollbar-track {
+            background: rgba(248, 249, 250, 0.9);
+            border-radius: 4px;
+        }
+        
+        .student-list-container::-webkit-scrollbar-thumb {
+            background: #4b6cb7;
+            border-radius: 4px;
+        }
+        
+        .student-list-container::-webkit-scrollbar-thumb:hover {
+            background: #3a5795;
         }
         
         .student-item {
-            padding: 0.8rem;
+            padding: 1rem;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            animation: slideIn 0.3s ease;
+            transition: all 0.2s ease;
+        }
+        
+        .student-item:hover {
+            background: rgba(227, 242, 253, 0.6);
+            border-radius: 8px;
         }
         
         .student-item:last-child {
@@ -228,151 +377,87 @@
             background: #ff416c;
             color: white;
             border: none;
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .remove-student:hover {
+            background: #ff1a4f;
+            transform: scale(1.1);
         }
         
         .student-summary {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin-top: 1.5rem;
+            gap: 2.2rem;
+            margin-top: 1.8rem;
             flex-wrap: wrap;
         }
         
         .summary-card {
-            background: #e3f2fd;
-            border-radius: 12px;
-            padding: 1.5rem;
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 14px;
+            padding: 1.7rem;
             text-align: center;
-            min-width: 150px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
         
         .summary-value {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
             color: #182848;
         }
         
         .summary-label {
-            font-size: 1rem;
-            color: #555;
-        }
-        
-        /* 反馈模态框 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .modal-title {
-            font-size: 1.5rem;
-            color: #182848;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-        }
-        
-        .close-modal:hover {
-            color: #ff416c;
-        }
-        
-        .feedback-form {
-            margin-bottom: 1rem;
-        }
-        
-        .feedback-form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        
-        .feedback-form input,
-        .feedback-form textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .feedback-form textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-        
-        .btn.submit-feedback {
-            background: linear-gradient(135deg, #4CAF50, #8BC34A);
-            display: block;
-            margin: 1rem auto;
-            padding: 1rem 2rem;
             font-size: 1.1rem;
+            color: #555;
+            margin-top: 0.5rem;
         }
         
-        /* 响应式优化 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 1rem;
-            }
-            
-            .instructions {
-                padding: 1.5rem;
-            }
-            
-            .instructions h3 {
-                font-size: 1.5rem;
-            }
-            
-            .instructions li {
-                font-size: 1rem;
-            }
-            
-            .student-management {
-                padding: 1.5rem;
-            }
-            
-            .input-group {
-                flex-direction: column;
-            }
-            
-            .student-summary {
-                flex-direction: column;
-                gap: 1rem;
-            }
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 18px;
+            padding: 2.2rem;
+            margin-top: 2.8rem;
+            text-align: left;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.8rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .instructions ol {
+            padding-left: 2.2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+            font-size: 1.2rem;
+            color: #444;
+        }
+        
+        .instructions strong {
+            color: #4b6cb7;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -432,8 +517,9 @@
         <button id="toggleStudentsBtn" class="btn toggle-students">管理学生信息</button>
         
         <!-- 学生管理区域 -->
-        <div class="student-management" id="studentManagement">
-            <h2>学生管理</h2>
+        <div class="student-management-container">
+            <div class="student-management" id="studentManagement">
+                <h2>学生管理</h2>
             
             <div class="student-input-section">
                 <div class="input-group">
@@ -452,10 +538,10 @@
                 </div>
                 
                 <div class="file-import">
-                    <h3>文件导入（支持CSV、TXT、Excel格式）</h3>
-                    <input type="file" id="fileInput" accept=".csv,.txt,.xlsx,.xls">
+                    <h3>文件导入（支持CSV、TXT格式）</h3>
+                    <input type="file" id="fileInput" accept=".csv,.txt">
                     <button id="importFileBtn" class="btn import">导入文件</button>
-                    <div id="fileInfo" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></div>
+                    <div id="fileInfo" style="margin-top: 0.8rem; font-size: 1rem; color: #666;"></div>
                 </div>
                 
                 <button id="clearStudentsBtn" class="btn clear">清空学生列表</button>
@@ -478,35 +564,10 @@
                 </div>
             </div>
         </div>
+    </div>
         
         <!-- 反馈建议按钮 -->
         <button id="feedbackBtn" class="btn feedback">反馈建议</button>
-    </div>
-    
-    <!-- 反馈模态框 -->
-    <div class="modal" id="feedbackModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">反馈建议</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            
-            <div class="feedback-form">
-                <label for="feedbackName">您的姓名:</label>
-                <input type="text" id="feedbackName" placeholder="请输入您的姓名">
-                
-                <label for="feedbackEmail">您的邮箱:</label>
-                <input type="email" id="feedbackEmail" placeholder="请输入您的邮箱">
-                
-                <label for="feedbackSubject">主题:</label>
-                <input type="text" id="feedbackSubject" placeholder="请输入反馈主题">
-                
-                <label for="feedbackMessage">反馈内容:</label>
-                <textarea id="feedbackMessage" placeholder="请输入您的建议或意见..."></textarea>
-                
-                <button id="submitFeedbackBtn" class="btn submit-feedback">提交反馈</button>
-            </div>
-        </div>
     </div>
     
     <div class="container">
@@ -533,6 +594,7 @@
         // 获取DOM元素
         const toggleStudentsBtn = document.getElementById('toggleStudentsBtn');
         const studentManagement = document.getElementById('studentManagement');
+        const studentManagementContainer = studentManagement.parentElement;
         const studentId = document.getElementById('studentId');
         const studentName = document.getElementById('studentName');
         const addStudentBtn = document.getElementById('addStudentBtn');
@@ -546,15 +608,36 @@
         const totalGroupsEl = document.getElementById('totalGroups');
         const fileInfo = document.getElementById('fileInfo');
         const feedbackBtn = document.getElementById('feedbackBtn');
-        const feedbackModal = document.getElementById('feedbackModal');
-        const closeModal = document.querySelector('.close-modal');
-        const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
         
         // 切换学生管理界面显示/隐藏
-        function toggleStudentManagement() {
-            studentManagement.classList.toggle('visible');
-            toggleStudentsBtn.textContent = studentManagement.classList.contains('visible') ? 
-                '隐藏学生管理' : '管理学生信息';
+        function toggleStudentManagement(event) {
+            const isHidden = studentManagementContainer.classList.contains('hidden');
+            
+            if (isHidden) {
+                // 显示学生管理区域
+                studentManagementContainer.classList.remove('hidden');
+                toggleStudentsBtn.textContent = '隐藏学生管理';
+                
+                // 重新渲染学生列表以确保滚动功能正常
+                renderStudentList();
+            } else {
+                // 隐藏学生管理区域
+                studentManagementContainer.classList.add('hidden');
+                toggleStudentsBtn.textContent = '管理学生信息';
+            }
+            
+            // 阻止事件冒泡
+            if (event && event.stopPropagation) {
+                event.stopPropagation();
+            }
+        }
+        
+        // 简化版自定义弹窗函数，使用系统alert替代
+        function showCustomModal(title, message, callback) {
+            alert(`${title}\n\n${message}`);
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         }
         
         // 添加学生
@@ -563,9 +646,13 @@
             const name = studentName.value.trim();
             
             if (!name) {
-                alert('请输入学生姓名');
+                showCustomModal('提示', '请输入学生姓名');
                 return;
             }
+            
+            // 禁用添加按钮，防止重复点击
+            addStudentBtn.disabled = true;
+            addStudentBtn.textContent = '添加中...';
             
             // 使用StudentManager来处理学生输入
             const student = { id, name };
@@ -575,8 +662,14 @@
                 studentId.value = '';
                 studentName.value = '';
                 studentName.focus();
+                // 恢复按钮状态
+                addStudentBtn.disabled = false;
+                addStudentBtn.textContent = '添加学生';
             } else {
-                alert('学生已存在（学号或姓名重复）');
+                showCustomModal('提示', '学生已存在（学号或姓名重复）');
+                // 恢复按钮状态
+                addStudentBtn.disabled = false;
+                addStudentBtn.textContent = '添加学生';
             }
         }
         
@@ -584,14 +677,21 @@
         function importStudents() {
             const csvText = csvInput.value.trim();
             if (csvText === '') {
-                alert('请输入CSV数据');
+                showCustomModal('提示', '请输入CSV数据');
                 return;
             }
+            
+            // 禁用导入按钮，防止重复点击
+            importBtn.disabled = true;
+            importBtn.textContent = '导入中...';
             
             try {
                 const students = StudentManager.parseCSV(csvText);
                 if (students.length === 0) {
-                    alert('未解析到有效学生数据');
+                    showCustomModal('提示', '未解析到有效学生数据');
+                    // 恢复按钮状态
+                    importBtn.disabled = false;
+                    importBtn.textContent = '导入CSV';
                     return;
                 }
                 
@@ -599,9 +699,13 @@
                 renderStudentList();
                 updateSummary();
                 csvInput.value = '';
-                alert(`成功导入 ${addedCount} 名学生`);
+                showCustomModal('成功', `成功导入 ${addedCount} 名学生`);
             } catch (e) {
-                alert('导入失败：' + e.message);
+                showCustomModal('错误', '导入失败：' + e.message);
+            } finally {
+                // 恢复按钮状态
+                importBtn.disabled = false;
+                importBtn.textContent = '导入CSV';
             }
         }
         
@@ -609,12 +713,24 @@
         function importFromFile() {
             const file = fileInput.files[0];
             if (!file) {
-                alert('请选择一个文件');
+                showCustomModal('提示', '请选择一个文件');
+                return;
+            }
+            
+            // 检查文件格式，只允许CSV和TXT格式
+            if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
+                showCustomModal('错误', '文件格式不支持，请使用CSV或TXT格式的文件');
+                fileInput.value = ''; // 清空文件选择
+                fileInfo.textContent = '';
                 return;
             }
             
             // 显示文件信息
             fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(1)} KB | 类型: ${file.type || '未知'}`;
+            
+            // 禁用导入按钮，防止重复点击
+            importFileBtn.disabled = true;
+            importFileBtn.textContent = '导入中...';
             
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -622,27 +738,14 @@
                     const content = e.target.result;
                     let students = [];
                     
-                    // 根据文件类型处理
-                    if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
-                        students = StudentManager.parseCSV(content);
-                    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                        // 对于Excel文件，这里简化处理
-                        // 实际项目中需要使用xlsx库，这里提供一个友好的提示
-                        alert('Excel文件需要使用专门的库处理。为了演示，我们将尝试将其作为CSV处理。如果失败，请将Excel文件另存为CSV格式再导入。');
-                        try {
-                            students = StudentManager.parseCSV(content);
-                        } catch (excelError) {
-                            // 如果CSV解析失败，尝试其他方式
-                            alert('Excel文件解析失败。请将Excel文件另存为CSV格式再导入。');
-                            return;
-                        }
-                    } else {
-                        alert('不支持的文件格式，请使用CSV、TXT或Excel格式');
-                        return;
-                    }
+                    // 根据文件类型处理（只处理CSV和TXT）
+                    students = StudentManager.parseCSV(content);
                     
                     if (students.length === 0) {
-                        alert('未解析到有效学生数据');
+                        showCustomModal('提示', '未解析到有效学生数据');
+                        // 恢复按钮状态
+                        importFileBtn.disabled = false;
+                        importFileBtn.textContent = '导入文件';
                         return;
                     }
                     
@@ -651,36 +754,64 @@
                     updateSummary();
                     fileInput.value = '';
                     fileInfo.textContent = '';
-                    alert(`成功导入 ${addedCount} 名学生`);
+                    showCustomModal('成功', `成功导入 ${addedCount} 名学生`);
                 } catch (e) {
-                    alert('导入失败：' + e.message);
+                    showCustomModal('错误', '导入失败：' + e.message);
+                } finally {
+                    // 恢复按钮状态
+                    importFileBtn.disabled = false;
+                    importFileBtn.textContent = '导入文件';
                 }
             };
             
             // 读取文件内容
-            if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
-                reader.readAsText(file, 'UTF-8');
-            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                // Excel文件尝试以文本方式读取
-                reader.readAsText(file, 'UTF-8');
-            } else {
-                alert('不支持的文件格式，请使用CSV、TXT或Excel格式');
-            }
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        // HTML转义函数，防止XSS攻击
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
         
         // 删除学生
         function removeStudent(index) {
-            StudentManager.removeStudent(index);
-            renderStudentList();
-            updateSummary();
+            showCustomModal('确认删除', '确定要删除这个学生吗？', function() {
+                StudentManager.removeStudent(index);
+                renderStudentList();
+                updateSummary();
+            });
         }
         
         // 清空学生列表
         function clearStudents() {
-            if (confirm('确定要清空所有学生吗？')) {
+            showCustomModal('确认清空', '确定要清空所有学生吗？', function() {
                 StudentManager.clearStudents();
                 renderStudentList();
                 updateSummary();
+            });
+        }
+        
+        // 为课堂表现记录器选择学生
+        function selectStudentForTracker(index) {
+            const students = StudentManager.getStudents();
+            if (index >= 0 && index < students.length) {
+                const student = students[index];
+                // 保存选中的学生到localStorage
+                try {
+                    localStorage.setItem('classroom_tracker_current_student', JSON.stringify(student));
+                    // 跳转回课堂表现记录器
+                    window.location.href = 'classroom-tracker.html';
+                } catch (e) {
+                    console.error('保存学生数据失败:', e);
+                    showCustomModal('错误', '选择学生失败，请重试');
+                }
             }
         }
         
@@ -688,6 +819,13 @@
         function renderStudentList() {
             const students = StudentManager.getStudents();
             studentList.innerHTML = '';
+            
+            // 检查是否是从其他工具跳转过来的
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromTracker = urlParams.get('from') === 'tracker';
+            const fromRollCall = urlParams.get('from') === 'rollcall';
+            const fromGrouping = urlParams.get('from') === 'grouping';
+            const fromOtherTool = fromTracker || fromRollCall || fromGrouping;
             
             if (students.length === 0) {
                 studentList.innerHTML = '<div class="empty-list">暂无学生，请添加学生</div>';
@@ -698,14 +836,41 @@
                 const studentItem = document.createElement('div');
                 studentItem.className = 'student-item';
                 
-                const studentInfo = student.id ? 
-                    `<span class="student-info"><span class="student-id">${student.id}</span> - ${student.name}</span>` : 
-                    `<span class="student-info">${student.name}</span>`;
+                // 转义学生信息以防止XSS攻击
+                const escapedId = student.id ? escapeHtml(student.id) : '';
+                const escapedName = escapeHtml(student.name);
                 
-                studentItem.innerHTML = `
-                    ${studentInfo}
-                    <button class="remove-student" onclick="removeStudent(${index})">删除</button>
-                `;
+                // 如果是从其他工具跳转过来的，添加相应的按钮
+                if (fromOtherTool) {
+                    const studentInfo = student.id ? 
+                        `<span class="student-info"><span class="student-id">${escapedId}</span> - ${escapedName}</span>` : 
+                        `<span class="student-info">${escapedName}</span>`;
+                    
+                    // 根据来源工具显示不同的按钮
+                    if (fromTracker) {
+                        studentItem.innerHTML = `
+                            ${studentInfo}
+                            <button class="btn" onclick="selectStudentForTracker(${index})" style="padding: 0.5rem 1rem; font-size: 0.9rem;">选择</button>
+                            <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                        `;
+                    } else {
+                        // 对于随机点名器和小组分组器，只需要显示学生信息和删除按钮
+                        studentItem.innerHTML = `
+                            ${studentInfo}
+                            <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                        `;
+                    }
+                } else {
+                    const studentInfo = student.id ? 
+                        `<span class="student-info"><span class="student-id">${escapedId}</span> - ${escapedName}</span>` : 
+                        `<span class="student-info">${escapedName}</span>`;
+                    
+                    studentItem.innerHTML = `
+                        ${studentInfo}
+                        <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                    `;
+                }
+                
                 studentList.appendChild(studentItem);
             });
         }
@@ -720,57 +885,40 @@
             totalGroupsEl.textContent = suggestedGroups;
         }
         
-        // 显示反馈模态框
-        function showFeedbackModal() {
-            feedbackModal.style.display = 'flex';
-        }
-        
-        // 隐藏反馈模态框
-        function hideFeedbackModal() {
-            feedbackModal.style.display = 'none';
-        }
-        
-        // 提交反馈
-        function submitFeedback() {
-            const name = document.getElementById('feedbackName').value.trim();
-            const email = document.getElementById('feedbackEmail').value.trim();
-            const subject = document.getElementById('feedbackSubject').value.trim();
-            const message = document.getElementById('feedbackMessage').value.trim();
-            
-            if (!name || !email || !subject || !message) {
-                alert('请填写所有必填字段');
-                return;
-            }
-            
-            // 更宽松的邮箱验证（支持更多格式，包括a13662282499@163.com这样的格式）
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('请输入有效的邮箱地址');
-                return;
-            }
-            
-            // 构造mailto链接
-            const mailtoLink = `mailto:crisweiming@hotmail.com?subject=${encodeURIComponent('【教师工具箱反馈】' + subject)}&body=${encodeURIComponent(`反馈者: ${name}\n邮箱: ${email}\n\n反馈内容:\n${message}\n\n--------\n此邮件来自教师工具箱反馈系统`)}`;
-            
-            // 尝试打开邮件客户端
-            try {
-                window.open(mailtoLink, '_blank');
-                alert('感谢您的反馈！邮件客户端已打开，请发送邮件。\n如果未自动打开邮件客户端，请手动发送邮件至: crisweiming@hotmail.com');
-                hideFeedbackModal();
-                
-                // 清空表单
-                document.getElementById('feedbackName').value = '';
-                document.getElementById('feedbackEmail').value = '';
-                document.getElementById('feedbackSubject').value = '';
-                document.getElementById('feedbackMessage').value = '';
-            } catch (e) {
-                alert('无法自动打开邮件客户端，请手动发送邮件至: crisweiming@hotmail.com\n\n邮件主题: 【教师工具箱反馈】' + subject + '\n\n邮件内容:\n反馈者: ' + name + '\n邮箱: ' + email + '\n\n反馈内容:\n' + message);
-                hideFeedbackModal();
-            }
+        // 显示邮件提示
+        function showEmailPrompt() {
+            alert('请发送邮件至：crisweiming@hotmail.com\n\n我们非常期待您的宝贵意见！');
+            // 滚动到页面顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // 导航到其他页面
         function navigateTo(page) {
+            // 检查是否是从课堂表现记录器、随机点名器或小组分组器跳转过来的
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromTracker = urlParams.get('from') === 'tracker';
+            const fromRollCall = urlParams.get('from') === 'rollcall';
+            const fromGrouping = urlParams.get('from') === 'grouping';
+            
+            if (fromTracker || fromRollCall || fromGrouping) {
+                // 如果是从其他工具跳转过来的，需要特殊处理
+                let message = '请在下方学生列表中添加或选择学生';
+                if (fromTracker) {
+                    message = '请在下方学生列表中选择要记录表现的学生';
+                } else if (fromRollCall) {
+                    message = '请在下方学生列表中添加学生，然后返回随机点名器';
+                } else if (fromGrouping) {
+                    message = '请在下方学生列表中添加学生，然后返回小组分组器';
+                }
+                
+                alert(message);
+                // 显示学生管理区域
+                if (studentManagementContainer.classList.contains('hidden')) {
+                    toggleStudentManagement();
+                }
+                return;
+            }
+            
             window.location.href = page;
         }
         
@@ -783,19 +931,65 @@
             renderStudentList();
             updateSummary();
             
+            // 检查是否是从其他工具跳转过来的
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromTracker = urlParams.get('from') === 'tracker';
+            const fromRollCall = urlParams.get('from') === 'rollcall';
+            const fromGrouping = urlParams.get('from') === 'grouping';
+            const fromOtherTool = fromTracker || fromRollCall || fromGrouping;
+            
+            if (fromOtherTool) {
+                // 如果是从其他工具跳转过来的，显示学生管理区域
+                if (studentManagementContainer.classList.contains('hidden')) {
+                    toggleStudentManagement();
+                }
+                
+                // 显示提示信息
+                let message = '请在下方学生列表中添加或选择学生';
+                if (fromTracker) {
+                    message = '请在下方学生列表中选择要记录表现的学生';
+                } else if (fromRollCall) {
+                    message = '请在下方学生列表中添加学生，然后返回随机点名器';
+                } else if (fromGrouping) {
+                    message = '请在下方学生列表中添加学生，然后返回小组分组器';
+                }
+                
+                showCustomModal('提示', message);
+            }
+            
             // 绑定事件监听器
             toggleStudentsBtn.addEventListener('click', toggleStudentManagement);
-            addStudentBtn.addEventListener('click', addStudent);
+            addStudentBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                addStudent();
+            });
             
             studentName.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     addStudent();
+                    e.stopPropagation();
                 }
             });
             
-            importBtn.addEventListener('click', importStudents);
-            importFileBtn.addEventListener('click', importFromFile);
-            clearStudentsBtn.addEventListener('click', clearStudents);
+            importBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                importStudents();
+            });
+            
+            importFileBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                importFromFile();
+            });
+            
+            clearStudentsBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                clearStudents();
+            });
+            
+            feedbackBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                showEmailPrompt();
+            });
             
             // 文件选择变化时显示文件信息
             fileInput.addEventListener('change', function() {
@@ -804,18 +998,6 @@
                     fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(1)} KB | 类型: ${file.type || '未知'}`;
                 } else {
                     fileInfo.textContent = '';
-                }
-            });
-            
-            // 反馈模态框事件
-            feedbackBtn.addEventListener('click', showFeedbackModal);
-            closeModal.addEventListener('click', hideFeedbackModal);
-            submitFeedbackBtn.addEventListener('click', submitFeedback);
-            
-            // 点击模态框外部关闭
-            window.addEventListener('click', (e) => {
-                if (e.target === feedbackModal) {
-                    hideFeedbackModal();
                 }
             });
         }

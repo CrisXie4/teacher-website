@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步测试</title>
+    <script src="student-manager.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        .btn:hover {
+            background: #3a5ca0;
+        }
+        .student-list {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .student-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* 自定义弹窗 */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .custom-modal.show {
+            opacity: 1;
+        }
+        
+        .custom-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .custom-modal.show .custom-modal-content {
+            transform: scale(1);
+        }
+        
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .custom-modal-title {
+            font-size: 1.4rem;
+            color: #182848;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .custom-modal-close:hover {
+            color: #ff416c;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-modal-body {
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            color: #444;
+            line-height: 1.6;
+        }
+        
+        .custom-modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        
+        .custom-modal-confirm {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+        }
+        
+        .custom-modal-confirm:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>数据同步测试</h1>
+        
+        <div>
+            <h2>添加测试学生</h2>
+            <input type="text" id="studentId" placeholder="学号（可选）" />
+            <input type="text" id="studentName" placeholder="学生姓名" />
+            <button class="btn" onclick="addTestStudent()">添加学生</button>
+        </div>
+        
+        <div>
+            <h2>学生列表</h2>
+            <button class="btn" onclick="loadAndDisplayStudents()">刷新列表</button>
+            <button class="btn" onclick="clearAllStudents()">清空所有学生</button>
+            <div class="student-list" id="studentList">
+                点击"刷新列表"加载学生数据
+            </div>
+        </div>
+        
+        <div>
+            <h2>导航</h2>
+            <button class="btn" onclick="window.location.href='index.html'">返回主页</button>
+            <button class="btn" onclick="window.location.href='classroom-tracker.html'">课堂表现记录器</button>
+        </div>
+    <!-- 自定义弹窗 -->
+    <div class="custom-modal" id="customModal">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title" id="customModalTitle">提示</h3>
+                <span class="custom-modal-close" id="customModalClose">&times;</span>
+            </div>
+            <div class="custom-modal-body" id="customModalBody">
+                这是提示内容
+            </div>
+            <div class="custom-modal-footer">
+                <button class="btn custom-modal-confirm" id="customModalConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 自定义弹窗元素
+        const customModal = document.getElementById('customModal');
+        const customModalTitle = document.getElementById('customModalTitle');
+        const customModalBody = document.getElementById('customModalBody');
+        const customModalClose = document.getElementById('customModalClose');
+        const customModalConfirm = document.getElementById('customModalConfirm');
+        
+        // 自定义弹窗函数
+        function showCustomModal(title, message, callback) {
+            customModalTitle.textContent = title;
+            customModalBody.textContent = message;
+            customModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // 确认按钮点击事件
+            const confirmHandler = function() {
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+                hideCustomModal();
+                customModalConfirm.removeEventListener('click', confirmHandler);
+                customModalClose.removeEventListener('click', closeHandler);
+                window.removeEventListener('click', outsideClickHandler);
+                document.removeEventListener('keydown', escapeHandler);
+            };
+            
+            // 关闭按钮点击事件
+            const closeHandler = function() {
+                hideCustomModal();
+                customModalConfirm.removeEventListener('click', confirmHandler);
+                customModalClose.removeEventListener('click', closeHandler);
+                window.removeEventListener('click', outsideClickHandler);
+                document.removeEventListener('keydown', escapeHandler);
+            };
+            
+            // 点击外部关闭事件
+            const outsideClickHandler = function(e) {
+                if (e.target === customModal) {
+                    hideCustomModal();
+                    customModalConfirm.removeEventListener('click', confirmHandler);
+                    customModalClose.removeEventListener('click', closeHandler);
+                    window.removeEventListener('click', outsideClickHandler);
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            
+            // ESC键关闭事件
+            const escapeHandler = function(e) {
+                if (e.key === 'Escape') {
+                    hideCustomModal();
+                    customModalConfirm.removeEventListener('click', confirmHandler);
+                    customModalClose.removeEventListener('click', closeHandler);
+                    window.removeEventListener('click', outsideClickHandler);
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            
+            // 绑定事件
+            customModalConfirm.addEventListener('click', confirmHandler);
+            customModalClose.addEventListener('click', closeHandler);
+            window.addEventListener('click', outsideClickHandler);
+            document.addEventListener('keydown', escapeHandler);
+        }
+        
+        // 隐藏自定义弹窗
+        function hideCustomModal() {
+            customModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 初始化学生管理器
+        StudentManager.init();
+        
+        // 添加测试学生
+        function addTestStudent() {
+            const id = document.getElementById('studentId').value.trim();
+            const name = document.getElementById('studentName').value.trim();
+            
+            if (!name) {
+                showCustomModal('提示', '请输入学生姓名');
+                return;
+            }
+            
+            const student = { id, name };
+            if (StudentManager.addStudent(student)) {
+                showCustomModal('成功', `成功添加学生: ${name}`, function() {
+                    document.getElementById('studentId').value = '';
+                    document.getElementById('studentName').value = '';
+                    loadAndDisplayStudents();
+                });
+            } else {
+                showCustomModal('提示', '学生已存在');
+            }
+        }
+        
+        // 加载并显示学生列表
+        function loadAndDisplayStudents() {
+            const students = StudentManager.getStudents();
+            const listElement = document.getElementById('studentList');
+            
+            if (students.length === 0) {
+                listElement.innerHTML = '<div>暂无学生数据</div>';
+                return;
+            }
+            
+            listElement.innerHTML = '';
+            students.forEach((student, index) => {
+                const item = document.createElement('div');
+                item.className = 'student-item';
+                item.innerHTML = `
+                    <strong>${student.name}</strong>
+                    ${student.id ? `<br>学号: ${student.id}` : '<br>无学号'}
+                `;
+                listElement.appendChild(item);
+            });
+        }
+        
+        // 清空所有学生
+        function clearAllStudents() {
+            showCustomModal('确认清空', '确定要清空所有学生数据吗？', function() {
+                StudentManager.clearStudents();
+                loadAndDisplayStudents();
+                showCustomModal('成功', '已清空所有学生数据');
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            loadAndDisplayStudents();
+        };
+    </script>
+</body>
+</html>
