@@ -604,6 +604,10 @@
                     <span style="font-size: 2rem;">👎</span>
                     <span>需要改进 (1分)</span>
                 </button>
+                <button class="tracker-btn" id="deductBtn" style="background: linear-gradient(135deg, #f44336, #e91e63);">
+                    <span style="font-size: 2rem;">➖</span>
+                    <span>扣分 (-1分)</span>
+                </button>
             </div>
             
             <button id="selectStudentBtn" class="btn manage-students">选择学生</button>
@@ -625,6 +629,7 @@
                 <li><strong>准备工作</strong> - 请先在主页添加学生信息</li>
                 <li><strong>选择学生</strong> - 点击"选择学生"按钮在弹窗中选择要记录表现的学生</li>
                 <li><strong>记录表现</strong> - 在右侧点击相应的按钮记录学生表现（积极参与3分、一般表现2分、需要改进1分）</li>
+                <li><strong>扣分功能</strong> - 点击"扣分"按钮扣除学生1分</li>
                 <li><strong>查看统计</strong> - 系统会自动计算学生的平均评分</li>
                 <li><strong>历史记录</strong> - 查看详细的记录历史，了解学生的课堂表现</li>
                 <li><strong>添加学生</strong> - 在学生选择弹窗中点击"添加学生"按钮跳转到主页添加新学生</li>
@@ -684,6 +689,7 @@
         const goodBtn = document.getElementById('goodBtn');
         const averageBtn = document.getElementById('averageBtn');
         const poorBtn = document.getElementById('poorBtn');
+        const deductBtn = document.getElementById('deductBtn');
         const selectStudentBtn = document.getElementById('selectStudentBtn');
         const historyEntries = document.getElementById('historyEntries');
         const clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -832,7 +838,35 @@
             updateSummary();
             updateCurrentStudentScore(); // 更新当前学生平均分
             
-            showCustomModal('成功', `已记录 ${currentStudent.name} 的表现: ${actionText}`);
+            // 使用setTimeout确保UI更新完成后再显示模态框
+            setTimeout(() => {
+                showCustomModal('成功', `已记录 ${currentStudent.name} 的表现: ${actionText}`);
+            }, 100);
+        }
+        
+        // 扣分功能
+        function deductPoints() {
+            if (!currentStudent) {
+                showStudentSelectModal();
+                return;
+            }
+            
+            // 创建扣分记录（-1分）
+            const record = new Record(currentStudent.name, -1, '扣分');
+            records.unshift(record); // 添加到开头
+            
+            // 保存记录
+            saveRecords();
+            
+            // 更新UI
+            renderHistory();
+            updateSummary();
+            updateCurrentStudentScore(); // 更新当前学生平均分
+            
+            // 使用setTimeout确保UI更新完成后再显示模态框
+            setTimeout(() => {
+                showCustomModal('成功', `已扣除 ${currentStudent.name} 1分`);
+            }, 100);
         }
         
         // 渲染历史记录
@@ -874,6 +908,9 @@
         
         // 清空历史记录
         function clearHistory() {
+            // 先清理可能存在的旧事件
+            cleanupModalEvents();
+            
             showCustomModal('确认清空', '确定要清空所有记录吗？', function() {
                 records = [];
                 saveRecords();
@@ -953,7 +990,11 @@
             customModalTitle.textContent = title;
             customModalBody.textContent = message;
             customModal.classList.add('show');
+            customModal.style.display = 'flex';  // 确保模态框显示
             document.body.style.overflow = 'hidden';
+            
+            // 先移除之前可能绑定的事件监听器，防止重复绑定
+            cleanupModalEvents();
             
             // 简化的事件处理
             const handleConfirm = function() {
@@ -983,14 +1024,6 @@
                 }
             };
             
-            // 清理事件监听器的函数
-            function cleanupModalEvents() {
-                customModalConfirm.removeEventListener('click', handleConfirm);
-                customModalClose.removeEventListener('click', handleClose);
-                window.removeEventListener('click', handleOutsideClick);
-                document.removeEventListener('keydown', handleEscape);
-            }
-            
             // 绑定事件
             customModalConfirm.addEventListener('click', handleConfirm);
             customModalClose.addEventListener('click', handleClose);
@@ -998,28 +1031,116 @@
             document.addEventListener('keydown', handleEscape);
         }
         
+        // 清理事件监听器的函数
+        function cleanupModalEvents() {
+            const handleConfirm = function() {};
+            const handleClose = function() {};
+            const handleOutsideClick = function(e) {};
+            const handleEscape = function(e) {};
+            
+            customModalConfirm.removeEventListener('click', handleConfirm);
+            customModalClose.removeEventListener('click', handleClose);
+            window.removeEventListener('click', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
+        }
+        
         // 隐藏自定义弹窗
         function hideCustomModal() {
             customModal.classList.remove('show');
+            customModal.style.display = 'none';  // 确保模态框隐藏
             document.body.style.overflow = 'auto';
+            // 清理事件监听器
+            cleanupModalEvents();
         }
         
         // 显示学生选择模态框
         function showStudentSelectModal() {
+            console.log('尝试显示学生选择模态框');
+            
+            // 检查元素是否存在
+            if (!studentSelectModal) {
+                console.error('找不到学生选择模态框元素');
+                return;
+            }
+            
             // 加载学生列表
             loadStudentList();
+            
+            // 先清理可能存在的旧事件
+            cleanupSelectModalEvents();
+            
+            // 初始化学生选择模态框事件
+            initStudentSelectModal();
+            
+            // 显示模态框
             studentSelectModal.classList.add('show');
+            studentSelectModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            
+            console.log('学生选择模态框已显示');
         }
         
         // 隐藏学生选择模态框
         function hideStudentSelectModal() {
+            console.log('尝试隐藏学生选择模态框');
+            
+            // 检查元素是否存在
+            if (!studentSelectModal) {
+                console.error('找不到学生选择模态框元素');
+                return;
+            }
+            
+            // 隐藏模态框
             studentSelectModal.classList.remove('show');
+            studentSelectModal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            
+            console.log('学生选择模态框已隐藏');
+            
+            // 清理事件监听器
+            cleanupSelectModalEvents();
+        }
+        
+        // 加载学生列表
+        function loadStudentList() {
+            const students = loadStudents();
+            studentListContainer.innerHTML = '';
+            
+            if (students.length === 0) {
+                studentListContainer.innerHTML = '<div class="empty-list">暂无学生，请先在主页添加学生</div>';
+                return;
+            }
+            
+            students.forEach((student, index) => {
+                const studentItem = document.createElement('div');
+                studentItem.className = 'history-entry';
+                studentItem.style.cursor = 'pointer';
+                studentItem.style.marginBottom = '0.5rem';
+                
+                const studentInfo = student.id ? 
+                    `<span class="history-student">${student.id} - ${student.name}</span>` : 
+                    `<span class="history-student">${student.name}</span>`;
+                
+                studentItem.innerHTML = studentInfo;
+                
+                // 清理可能存在的旧事件监听器
+                const handleClick = () => {
+                    selectStudent(student);
+                    hideStudentSelectModal();
+                };
+                
+                // 添加点击事件选择学生
+                studentItem.addEventListener('click', handleClick);
+                
+                studentListContainer.appendChild(studentItem);
+            });
         }
         
         // 学生选择模态框事件处理
         function initStudentSelectModal() {
+            // 先清理可能存在的旧事件监听器
+            cleanupSelectModalEvents();
+            
             // 简化的事件处理
             const handleSelectClose = function() {
                 hideStudentSelectModal();
@@ -1038,17 +1159,21 @@
                 }
             };
             
-            // 清理事件监听器的函数
-            function cleanupSelectModalEvents() {
-                studentSelectModalClose.removeEventListener('click', handleSelectClose);
-                studentSelectModalConfirm.removeEventListener('click', handleSelectConfirm);
-                window.removeEventListener('click', handleSelectOutsideClick);
-            }
-            
             // 绑定事件
             studentSelectModalClose.addEventListener('click', handleSelectClose);
             studentSelectModalConfirm.addEventListener('click', handleSelectConfirm);
             window.addEventListener('click', handleSelectOutsideClick);
+        }
+        
+        // 清理学生选择模态框事件监听器的函数
+        function cleanupSelectModalEvents() {
+            const handleSelectClose = function() {};
+            const handleSelectConfirm = function() {};
+            const handleSelectOutsideClick = function(e) {};
+            
+            studentSelectModalClose.removeEventListener('click', handleSelectClose);
+            studentSelectModalConfirm.removeEventListener('click', handleSelectConfirm);
+            window.removeEventListener('click', handleSelectOutsideClick);
         }
         
         // 选择学生
@@ -1059,6 +1184,11 @@
                 student.name;
             saveCurrentStudent();
             updateCurrentStudentScore();
+            
+            // 使用setTimeout确保UI更新完成后再显示模态框
+            setTimeout(() => {
+                showCustomModal('成功', `已选择学生: ${student.name}`);
+            }, 100);
         }
         
         // 添加学生（跳转到主页）
@@ -1070,6 +1200,9 @@
         function goToStudentManagement() {
             showStudentSelectModal();
         }
+        
+        // 保存事件处理函数的引用，以便可以正确移除
+        let handleGoodBtn, handleAverageBtn, handlePoorBtn, handleDeductBtn, handleClearHistoryBtn, handleSelectStudentBtn, handleAddStudentFromTrackerBtn;
         
         // 初始化
         function init() {
@@ -1086,24 +1219,56 @@
             // 初始化模态框事件处理
             initStudentSelectModal();
             
-            // 绑定事件监听器
-            goodBtn.addEventListener('click', () => {
+            // 先移除可能已存在的事件监听器，防止重复绑定
+            if (handleGoodBtn) goodBtn.removeEventListener('click', handleGoodBtn);
+            if (handleAverageBtn) averageBtn.removeEventListener('click', handleAverageBtn);
+            if (handlePoorBtn) poorBtn.removeEventListener('click', handlePoorBtn);
+            if (handleDeductBtn) deductBtn.removeEventListener('click', handleDeductBtn);
+            if (handleClearHistoryBtn) clearHistoryBtn.removeEventListener('click', handleClearHistoryBtn);
+            if (handleSelectStudentBtn) selectStudentBtn.removeEventListener('click', handleSelectStudentBtn);
+            if (handleAddStudentFromTrackerBtn) addStudentFromTrackerBtn.removeEventListener('click', handleAddStudentFromTrackerBtn);
+            
+            // 定义事件处理函数并保存引用
+            handleGoodBtn = () => {
+                console.log('点击了积极参与按钮');
                 recordPerformance(3, '积极参与');
-            });
+            };
             
-            averageBtn.addEventListener('click', () => {
+            handleAverageBtn = () => {
+                console.log('点击了一般表现按钮');
                 recordPerformance(2, '一般表现');
-            });
+            };
             
-            poorBtn.addEventListener('click', () => {
+            handlePoorBtn = () => {
+                console.log('点击了需要改进按钮');
                 recordPerformance(1, '需要改进');
-            });
+            };
             
-            clearHistoryBtn.addEventListener('click', clearHistory);
-            selectStudentBtn.addEventListener('click', showStudentSelectModal);
+            handleDeductBtn = () => {
+                console.log('点击了扣分按钮');
+                deductPoints();
+            };
             
-            // 学生选择模态框事件监听器
-            addStudentFromTrackerBtn.addEventListener('click', addStudentFromTracker);
+            handleClearHistoryBtn = () => {
+                console.log('点击了清空历史按钮');
+                clearHistory();
+            };
+            
+            handleSelectStudentBtn = () => {
+                console.log('点击了选择学生按钮');
+                showStudentSelectModal();
+            };
+            
+            handleAddStudentFromTrackerBtn = addStudentFromTracker;
+            
+            // 绑定事件监听器
+            goodBtn.addEventListener('click', handleGoodBtn);
+            averageBtn.addEventListener('click', handleAverageBtn);
+            poorBtn.addEventListener('click', handlePoorBtn);
+            deductBtn.addEventListener('click', handleDeductBtn);
+            clearHistoryBtn.addEventListener('click', handleClearHistoryBtn);
+            selectStudentBtn.addEventListener('click', handleSelectStudentBtn);
+            addStudentFromTrackerBtn.addEventListener('click', handleAddStudentFromTrackerBtn);
         }
         
         // 页面加载完成后初始化
