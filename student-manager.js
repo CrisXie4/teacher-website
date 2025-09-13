@@ -181,7 +181,7 @@ const StudentManager = {
         
         // 跳过标题行（如果有）
         let startIndex = 0;
-        if (lines[0].includes('学号') || lines[0].includes('姓名')) {
+        if (lines[0].includes('学号') || lines[0].includes('姓名') || lines[0].includes('ID') || lines[0].includes('Name')) {
             startIndex = 1;
         }
         
@@ -212,5 +212,43 @@ const StudentManager = {
         }
         
         return students;
+    },
+    
+    // 从JSON文本解析学生数据
+    parseJSON: function(jsonText) {
+        try {
+            const data = JSON.parse(jsonText);
+            const students = [];
+            
+            // 支持两种JSON格式：
+            // 1. 数组格式：[{id: "001", name: "张三"}, {id: "002", name: "李四"}]
+            // 2. 对象格式：{"001": "张三", "002": "李四"}
+            
+            if (Array.isArray(data)) {
+                // 数组格式
+                data.forEach(item => {
+                    if (typeof item === 'object' && item.name) {
+                        students.push({
+                            id: item.id ? this.escapeHtml(item.id.toString().trim()) : '',
+                            name: this.escapeHtml(item.name.toString().trim())
+                        });
+                    }
+                });
+            } else if (typeof data === 'object' && data !== null) {
+                // 对象格式
+                Object.keys(data).forEach(key => {
+                    if (data[key]) {
+                        students.push({
+                            id: this.escapeHtml(key.toString().trim()),
+                            name: this.escapeHtml(data[key].toString().trim())
+                        });
+                    }
+                });
+            }
+            
+            return students;
+        } catch (e) {
+            throw new Error('JSON格式错误：' + e.message);
+        }
     }
 };

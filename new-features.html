@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新功能介绍 - 教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: #182848;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #555;
+            font-size: 1.2rem;
+        }
+        
+        .features-container {
+            background: white;
+            border-radius: 18px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature-item {
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: #f9f9f9;
+        }
+        
+        .feature-item h3 {
+            color: #182848;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .feature-item p {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .close-btn {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>教师工具箱</h1>
+        <p>专为教师设计的实用工具集合</p>
+    </header>
+    
+    <div class="container">
+        <div class="header">
+            <h1>新功能介绍</h1>
+            <p>我们为您带来了更多实用的功能</p>
+        </div>
+        
+        <div class="features-container">
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h3>临摹本生成器</h3>
+                    <p>支持生成中英文临摹本，可自定义字体、大小和样式，方便学生练习书写。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>计算题生成器</h3>
+                    <p>可自定义运算符和难度等级，生成符合教学需求的计算题，支持打印功能。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>黑夜模式</h3>
+                    <p>为保护您的眼睛，我们添加了黑夜模式，让您在低光环境下也能舒适使用。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>多语言支持</h3>
+                    <p>支持中文和英文两种语言，满足不同用户的使用需求。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>JSON格式导入</h3>
+                    <p>除了CSV和TXT格式，现在还支持JSON格式导入学生数据，更加灵活方便。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>教师节祝福</h3>
+                    <p>在教师节当天，系统会自动弹出祝福窗口，向您表达节日的问候。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>新用户引导</h3>
+                    <p>首次访问网站时，会显示引导信息，帮助您快速上手使用各项功能。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>界面优化</h3>
+                    <p>优化了UI色调和交互体验，让工具箱更加美观易用。</p>
+                </div>
+            </div>
+            
+            <button id="closeBtn" class="btn close-btn">关闭并返回主页</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
+    </footer>
+    
+    <script>
+        // 关闭按钮事件
+        document.getElementById('closeBtn').addEventListener('click', function() {
+            // 设置标记表示用户已经看过新功能介绍
+            localStorage.setItem('hasSeenNewFeatures', 'true');
+            // 返回主页
+            window.location.href = 'index.html';
+        });
+        
+        // 页面加载时检查是否应该显示新功能介绍
+        window.onload = function() {
+            const hasSeenNewFeatures = localStorage.getItem('hasSeenNewFeatures');
+            // 这里可以添加逻辑来判断是否需要显示新功能介绍
+            // 目前我们只是展示页面
+        };
+    </script>
+</body>
+</html>

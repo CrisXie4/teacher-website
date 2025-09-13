@@ -465,142 +465,385 @@
     <header>
         <h1>教师工具箱</h1>
         <p>专为教师设计的实用工具集合</p>
+        <div class="header-controls">
+            <button class="language-switcher" id="languageSwitcher">English</button>
+            <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
+            <button class="egg-button" id="eggButton" style="background: linear-gradient(135deg, #FFD700, #FFA500); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" onclick="triggerEasterEgg()">彩蛋</button>
+        </div>
     </header>
+    
+    <!-- 隐藏的彩蛋触发元素 -->
+    <div id="easterEggTrigger" style="position: fixed; bottom: 10px; right: 10px; width: 50px; height: 50px; cursor: pointer; z-index: 9999;"></div>
     
     <div class="container">
         <!-- 工具卡片 -->
         <div class="tools-container">
             <div class="tool-card" id="sound-detector-card">
                 <div class="tool-icon">🔊</div>
-                <h2>声音检测器</h2>
-                <p>实时检测环境声音强度，声音越高小球越高</p>
-                <button onclick="navigateTo('sound-detector.html')">立即使用</button>
+                <h2 data-lang="sound_detector_title">声音检测器</h2>
+                <p data-lang="sound_detector_desc">实时检测环境声音强度，声音越高小球越高</p>
+                <button onclick="navigateTo('sound-detector.html')" data-lang="use_now">立即使用</button>
             </div>
             
             <div class="tool-card" id="roll-call-card">
                 <div class="tool-icon">🎲</div>
-                <h2>随机点名器</h2>
-                <p>随机选择学生回答问题，增加课堂互动</p>
-                <button onclick="navigateTo('roll-call.html')">立即使用</button>
+                <h2 data-lang="roll_call_title">随机点名器</h2>
+                <p data-lang="roll_call_desc">随机选择学生回答问题，增加课堂互动</p>
+                <button onclick="navigateTo('roll-call.html')" data-lang="use_now">立即使用</button>
             </div>
             
             <div class="tool-card" id="timer-card">
                 <div class="tool-icon">⏱️</div>
-                <h2>课堂计时器</h2>
-                <p>管理课堂活动时间，提高教学效率</p>
-                <button onclick="navigateTo('timer.html')">立即使用</button>
+                <h2 data-lang="timer_title">课堂计时器</h2>
+                <p data-lang="timer_desc">管理课堂活动时间，提高教学效率</p>
+                <button onclick="navigateTo('timer.html')" data-lang="use_now">立即使用</button>
             </div>
             
             <div class="tool-card" id="grouping-card">
                 <div class="tool-icon">👥</div>
-                <h2>小组分组器</h2>
-                <p>随机分组学生，便于小组活动</p>
-                <button onclick="navigateTo('grouping.html')">立即使用</button>
+                <h2 data-lang="grouping_title">小组分组器</h2>
+                <p data-lang="grouping_desc">随机分组学生，便于小组活动</p>
+                <button onclick="navigateTo('grouping.html')" data-lang="use_now">立即使用</button>
             </div>
             
             <div class="tool-card" id="whiteboard-card">
                 <div class="tool-icon">✏️</div>
-                <h2>电子白板</h2>
-                <p>在线绘制和演示，支持多点触控</p>
-                <button onclick="navigateTo('whiteboard.html')">立即使用</button>
+                <h2 data-lang="whiteboard_title">电子白板</h2>
+                <p data-lang="whiteboard_desc">在线绘制和演示，支持多点触控</p>
+                <button onclick="navigateTo('whiteboard.html')" data-lang="use_now">立即使用</button>
             </div>
             
             <div class="tool-card" id="tracker-card">
                 <div class="tool-icon">📈</div>
-                <h2>课堂表现记录器</h2>
-                <p>记录学生课堂表现，提升教学效果</p>
-                <button onclick="navigateTo('classroom-tracker.html')">立即使用</button>
+                <h2 data-lang="tracker_title">课堂表现记录器</h2>
+                <p data-lang="tracker_desc">记录学生课堂表现，提升教学效果</p>
+                <button onclick="navigateTo('classroom-tracker.html')" data-lang="use_now">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="copybook-card">
+                <div class="tool-icon">✍️</div>
+                <h2 data-lang="copybook_title">临摹本生成器</h2>
+                <p data-lang="copybook_desc">生成中英文临摹本，支持自定义字体</p>
+                <button onclick="navigateTo('copybook-generator.html')" data-lang="use_now">立即使用</button>
+            </div>
+            
+            <div class="tool-card" id="math-card">
+                <div class="tool-icon">🔢</div>
+                <h2 data-lang="math_title">计算题生成器</h2>
+                <p data-lang="math_desc">生成自定义计算题，支持多种运算符</p>
+                <button onclick="navigateTo('math-generator.html')" data-lang="use_now">立即使用</button>
             </div>
             
             <div class="tool-card" id="donation-card">
                 <div class="tool-icon">❤️</div>
-                <h2>打赏支持</h2>
-                <p>如果您喜欢这些工具，欢迎打赏支持</p>
-                <button onclick="navigateTo('donation.html')">前往支持</button>
+                <h2 data-lang="donation_title">打赏支持</h2>
+                <p data-lang="donation_desc">如果您喜欢这些工具，欢迎打赏支持</p>
+                <button onclick="navigateTo('donation.html')" data-lang="support_now">前往支持</button>
             </div>
         </div>
         
         <!-- 切换学生管理按钮 -->
-        <button id="toggleStudentsBtn" class="btn toggle-students">管理学生信息</button>
+        <button id="toggleStudentsBtn" class="btn toggle-students" data-lang="manage_students">管理学生信息</button>
         
         <!-- 学生管理区域 -->
-        <div class="student-management-container">
+        <div class="student-management-container hidden">
             <div class="student-management" id="studentManagement">
-                <h2>学生管理</h2>
+                <h2 data-lang="student_management">学生管理</h2>
             
             <div class="student-input-section">
                 <div class="input-group">
-                    <input type="text" id="studentId" placeholder="学号（可选）">
-                    <input type="text" id="studentName" placeholder="学生姓名">
-                    <button id="addStudentBtn" class="btn add">添加学生</button>
+                    <input type="text" id="studentId" placeholder="学号（可选）" data-lang-placeholder="student_id_placeholder">
+                    <input type="text" id="studentName" placeholder="学生姓名" data-lang-placeholder="student_name_placeholder">
+                    <button id="addStudentBtn" class="btn add" data-lang="add_student">添加学生</button>
                 </div>
                 
                 <div class="batch-import">
-                    <h3>批量导入（CSV格式：学号,姓名）</h3>
+                    <h3 data-lang="batch_import_title">批量导入（CSV格式：学号,姓名）</h3>
                     <textarea id="csvInput" placeholder="例如：
 2021001,张三
 2021002,李四
-2021003,王五"></textarea>
-                    <button id="importBtn" class="btn import">导入CSV</button>
+2021003,王五" data-lang-placeholder="csv_example"></textarea>
+                    <button id="importBtn" class="btn import" data-lang="import_csv">导入CSV</button>
                 </div>
                 
                 <div class="file-import">
-                    <h3>文件导入（支持CSV、TXT格式）</h3>
-                    <input type="file" id="fileInput" accept=".csv,.txt">
-                    <button id="importFileBtn" class="btn import">导入文件</button>
+                    <h3 data-lang="file_import_title">文件导入（支持CSV、TXT、JSON格式）</h3>
+                    <input type="file" id="fileInput" accept=".csv,.txt,.json">
+                    <button id="importFileBtn" class="btn import" data-lang="import_file">导入文件</button>
                     <div id="fileInfo" style="margin-top: 0.8rem; font-size: 1rem; color: #666;"></div>
                 </div>
                 
-                <button id="clearStudentsBtn" class="btn clear">清空学生列表</button>
+                <button id="clearStudentsBtn" class="btn clear" data-lang="clear_students">清空学生列表</button>
             </div>
             
             <div class="student-list-container">
                 <div id="studentList">
-                    <div class="empty-list">暂无学生，请添加学生</div>
+                    <div class="empty-list" data-lang="no_students">暂无学生，请添加学生</div>
                 </div>
             </div>
             
             <div class="student-summary">
                 <div class="summary-card">
                     <div class="summary-value" id="totalStudents">0</div>
-                    <div class="summary-label">总学生数</div>
+                    <div class="summary-label" data-lang="total_students">总学生数</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-value" id="totalGroups">0</div>
-                    <div class="summary-label">建议分组数</div>
+                    <div class="summary-label" data-lang="suggested_groups">建议分组数</div>
                 </div>
             </div>
         </div>
     </div>
         
         <!-- 反馈建议按钮 -->
-        <button id="feedbackBtn" class="btn feedback">反馈建议</button>
+        <button id="feedbackBtn" class="btn feedback" data-lang="feedback">反馈建议</button>
         
-        <!-- 打赏支持按钮 -->
-        <button class="btn" onclick="navigateTo('donation.html')" style="background: linear-gradient(135deg, #FFD700, #FFA500); display: block; margin: 1.2rem auto; padding: 1.1rem 2.2rem; font-size: 1.15rem;">打赏支持</button>
+        
     </div>
     
     <div class="container">
         <div class="instructions">
-            <h3>使用说明</h3>
+            <h3 data-lang="instructions">使用说明</h3>
             <ol>
-                <li><strong>学生管理</strong> - 点击"管理学生信息"按钮显示学生管理界面，支持单个添加、批量导入和文件导入</li>
-                <li><strong>声音检测器</strong> - 实时检测环境声音强度，声音越高小球越高，可用于课堂活跃度监测</li>
-                <li><strong>随机点名器</strong> - 随机选择学生回答问题，增加课堂互动，支持导入学生名单</li>
-                <li><strong>课堂计时器</strong> - 管理课堂活动时间，提高教学效率，支持全屏模式和预设时间</li>
-                <li><strong>小组分组器</strong> - 随机分组学生，便于小组活动，支持自定义分组人数</li>
-                <li><strong>电子白板</strong> - 在线绘制和演示，支持多点触控、多种颜色和线条粗细调节</li>
-                <li><strong>课堂表现记录器</strong> - 记录学生课堂表现，帮助教师了解学生参与度</li>
-                <li><strong>反馈建议</strong> - 点击"反馈建议"按钮提交您的宝贵意见</li>
+                <li><strong data-lang="student_management_guide">学生管理</strong> - <span data-lang="student_management_desc">点击"管理学生信息"按钮显示学生管理界面，支持单个添加、批量导入和文件导入</span></li>
+                <li><strong data-lang="sound_detector_guide">声音检测器</strong> - <span data-lang="sound_detector_desc2">实时检测环境声音强度，声音越高小球越高，可用于课堂活跃度监测</span></li>
+                <li><strong data-lang="roll_call_guide">随机点名器</strong> - <span data-lang="roll_call_desc2">随机选择学生回答问题，增加课堂互动，支持导入学生名单</span></li>
+                <li><strong data-lang="timer_guide">课堂计时器</strong> - <span data-lang="timer_desc2">管理课堂活动时间，提高教学效率，支持全屏模式和预设时间</span></li>
+                <li><strong data-lang="grouping_guide">小组分组器</strong> - <span data-lang="grouping_desc2">随机分组学生，便于小组活动，支持自定义分组人数</span></li>
+                <li><strong data-lang="whiteboard_guide">电子白板</strong> - <span data-lang="whiteboard_desc2">在线绘制和演示，支持多点触控、多种颜色和线条粗细调节</span></li>
+                <li><strong data-lang="tracker_guide">课堂表现记录器</strong> - <span data-lang="tracker_desc2">记录学生课堂表现，帮助教师了解学生参与度</span></li>
+                <li><strong data-lang="feedback_guide">反馈建议</strong> - <span data-lang="feedback_desc">点击"反馈建议"按钮提交您的宝贵意见</span></li>
             </ol>
         </div>
     </div>
     
     <footer>
-        <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
+        <p data-lang="footer_text">&copy; 2025 教师工具箱 - 专为教师设计</p>
     </footer>
     
     <script>
+        // 页面加载时默认隐藏学生管理区域
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentManagementContainer = document.querySelector('.student-management-container');
+            if (studentManagementContainer) {
+                studentManagementContainer.classList.add('hidden');
+            }
+        });
+        
+        // 多语言支持
+        const languages = {
+            zh: {
+                sound_detector_title: "声音检测器",
+                sound_detector_desc: "实时检测环境声音强度，声音越高小球越高",
+                roll_call_title: "随机点名器",
+                roll_call_desc: "随机选择学生回答问题，增加课堂互动",
+                timer_title: "课堂计时器",
+                timer_desc: "管理课堂活动时间，提高教学效率",
+                grouping_title: "小组分组器",
+                grouping_desc: "随机分组学生，便于小组活动",
+                whiteboard_title: "电子白板",
+                whiteboard_desc: "在线绘制和演示，支持多点触控",
+                tracker_title: "课堂表现记录器",
+                tracker_desc: "记录学生课堂表现，提升教学效果",
+                copybook_title: "临摹本生成器",
+                copybook_desc: "生成中英文临摹本，支持自定义字体",
+                math_title: "计算题生成器",
+                math_desc: "生成自定义计算题，支持多种运算符",
+                donation_title: "打赏支持",
+                donation_desc: "如果您喜欢这些工具，欢迎打赏支持",
+                use_now: "立即使用",
+                support_now: "前往支持",
+                student_management: "学生管理",
+                student_id_placeholder: "学号（可选）",
+                student_name_placeholder: "学生姓名",
+                add_student: "添加学生",
+                batch_import_title: "批量导入（CSV格式：学号,姓名）",
+                csv_example: "例如：\n2021001,张三\n2021002,李四\n2021003,王五",
+                import_csv: "导入CSV",
+                file_import_title: "文件导入（支持CSV、TXT、JSON格式）",
+                import_file: "导入文件",
+                clear_students: "清空学生列表",
+                no_students: "暂无学生，请添加学生",
+                total_students: "总学生数",
+                suggested_groups: "建议分组数",
+                manage_students: "管理学生信息",
+                feedback: "反馈建议",
+                donation_support: "打赏支持",
+                instructions: "使用说明",
+                student_management_guide: "学生管理",
+                student_management_desc: "点击\"管理学生信息\"按钮显示学生管理界面，支持单个添加、批量导入和文件导入",
+                sound_detector_guide: "声音检测器",
+                sound_detector_desc2: "实时检测环境声音强度，声音越高小球越高，可用于课堂活跃度监测",
+                roll_call_guide: "随机点名器",
+                roll_call_desc2: "随机选择学生回答问题，增加课堂互动，支持导入学生名单",
+                timer_guide: "课堂计时器",
+                timer_desc2: "管理课堂活动时间，提高教学效率，支持全屏模式和预设时间",
+                grouping_guide: "小组分组器",
+                grouping_desc2: "随机分组学生，便于小组活动，支持自定义分组人数",
+                whiteboard_guide: "电子白板",
+                whiteboard_desc2: "在线绘制和演示，支持多点触控、多种颜色和线条粗细调节",
+                tracker_guide: "课堂表现记录器",
+                tracker_desc2: "记录学生课堂表现，帮助教师了解学生参与度",
+                feedback_guide: "反馈建议",
+                feedback_desc: "点击\"反馈建议\"按钮提交您的宝贵意见",
+                footer_text: "© 2025 教师工具箱 - 专为教师设计",
+                teachers_day_title: "教师节快乐！",
+                teachers_day_message: "祝您教师节快乐！感谢您对教育事业的无私奉献和辛勤付出。"
+            },
+            en: {
+                sound_detector_title: "Sound Detector",
+                sound_detector_desc: "Real-time detection of ambient sound intensity, the higher the sound, the higher the ball",
+                roll_call_title: "Random Roll Call",
+                roll_call_desc: "Randomly select students to answer questions, increase classroom interaction",
+                timer_title: "Classroom Timer",
+                timer_desc: "Manage classroom activity time, improve teaching efficiency",
+                grouping_title: "Group Generator",
+                grouping_desc: "Randomly group students for group activities",
+                whiteboard_title: "Digital Whiteboard",
+                whiteboard_desc: "Online drawing and presentation, supports multi-touch",
+                tracker_title: "Classroom Performance Tracker",
+                tracker_desc: "Record student classroom performance, improve teaching effectiveness",
+                copybook_title: "Copybook Generator",
+                copybook_desc: "Generate Chinese and English copybooks, support custom fonts",
+                math_title: "Math Problem Generator",
+                math_desc: "Generate customizable math problems, supports multiple operators",
+                donation_title: "Support Donation",
+                donation_desc: "If you like these tools, please consider supporting us",
+                use_now: "Use Now",
+                support_now: "Go to Support",
+                student_management: "Student Management",
+                student_id_placeholder: "Student ID (optional)",
+                student_name_placeholder: "Student Name",
+                add_student: "Add Student",
+                batch_import_title: "Batch Import (CSV format: ID,Name)",
+                csv_example: "Example:\n2021001,John\n2021002,Jane\n2021003,Bob",
+                import_csv: "Import CSV",
+                file_import_title: "File Import (supports CSV, TXT, JSON formats)",
+                import_file: "Import File",
+                clear_students: "Clear Student List",
+                no_students: "No students, please add students",
+                total_students: "Total Students",
+                suggested_groups: "Suggested Groups",
+                manage_students: "Manage Students",
+                feedback: "Feedback",
+                donation_support: "Support Donation",
+                instructions: "Instructions",
+                student_management_guide: "Student Management",
+                student_management_desc: "Click the \"Manage Students\" button to show the student management interface, supports single add, batch import and file import",
+                sound_detector_guide: "Sound Detector",
+                sound_detector_desc2: "Real-time detection of ambient sound intensity, the higher the sound, the higher the ball, can be used for classroom activity monitoring",
+                roll_call_guide: "Random Roll Call",
+                roll_call_desc2: "Randomly select students to answer questions, increase classroom interaction, supports importing student list",
+                timer_guide: "Classroom Timer",
+                timer_desc2: "Manage classroom activity time, improve teaching efficiency, supports fullscreen mode and preset time",
+                grouping_guide: "Group Generator",
+                grouping_desc2: "Randomly group students for group activities, supports custom group size",
+                whiteboard_guide: "Digital Whiteboard",
+                whiteboard_desc2: "Online drawing and presentation, supports multi-touch, multiple colors and line thickness adjustment",
+                tracker_guide: "Classroom Performance Tracker",
+                tracker_desc2: "Record student classroom performance, help teachers understand student participation",
+                feedback_guide: "Feedback",
+                feedback_desc: "Click the \"Feedback\" button to submit your valuable opinions",
+                footer_text: "© 2025 Teacher Toolkit - Designed for Teachers",
+                teachers_day_title: "Happy Teacher's Day!",
+                teachers_day_message: "Happy Teacher's Day! Thank you for your selfless dedication and hard work in education."
+            }
+        };
+
+        // 当前语言
+        let currentLanguage = 'zh';
+
+        // 切换语言
+        function switchLanguage() {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            applyLanguage();
+            // 保存语言设置到localStorage
+            localStorage.setItem('preferredLanguage', currentLanguage);
+        }
+
+        // 应用语言
+        function applyLanguage() {
+            // 更新语言切换按钮文本
+            const languageSwitcher = document.getElementById('languageSwitcher');
+            if (languageSwitcher) {
+                languageSwitcher.textContent = currentLanguage === 'zh' ? 'English' : '中文';
+            }
+            
+            // 更新所有带有data-lang属性的元素
+            const elements = document.querySelectorAll('[data-lang]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (languages[currentLanguage][key]) {
+                    element.textContent = languages[currentLanguage][key];
+                }
+            });
+            
+            // 更新带有data-lang-placeholder属性的元素
+            const placeholderElements = document.querySelectorAll('[data-lang-placeholder]');
+            placeholderElements.forEach(element => {
+                const key = element.getAttribute('data-lang-placeholder');
+                if (languages[currentLanguage][key]) {
+                    element.placeholder = languages[currentLanguage][key];
+                }
+            });
+        }
+
+        // 检查是否是教师节（9月10日）
+        function checkTeachersDay() {
+            const today = new Date();
+            const month = today.getMonth() + 1; // 月份从0开始，所以需要+1
+            const day = today.getDate();
+            
+            // 检查是否是9月10日
+            if (month === 9 && day === 10) {
+                // 检查是否已经显示过教师节祝福
+                const hasShownTeachersDay = localStorage.getItem('hasShownTeachersDay');
+                if (!hasShownTeachersDay) {
+                    // 显示教师节祝福弹窗
+                    const title = languages[currentLanguage].teachers_day_title;
+                    const message = languages[currentLanguage].teachers_day_message;
+                    alert(`${title}\n\n${message}`);
+                    
+                    // 标记为已显示
+                    localStorage.setItem('hasShownTeachersDay', 'true');
+                }
+            } else {
+                // 如果不是教师节，清除标记
+                localStorage.removeItem('hasShownTeachersDay');
+            }
+        }
+
+        // 检查是否需要显示新功能介绍
+        function checkNewFeatures() {
+            // 检查是否已经显示过新功能介绍
+            const hasSeenNewFeatures = localStorage.getItem('hasSeenNewFeatures');
+            
+            // 获取当前日期
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`;
+            
+            // 获取新功能介绍的开始日期（假设从今天开始）
+            const newFeaturesStartDate = localStorage.getItem('newFeaturesStartDate') || today;
+            
+            // 保存开始日期
+            if (!localStorage.getItem('newFeaturesStartDate')) {
+                localStorage.setItem('newFeaturesStartDate', newFeaturesStartDate);
+            }
+            
+            // 计算日期差
+            const startDate = new Date(newFeaturesStartDate);
+            const diffTime = Math.abs(now - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // 如果3天内且用户还没看过，则显示新功能介绍
+            if (diffDays <= 3 && !hasSeenNewFeatures) {
+                window.location.href = 'new-features.html';
+            }
+        }
+
         // 获取DOM元素
         const toggleStudentsBtn = document.getElementById('toggleStudentsBtn');
         const studentManagement = document.getElementById('studentManagement');
@@ -618,7 +861,10 @@
         const totalGroupsEl = document.getElementById('totalGroups');
         const fileInfo = document.getElementById('fileInfo');
         const feedbackBtn = document.getElementById('feedbackBtn');
-        
+        const languageSwitcher = document.getElementById('languageSwitcher');
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        const eggButton = document.getElementById('eggButton');
+
         // 切换学生管理界面显示/隐藏
         function toggleStudentManagement(event) {
             const isHidden = studentManagementContainer.classList.contains('hidden');
@@ -626,14 +872,14 @@
             if (isHidden) {
                 // 显示学生管理区域
                 studentManagementContainer.classList.remove('hidden');
-                toggleStudentsBtn.textContent = '隐藏学生管理';
+                toggleStudentsBtn.textContent = currentLanguage === 'zh' ? '隐藏学生管理' : 'Hide Student Management';
                 
                 // 重新渲染学生列表以确保滚动功能正常
                 renderStudentList();
             } else {
                 // 隐藏学生管理区域
                 studentManagementContainer.classList.add('hidden');
-                toggleStudentsBtn.textContent = '管理学生信息';
+                toggleStudentsBtn.textContent = currentLanguage === 'zh' ? '管理学生信息' : 'Manage Students';
             }
             
             // 阻止事件冒泡
@@ -641,28 +887,34 @@
                 event.stopPropagation();
             }
         }
-        
+
         // 简化版自定义弹窗函数，使用系统alert替代
         function showCustomModal(title, message, callback) {
-            alert(`${title}\n\n${message}`);
+            // 根据当前语言显示相应的消息
+            const alertTitle = currentLanguage === 'zh' ? title : title;
+            const alertMessage = currentLanguage === 'zh' ? message : message;
+            
+            alert(`${alertTitle}\n\n${alertMessage}`);
             if (callback && typeof callback === 'function') {
                 callback();
             }
         }
-        
+
         // 添加学生
         function addStudent() {
             const id = studentId.value.trim();
             const name = studentName.value.trim();
             
             if (!name) {
-                showCustomModal('提示', '请输入学生姓名');
+                const title = currentLanguage === 'zh' ? '提示' : 'Notice';
+                const message = currentLanguage === 'zh' ? '请输入学生姓名' : 'Please enter student name';
+                showCustomModal(title, message);
                 return;
             }
             
             // 禁用添加按钮，防止重复点击
             addStudentBtn.disabled = true;
-            addStudentBtn.textContent = '添加中...';
+            addStudentBtn.textContent = currentLanguage === 'zh' ? '添加中...' : 'Adding...';
             
             // 使用StudentManager来处理学生输入
             const student = { id, name };
@@ -674,34 +926,40 @@
                 studentName.focus();
                 // 恢复按钮状态
                 addStudentBtn.disabled = false;
-                addStudentBtn.textContent = '添加学生';
+                addStudentBtn.textContent = currentLanguage === 'zh' ? '添加学生' : 'Add Student';
             } else {
-                showCustomModal('提示', '学生已存在（学号或姓名重复）');
+                const title = currentLanguage === 'zh' ? '提示' : 'Notice';
+                const message = currentLanguage === 'zh' ? '学生已存在（学号或姓名重复）' : 'Student already exists (duplicate ID or name)';
+                showCustomModal(title, message);
                 // 恢复按钮状态
                 addStudentBtn.disabled = false;
-                addStudentBtn.textContent = '添加学生';
+                addStudentBtn.textContent = currentLanguage === 'zh' ? '添加学生' : 'Add Student';
             }
         }
-        
+
         // 批量导入学生
         function importStudents() {
             const csvText = csvInput.value.trim();
             if (csvText === '') {
-                showCustomModal('提示', '请输入CSV数据');
+                const title = currentLanguage === 'zh' ? '提示' : 'Notice';
+                const message = currentLanguage === 'zh' ? '请输入CSV数据' : 'Please enter CSV data';
+                showCustomModal(title, message);
                 return;
             }
             
             // 禁用导入按钮，防止重复点击
             importBtn.disabled = true;
-            importBtn.textContent = '导入中...';
+            importBtn.textContent = currentLanguage === 'zh' ? '导入中...' : 'Importing...';
             
             try {
                 const students = StudentManager.parseCSV(csvText);
                 if (students.length === 0) {
-                    showCustomModal('提示', '未解析到有效学生数据');
+                    const title = currentLanguage === 'zh' ? '提示' : 'Notice';
+                    const message = currentLanguage === 'zh' ? '未解析到有效学生数据' : 'No valid student data parsed';
+                    showCustomModal(title, message);
                     // 恢复按钮状态
                     importBtn.disabled = false;
-                    importBtn.textContent = '导入CSV';
+                    importBtn.textContent = currentLanguage === 'zh' ? '导入CSV' : 'Import CSV';
                     return;
                 }
                 
@@ -709,38 +967,57 @@
                 renderStudentList();
                 updateSummary();
                 csvInput.value = '';
-                showCustomModal('成功', `成功导入 ${addedCount} 名学生`);
+                const title = currentLanguage === 'zh' ? '成功' : 'Success';
+                const message = currentLanguage === 'zh' ? 
+                    `成功导入 ${addedCount} 名学生` : 
+                    `Successfully imported ${addedCount} students`;
+                showCustomModal(title, message);
             } catch (e) {
-                showCustomModal('错误', '导入失败：' + e.message);
+                const title = currentLanguage === 'zh' ? '错误' : 'Error';
+                const message = currentLanguage === 'zh' ? 
+                    '导入失败：' + e.message : 
+                    'Import failed: ' + e.message;
+                showCustomModal(title, message);
             } finally {
                 // 恢复按钮状态
                 importBtn.disabled = false;
-                importBtn.textContent = '导入CSV';
+                importBtn.textContent = currentLanguage === 'zh' ? '导入CSV' : 'Import CSV';
             }
         }
-        
+
         // 文件导入学生
         function importFromFile() {
             const file = fileInput.files[0];
             if (!file) {
-                showCustomModal('提示', '请选择一个文件');
+                const title = currentLanguage === 'zh' ? '提示' : 'Notice';
+                const message = currentLanguage === 'zh' ? '请选择一个文件' : 'Please select a file';
+                showCustomModal(title, message);
                 return;
             }
             
-            // 检查文件格式，只允许CSV和TXT格式
-            if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
-                showCustomModal('错误', '文件格式不支持，请使用CSV或TXT格式的文件');
+            // 检查文件格式，只允许CSV、TXT和JSON格式
+            if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt') && !file.name.endsWith('.json')) {
+                const title = currentLanguage === 'zh' ? '错误' : 'Error';
+                const message = currentLanguage === 'zh' ? 
+                    '文件格式不支持，请使用CSV、TXT或JSON格式的文件' : 
+                    'File format not supported, please use CSV, TXT or JSON format files';
+                showCustomModal(title, message);
                 fileInput.value = ''; // 清空文件选择
                 fileInfo.textContent = '';
                 return;
             }
             
             // 显示文件信息
-            fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(1)} KB | 类型: ${file.type || '未知'}`;
+            const fileName = currentLanguage === 'zh' ? '文件名' : 'File name';
+            const fileSize = currentLanguage === 'zh' ? '大小' : 'Size';
+            const fileType = currentLanguage === 'zh' ? '类型' : 'Type';
+            const unknown = currentLanguage === 'zh' ? '未知' : 'Unknown';
+            
+            fileInfo.textContent = `${fileName}: ${file.name} | ${fileSize}: ${(file.size / 1024).toFixed(1)} KB | ${fileType}: ${file.type || unknown}`;
             
             // 禁用导入按钮，防止重复点击
             importFileBtn.disabled = true;
-            importFileBtn.textContent = '导入中...';
+            importFileBtn.textContent = currentLanguage === 'zh' ? '导入中...' : 'Importing...';
             
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -748,14 +1025,22 @@
                     const content = e.target.result;
                     let students = [];
                     
-                    // 根据文件类型处理（只处理CSV和TXT）
-                    students = StudentManager.parseCSV(content);
+                    // 根据文件扩展名处理不同格式
+                    if (file.name.endsWith('.json')) {
+                        // JSON格式
+                        students = StudentManager.parseJSON(content);
+                    } else {
+                        // CSV和TXT格式
+                        students = StudentManager.parseCSV(content);
+                    }
                     
                     if (students.length === 0) {
-                        showCustomModal('提示', '未解析到有效学生数据');
+                        const title = currentLanguage === 'zh' ? '提示' : 'Notice';
+                        const message = currentLanguage === 'zh' ? '未解析到有效学生数据' : 'No valid student data parsed';
+                        showCustomModal(title, message);
                         // 恢复按钮状态
                         importFileBtn.disabled = false;
-                        importFileBtn.textContent = '导入文件';
+                        importFileBtn.textContent = currentLanguage === 'zh' ? '导入文件' : 'Import File';
                         return;
                     }
                     
@@ -764,20 +1049,28 @@
                     updateSummary();
                     fileInput.value = '';
                     fileInfo.textContent = '';
-                    showCustomModal('成功', `成功导入 ${addedCount} 名学生`);
+                    const title = currentLanguage === 'zh' ? '成功' : 'Success';
+                    const message = currentLanguage === 'zh' ? 
+                        `成功导入 ${addedCount} 名学生` : 
+                        `Successfully imported ${addedCount} students`;
+                    showCustomModal(title, message);
                 } catch (e) {
-                    showCustomModal('错误', '导入失败：' + e.message);
+                    const title = currentLanguage === 'zh' ? '错误' : 'Error';
+                    const message = currentLanguage === 'zh' ? 
+                        '导入失败：' + e.message : 
+                        'Import failed: ' + e.message;
+                    showCustomModal(title, message);
                 } finally {
                     // 恢复按钮状态
                     importFileBtn.disabled = false;
-                    importFileBtn.textContent = '导入文件';
+                    importFileBtn.textContent = currentLanguage === 'zh' ? '导入文件' : 'Import File';
                 }
             };
             
             // 读取文件内容
             reader.readAsText(file, 'UTF-8');
         }
-        
+
         // HTML转义函数，防止XSS攻击
         function escapeHtml(text) {
             const map = {
@@ -787,27 +1080,31 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"]/g, function(m) { return map[m]; });
         }
-        
+
         // 删除学生
         function removeStudent(index) {
-            showCustomModal('确认删除', '确定要删除这个学生吗？', function() {
+            const title = currentLanguage === 'zh' ? '确认删除' : 'Confirm Delete';
+            const message = currentLanguage === 'zh' ? '确定要删除这个学生吗？' : 'Are you sure you want to delete this student?';
+            showCustomModal(title, message, function() {
                 StudentManager.removeStudent(index);
                 renderStudentList();
                 updateSummary();
             });
         }
-        
+
         // 清空学生列表
         function clearStudents() {
-            showCustomModal('确认清空', '确定要清空所有学生吗？', function() {
+            const title = currentLanguage === 'zh' ? '确认清空' : 'Confirm Clear';
+            const message = currentLanguage === 'zh' ? '确定要清空所有学生吗？' : 'Are you sure you want to clear all students?';
+            showCustomModal(title, message, function() {
                 StudentManager.clearStudents();
                 renderStudentList();
                 updateSummary();
             });
         }
-        
+
         // 为课堂表现记录器选择学生
         function selectStudentForTracker(index) {
             const students = StudentManager.getStudents();
@@ -824,7 +1121,7 @@
                 }
             }
         }
-        
+
         // 渲染学生列表
         function renderStudentList() {
             const students = StudentManager.getStudents();
@@ -838,7 +1135,8 @@
             const fromOtherTool = fromTracker || fromRollCall || fromGrouping;
             
             if (students.length === 0) {
-                studentList.innerHTML = '<div class="empty-list">暂无学生，请添加学生</div>';
+                const noStudentsText = currentLanguage === 'zh' ? '暂无学生，请添加学生' : 'No students, please add students';
+                studentList.innerHTML = `<div class="empty-list">${noStudentsText}</div>`;
                 return;
             }
             
@@ -858,16 +1156,21 @@
                     
                     // 根据来源工具显示不同的按钮
                     if (fromTracker) {
+                        const selectText = currentLanguage === 'zh' ? '选择' : 'Select';
+                        const deleteText = currentLanguage === 'zh' ? '删除' : 'Delete';
+                        
                         studentItem.innerHTML = `
                             ${studentInfo}
-                            <button class="btn" onclick="selectStudentForTracker(${index})" style="padding: 0.5rem 1rem; font-size: 0.9rem;">选择</button>
-                            <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                            <button class="btn" onclick="selectStudentForTracker(${index})" style="padding: 0.5rem 1rem; font-size: 0.9rem;">${selectText}</button>
+                            <button class="remove-student" onclick="removeStudent(${index})">${deleteText}</button>
                         `;
                     } else {
                         // 对于随机点名器和小组分组器，只需要显示学生信息和删除按钮
+                        const deleteText = currentLanguage === 'zh' ? '删除' : 'Delete';
+                        
                         studentItem.innerHTML = `
                             ${studentInfo}
-                            <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                            <button class="remove-student" onclick="removeStudent(${index})">${deleteText}</button>
                         `;
                     }
                 } else {
@@ -875,16 +1178,18 @@
                         `<span class="student-info"><span class="student-id">${escapedId}</span> - ${escapedName}</span>` : 
                         `<span class="student-info">${escapedName}</span>`;
                     
+                    const deleteText = currentLanguage === 'zh' ? '删除' : 'Delete';
+                    
                     studentItem.innerHTML = `
                         ${studentInfo}
-                        <button class="remove-student" onclick="removeStudent(${index})">删除</button>
+                        <button class="remove-student" onclick="removeStudent(${index})">${deleteText}</button>
                     `;
                 }
                 
                 studentList.appendChild(studentItem);
             });
         }
-        
+
         // 更新统计摘要
         function updateSummary() {
             const students = StudentManager.getStudents();
@@ -894,14 +1199,18 @@
             const suggestedGroups = Math.max(1, Math.floor(students.length / 5));
             totalGroupsEl.textContent = suggestedGroups;
         }
-        
+
         // 显示邮件提示
         function showEmailPrompt() {
-            alert('请发送邮件至：crisweiming@hotmail.com\n\n我们非常期待您的宝贵意见！');
+            const email = 'crisweiming@hotmail.com';
+            const message1 = currentLanguage === 'zh' ? '请发送邮件至：' : 'Please send email to: ';
+            const message2 = currentLanguage === 'zh' ? '我们非常期待您的宝贵意见！' : 'We look forward to your valuable feedback!';
+            
+            alert(`${message1}${email}\n\n${message2}`);
             // 滚动到页面顶部
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        
+
         // 导航到其他页面
         function navigateTo(page) {
             // 检查是否是从课堂表现记录器、随机点名器或小组分组器跳转过来的
@@ -912,13 +1221,22 @@
             
             if (fromTracker || fromRollCall || fromGrouping) {
                 // 如果是从其他工具跳转过来的，需要特殊处理
-                let message = '请在下方学生列表中添加或选择学生';
+                let message = currentLanguage === 'zh' ? 
+                    '请在下方学生列表中添加或选择学生' : 
+                    'Please add or select students from the list below';
+                    
                 if (fromTracker) {
-                    message = '请在下方学生列表中选择要记录表现的学生';
+                    message = currentLanguage === 'zh' ? 
+                        '请在下方学生列表中选择要记录表现的学生' : 
+                        'Please select a student to track performance from the list below';
                 } else if (fromRollCall) {
-                    message = '请在下方学生列表中添加学生，然后返回随机点名器';
+                    message = currentLanguage === 'zh' ? 
+                        '请在下方学生列表中添加学生，然后返回随机点名器' : 
+                        'Please add students to the list below, then return to the roll call tool';
                 } else if (fromGrouping) {
-                    message = '请在下方学生列表中添加学生，然后返回小组分组器';
+                    message = currentLanguage === 'zh' ? 
+                        '请在下方学生列表中添加学生，然后返回小组分组器' : 
+                        'Please add students to the list below, then return to the group generator';
                 }
                 
                 alert(message);
@@ -931,89 +1249,114 @@
             
             window.location.href = page;
         }
-        
-        // 初始化
-        function init() {
-            // 初始化学生管理器
-            StudentManager.init();
+
+        // 触发彩蛋
+        function triggerEasterEgg() {
+            const messages = {
+                zh: [
+                    "恭喜你发现了彩蛋！",
+                    "你真是一个细心的用户！",
+                    "感谢你对教师工具箱的支持！",
+                    "希望这些工具对你的教学有帮助！",
+                    "祝你教学愉快，工作顺利！"
+                ],
+                en: [
+                    "Congratulations on finding the easter egg!",
+                    "You're really a careful user!",
+                    "Thank you for your support of the Teacher Toolkit!",
+                    "Hope these tools are helpful for your teaching!",
+                    "Wish you a happy teaching and smooth work!"
+                ]
+            };
             
-            // 渲染学生列表
-            renderStudentList();
-            updateSummary();
+            const message = messages[currentLanguage][Math.floor(Math.random() * messages[currentLanguage].length)];
+            alert(message);
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
             
-            // 检查是否是从其他工具跳转过来的
-            const urlParams = new URLSearchParams(window.location.search);
-            const fromTracker = urlParams.get('from') === 'tracker';
-            const fromRollCall = urlParams.get('from') === 'rollcall';
-            const fromGrouping = urlParams.get('from') === 'grouping';
-            const fromOtherTool = fromTracker || fromRollCall || fromGrouping;
-            
-            if (fromOtherTool) {
-                // 如果是从其他工具跳转过来的，显示学生管理区域
-                if (studentManagementContainer.classList.contains('hidden')) {
-                    toggleStudentManagement();
-                }
-                
-                // 显示提示信息
-                let message = '请在下方学生列表中添加或选择学生';
-                if (fromTracker) {
-                    message = '请在下方学生列表中选择要记录表现的学生';
-                } else if (fromRollCall) {
-                    message = '请在下方学生列表中添加学生，然后返回随机点名器';
-                } else if (fromGrouping) {
-                    message = '请在下方学生列表中添加学生，然后返回小组分组器';
-                }
-                
-                showCustomModal('提示', message);
+            // 更新主题切换按钮文本
+            if (document.body.classList.contains('dark-mode')) {
+                themeSwitcher.textContent = currentLanguage === 'zh' ? '日间模式' : 'Light Mode';
+            } else {
+                themeSwitcher.textContent = currentLanguage === 'zh' ? '黑夜模式' : 'Dark Mode';
             }
             
-            // 绑定事件监听器
-            toggleStudentsBtn.addEventListener('click', toggleStudentManagement);
-            addStudentBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                addStudent();
-            });
-            
-            studentName.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    addStudent();
-                    e.stopPropagation();
-                }
-            });
-            
-            importBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                importStudents();
-            });
-            
-            importFileBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                importFromFile();
-            });
-            
-            clearStudentsBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                clearStudents();
-            });
-            
-            feedbackBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                showEmailPrompt();
-            });
-            
-            // 文件选择变化时显示文件信息
-            fileInput.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    const file = this.files[0];
-                    fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(1)} KB | 类型: ${file.type || '未知'}`;
-                } else {
-                    fileInfo.textContent = '';
-                }
-            });
+            // 保存主题设置到localStorage
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
         }
-        
+
         // 页面加载完成后初始化
-        window.onload = init;
+        window.onload = function() {
+            // 检查是否保存了语言偏好
+            const savedLanguage = localStorage.getItem('preferredLanguage');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+            
+            // 应用语言设置
+            applyLanguage();
+            
+            // 检查是否是教师节
+            checkTeachersDay();
+            
+            // 检查是否需要显示新功能介绍
+            checkNewFeatures();
+            
+            // 检查并应用保存的主题设置
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (themeSwitcher) {
+                    themeSwitcher.textContent = currentLanguage === 'zh' ? '日间模式' : 'Light Mode';
+                }
+            }
+            
+            // 检查是否显示彩蛋按钮
+            const eggClickCount = localStorage.getItem('eggClickCount') || 0;
+            if (eggClickCount >= 5) {
+                document.getElementById('eggButton').style.display = 'block';
+            }
+            
+            // 绑定彩蛋触发元素事件
+            const easterEggTrigger = document.getElementById('easterEggTrigger');
+            if (easterEggTrigger) {
+                let clickCount = 0;
+                easterEggTrigger.addEventListener('click', function() {
+                    clickCount++;
+                    if (clickCount >= 5) {
+                        // 保存点击次数
+                        localStorage.setItem('eggClickCount', clickCount);
+                        // 显示彩蛋按钮
+                        document.getElementById('eggButton').style.display = 'block';
+                        // 显示提示信息
+                        const message = currentLanguage === 'zh' ? 
+                            '恭喜你解锁了彩蛋功能！点击顶部的"彩蛋"按钮查看惊喜。' : 
+                            'Congratulations on unlocking the easter egg! Click the "Easter Egg" button at the top to see the surprise.';
+                        alert(message);
+                    }
+                });
+            }
+            
+            // 绑定语言切换按钮事件
+            if (languageSwitcher) {
+                languageSwitcher.addEventListener('click', switchLanguage);
+            }
+            
+            // 绑定主题切换按钮事件
+            if (themeSwitcher) {
+                themeSwitcher.addEventListener('click', toggleTheme);
+            }
+            
+            // 初始化学生管理器和其他功能
+            // StudentManager.init(); // 在student-manager.js中已经初始化
+        };
     </script>
 </body>
 </html>

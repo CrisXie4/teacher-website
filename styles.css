@@ -12,6 +12,57 @@ body {
     color: #333;
 }
 
+/* 黑夜模式样式 */
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #f0f0f0;
+}
+
+.dark-mode header {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+}
+
+.dark-mode .tool-card {
+    background: rgba(30, 30, 46, 0.95);
+    color: #f0f0f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .tool-card h2 {
+    color: #e2e8f0;
+}
+
+.dark-mode .tool-card p {
+    color: #cbd5e1;
+}
+
+.dark-mode .tool-card.coming-soon {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+.dark-mode .instructions {
+    background: rgba(30, 30, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .instructions h3 {
+    color: #e2e8f0;
+}
+
+.dark-mode .instructions li {
+    color: #cbd5e1;
+}
+
+.dark-mode .instructions strong {
+    color: #63b3ed;
+}
+
+.dark-mode footer {
+    background: rgba(30, 30, 46, 0.8);
+    color: #cbd5e1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* 头部样式 */
 header {
     background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
@@ -21,6 +72,9 @@ header {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 header::before {
@@ -47,7 +101,31 @@ header p {
     opacity: 0.95;
     font-weight: 300;
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto 1rem;
+}
+
+/* 语言切换和黑夜模式切换按钮 */
+.header-controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.language-switcher, .theme-switcher {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.language-switcher:hover, .theme-switcher:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
 }
 
 /* 主体内容 */
@@ -143,6 +221,20 @@ main {
     box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
 }
 
+/* 黑夜模式下的工具卡片 */
+.dark-mode .tool-card::before {
+    background: linear-gradient(90deg, #63b3ed 0%, #3182ce 100%);
+}
+
+.dark-mode .tool-card button {
+    background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%);
+    box-shadow: 0 4px 15px rgba(99, 179, 237, 0.4);
+}
+
+.dark-mode .tool-card button:hover {
+    box-shadow: 0 8px 20px rgba(99, 179, 237, 0.6);
+}
+
 /* 即将推出卡片 */
 .tool-card.coming-soon {
     background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
@@ -154,6 +246,19 @@ main {
 
 .tool-card.coming-soon::before {
     background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+/* 黑夜模式下的即将推出卡片 */
+.dark-mode .tool-card.coming-soon {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+.dark-mode .tool-card.coming-soon h2 {
+    color: #e2e8f0;
+}
+
+.dark-mode .tool-card.coming-soon::before {
+    background: linear-gradient(90deg, #63b3ed 0%, #3182ce 100%);
 }
 
 /* 使用说明 */
@@ -195,6 +300,24 @@ main {
 .instructions strong {
     color: #4b6cb7;
     font-weight: 600;
+}
+
+/* 黑夜模式下的使用说明 */
+.dark-mode .instructions {
+    background: rgba(30, 30, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .instructions h3 {
+    color: #e2e8f0;
+}
+
+.dark-mode .instructions li {
+    color: #cbd5e1;
+}
+
+.dark-mode .instructions strong {
+    color: #63b3ed;
 }
 
 /* 底部样式 */
