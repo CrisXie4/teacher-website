@@ -1354,6 +1354,72 @@
                 themeSwitcher.addEventListener('click', toggleTheme);
             }
             
+            // 绑定学生管理相关事件监听器
+            if (toggleStudentsBtn) {
+                toggleStudentsBtn.addEventListener('click', toggleStudentManagement);
+            }
+            
+            if (addStudentBtn) {
+                addStudentBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    addStudent();
+                });
+            }
+            
+            if (studentName) {
+                studentName.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        addStudent();
+                        e.stopPropagation();
+                    }
+                });
+            }
+            
+            if (importBtn) {
+                importBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    importStudents();
+                });
+            }
+            
+            if (importFileBtn) {
+                importFileBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    importFromFile();
+                });
+            }
+            
+            if (clearStudentsBtn) {
+                clearStudentsBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    clearStudents();
+                });
+            }
+            
+            if (feedbackBtn) {
+                feedbackBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    showEmailPrompt();
+                });
+            }
+            
+            // 文件选择变化时显示文件信息
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        const file = this.files[0];
+                        const fileName = currentLanguage === 'zh' ? '文件名' : 'File name';
+                        const fileSize = currentLanguage === 'zh' ? '大小' : 'Size';
+                        const fileType = currentLanguage === 'zh' ? '类型' : 'Type';
+                        const unknown = currentLanguage === 'zh' ? '未知' : 'Unknown';
+                        
+                        fileInfo.textContent = `${fileName}: ${file.name} | ${fileSize}: ${(file.size / 1024).toFixed(1)} KB | ${fileType}: ${file.type || unknown}`;
+                    } else {
+                        fileInfo.textContent = '';
+                    }
+                });
+            }
+            
             // 初始化学生管理器和其他功能
             // StudentManager.init(); // 在student-manager.js中已经初始化
         };
