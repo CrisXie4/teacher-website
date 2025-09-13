@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小组分组器 - 教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .grouping-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .grouping-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #182848;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .group-settings {
+            max-width: 500px;
+            margin: 0 auto 2.5rem;
+            padding: 1.8rem;
+            background: rgba(227, 242, 253, 0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+        }
+        
+        .setting-group {
+            margin-bottom: 1.8rem;
+        }
+        
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #182848;
+            font-size: 1.1rem;
+        }
+        
+        .setting-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .setting-group input:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+            outline: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 1.1rem 2.2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.generate {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            display: block;
+            margin: 2rem auto;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .btn.clear {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+            display: block;
+            margin: 1rem auto;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn.manage-students {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            display: block;
+            margin: 1rem auto;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .groups-container {
+            margin-top: 2.5rem;
+        }
+        
+        .groups-title {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #182848;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+        
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .group-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 12px;
+            padding: 1.8rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(187, 222, 251, 0.8);
+        }
+        
+        .group-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .group-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .group-header {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #182848;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid rgba(75, 108, 183, 0.3);
+        }
+        
+        .group-members {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .group-members li {
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(187, 222, 251, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .group-members li:last-child {
+            border-bottom: none;
+        }
+        
+        .member-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .member-name {
+            font-weight: 600;
+            color: #182848;
+        }
+        
+        .member-id {
+            font-size: 0.9rem;
+            color: #4b6cb7;
+            font-weight: 500;
+        }
+        
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            text-align: left;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .instructions ol {
+            padding-left: 2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .instructions strong {
+            color: #4b6cb7;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .back-btn:hover {
+            background: rgba(90, 98, 104, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 动画效果 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .group-card {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        .group-card:nth-child(1) { animation-delay: 0.1s; }
+        .group-card:nth-child(2) { animation-delay: 0.2s; }
+        .group-card:nth-child(3) { animation-delay: 0.3s; }
+        .group-card:nth-child(4) { animation-delay: 0.4s; }
+        .group-card:nth-child(5) { animation-delay: 0.5s; }
+        .group-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* 学生统计 */
+        .student-stats {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(227, 242, 253, 0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+        }
+        
+        .stat-item {
+            display: inline-block;
+            margin: 0 1.5rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.8rem;
+            color: #182848;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #555;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .grouping-container {
+                padding: 1.8rem;
+            }
+            
+            .groups-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .group-card {
+                padding: 1.5rem;
+            }
+            
+            .instructions {
+                padding: 1.5rem;
+            }
+            
+            .instructions h3 {
+                font-size: 1.5rem;
+            }
+            
+            .instructions li {
+                font-size: 1rem;
+            }
+            
+            .stat-item {
+                margin: 0 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>小组分组器</h1>
+        <p>随机分组学生，便于小组活动</p>
+    </header>
+    
+    <div class="container">
+        <div class="grouping-container">
+            <div class="student-stats">
+                <div class="stat-item">
+                    总学生数: <span class="stat-value" id="totalStudents">0</span>
+                </div>
+                <div class="stat-item">
+                    已分组: <span class="stat-value" id="groupedStudents">0</span>
+                </div>
+            </div>
+            
+            <div class="group-settings">
+                <h3 class="section-title">分组设置</h3>
+                
+                <div class="setting-group">
+                    <label for="groupCount">小组数量:</label>
+                    <input type="number" id="groupCount" min="1" max="20" value="4">
+                </div>
+                
+                <div class="setting-group">
+                    <label for="studentsPerGroup">每组人数:</label>
+                    <input type="number" id="studentsPerGroup" min="1" max="20" value="5">
+                </div>
+                
+                <button id="generateBtn" class="btn generate">生成分组</button>
+                <button id="clearBtn" class="btn clear">清空分组</button>
+                <a href="index.html" class="btn manage-students">管理学生</a>
+            </div>
+            
+            <div class="groups-container">
+                <h3 class="groups-title">分组结果</h3>
+                <div class="groups-grid" id="groupsContainer">
+                    <!-- 分组结果将在这里显示 -->
+                    <div class="empty-groups" style="text-align: center; color: #666; font-style: italic; padding: 3rem; grid-column: 1 / -1;">
+                        请设置分组参数并生成分组
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li><strong>准备工作</strong> - 请先在主页添加学生信息</li>
+                <li><strong>设置分组</strong> - 设置小组数量或每组人数（两者只需设置一个，另一个会自动计算）</li>
+                <li><strong>生成分组</strong> - 点击"生成分组"按钮随机分配学生到各小组</li>
+                <li><strong>清空分组</strong> - 点击"清空分组"按钮清除当前分组结果</li>
+                <li><strong>管理学生</strong> - 点击"管理学生"按钮跳转到主页添加或编辑学生</li>
+                <li><strong>重复分组</strong> - 可以随时重新生成分组，获得不同的分组结果</li>
+            </ol>
+        </div>
+        
+        <a href="index.html" class="back-btn">← 返回主页</a>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 小组分组器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const groupCountInput = document.getElementById('groupCount');
+        const studentsPerGroupInput = document.getElementById('studentsPerGroup');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const groupsContainer = document.getElementById('groupsContainer');
+        const totalStudentsEl = document.getElementById('totalStudents');
+        const groupedStudentsEl = document.getElementById('groupedStudents');
+        
+        // 分组变量
+        let students = [];
+        
+        // 从学生管理器获取学生列表
+        function loadStudents() {
+            try {
+                // 尝试从localStorage获取学生数据
+                const savedStudents = localStorage.getItem('teacher_toolkit_students');
+                if (savedStudents) {
+                    students = JSON.parse(savedStudents);
+                } else {
+                    students = [];
+                }
+            } catch (e) {
+                console.error('加载学生数据失败:', e);
+                students = [];
+            }
+        }
+        
+        // 随机打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // 生成分组
+        function generateGroups() {
+            // 加载学生数据
+            loadStudents();
+            
+            if (students.length === 0) {
+                alert('请先在主页添加学生');
+                // 跳转到主页并传递参数，以便主页知道是从小组分组器跳转过来的
+                window.location.href = 'index.html?from=grouping';
+                return;
+            }
+            
+            const groupCount = parseInt(groupCountInput.value);
+            const studentsPerGroup = parseInt(studentsPerGroupInput.value);
+            
+            // 验证输入
+            if (isNaN(groupCount) && isNaN(studentsPerGroup)) {
+                alert('请设置小组数量或每组人数');
+                return;
+            }
+            
+            // 随机打乱学生名单
+            const shuffledStudents = shuffleArray([...students]);
+            
+            // 创建分组
+            const groups = [];
+            
+            if (studentsPerGroup > 0) {
+                // 按每组人数分组
+                const calculatedGroupCount = Math.ceil(shuffledStudents.length / studentsPerGroup);
+                groupCountInput.value = calculatedGroupCount;
+                
+                for (let i = 0; i < calculatedGroupCount; i++) {
+                    groups.push(shuffledStudents.slice(i * studentsPerGroup, (i + 1) * studentsPerGroup));
+                }
+            } else if (groupCount > 0) {
+                // 按组数分组
+                const calculatedStudentsPerGroup = Math.ceil(shuffledStudents.length / groupCount);
+                studentsPerGroupInput.value = calculatedStudentsPerGroup;
+                
+                for (let i = 0; i < groupCount; i++) {
+                    groups.push(shuffledStudents.slice(i * calculatedStudentsPerGroup, (i + 1) * calculatedStudentsPerGroup));
+                }
+            }
+            
+            // 显示分组结果
+            renderGroups(groups);
+            updateStats();
+        }
+        
+        // 渲染分组结果
+        function renderGroups(groups) {
+            groupsContainer.innerHTML = '';
+            
+            if (groups.length === 0) {
+                groupsContainer.innerHTML = '<div class="empty-groups" style="text-align: center; color: #666; font-style: italic; padding: 3rem; grid-column: 1 / -1;">请设置分组参数并生成分组</div>';
+                return;
+            }
+            
+            groups.forEach((group, index) => {
+                const groupCard = document.createElement('div');
+                groupCard.className = 'group-card';
+                
+                let groupMembersHTML = '';
+                group.forEach(student => {
+                    const studentInfo = student.id ? 
+                        `<div class="member-info">
+                            <span class="member-name">${student.name}</span>
+                            <span class="member-id">${student.id}</span>
+                        </div>` : 
+                        `<div class="member-info">
+                            <span class="member-name">${student.name}</span>
+                        </div>`;
+                    groupMembersHTML += `<li>${studentInfo}</li>`;
+                });
+                
+                groupCard.innerHTML = `
+                    <div class="group-header">第 ${index + 1} 组</div>
+                    <ul class="group-members">
+                        ${groupMembersHTML}
+                    </ul>
+                `;
+                
+                groupsContainer.appendChild(groupCard);
+            });
+        }
+        
+        // 清空分组
+        function clearGroups() {
+            groupsContainer.innerHTML = '<div class="empty-groups" style="text-align: center; color: #666; font-style: italic; padding: 3rem; grid-column: 1 / -1;">请设置分组参数并生成分组</div>';
+            updateStats();
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            loadStudents();
+            totalStudentsEl.textContent = students.length;
+            
+            // 计算已分组的学生数
+            const groupedStudents = students.length; // 所有学生都被分组
+            groupedStudentsEl.textContent = groupedStudents;
+        }
+        
+        // 初始化
+        function init() {
+            // 更新统计信息
+            updateStats();
+            
+            // 绑定事件监听器
+            generateBtn.addEventListener('click', generateGroups);
+            clearBtn.addEventListener('click', clearGroups);
+            
+            // 绑定分组设置输入框事件
+            groupCountInput.addEventListener('change', () => {
+                if (groupCountInput.value > 0) {
+                    studentsPerGroupInput.value = '';
+                }
+            });
+            
+            studentsPerGroupInput.addEventListener('change', () => {
+                if (studentsPerGroupInput.value > 0) {
+                    groupCountInput.value = '';
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

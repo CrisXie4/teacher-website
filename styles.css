@@ -1,0 +1,430 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* 黑夜模式样式 */
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #f0f0f0;
+}
+
+.dark-mode header {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+}
+
+.dark-mode .tool-card {
+    background: rgba(30, 30, 46, 0.95);
+    color: #f0f0f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .tool-card h2 {
+    color: #e2e8f0;
+}
+
+.dark-mode .tool-card p {
+    color: #cbd5e1;
+}
+
+.dark-mode .tool-card.coming-soon {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+.dark-mode .instructions {
+    background: rgba(30, 30, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .instructions h3 {
+    color: #e2e8f0;
+}
+
+.dark-mode .instructions li {
+    color: #cbd5e1;
+}
+
+.dark-mode .instructions strong {
+    color: #63b3ed;
+}
+
+.dark-mode footer {
+    background: rgba(30, 30, 46, 0.8);
+    color: #cbd5e1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 头部样式 */
+header {
+    background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+    color: white;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+}
+
+header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+header p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto 1rem;
+}
+
+/* 语言切换和黑夜模式切换按钮 */
+.header-controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.language-switcher, .theme-switcher {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.language-switcher:hover, .theme-switcher:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* 主体内容 */
+main {
+    max-width: 1300px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+}
+
+/* 工具卡片容器 */
+.tools-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+}
+
+/* 工具卡片 */
+.tool-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.tool-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.tool-card h2 {
+    color: #182848;
+    margin-bottom: 1.2rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.tool-card p {
+    color: #555;
+    margin-bottom: 1.8rem;
+    line-height: 1.7;
+    font-size: 1.15rem;
+}
+
+.tool-card button {
+    background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+    color: white;
+    border: none;
+    padding: 1.1rem 2.2rem;
+    font-size: 1.15rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-card button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.tool-card button:hover::before {
+    left: 100%;
+}
+
+.tool-card button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+}
+
+/* 黑夜模式下的工具卡片 */
+.dark-mode .tool-card::before {
+    background: linear-gradient(90deg, #63b3ed 0%, #3182ce 100%);
+}
+
+.dark-mode .tool-card button {
+    background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%);
+    box-shadow: 0 4px 15px rgba(99, 179, 237, 0.4);
+}
+
+.dark-mode .tool-card button:hover {
+    box-shadow: 0 8px 20px rgba(99, 179, 237, 0.6);
+}
+
+/* 即将推出卡片 */
+.tool-card.coming-soon {
+    background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+}
+
+.tool-card.coming-soon h2 {
+    color: #182848;
+}
+
+.tool-card.coming-soon::before {
+    background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+/* 黑夜模式下的即将推出卡片 */
+.dark-mode .tool-card.coming-soon {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+.dark-mode .tool-card.coming-soon h2 {
+    color: #e2e8f0;
+}
+
+.dark-mode .tool-card.coming-soon::before {
+    background: linear-gradient(90deg, #63b3ed 0%, #3182ce 100%);
+}
+
+/* 使用说明 */
+.container {
+    max-width: 1300px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+}
+
+.instructions {
+    background: rgba(227, 242, 253, 0.8);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2.5rem;
+    text-align: left;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(179, 219, 255, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.instructions h3 {
+    color: #182848;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.instructions ol {
+    padding-left: 2rem;
+}
+
+.instructions li {
+    margin-bottom: 0.8rem;
+    line-height: 1.7;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.instructions strong {
+    color: #4b6cb7;
+    font-weight: 600;
+}
+
+/* 黑夜模式下的使用说明 */
+.dark-mode .instructions {
+    background: rgba(30, 30, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .instructions h3 {
+    color: #e2e8f0;
+}
+
+.dark-mode .instructions li {
+    color: #cbd5e1;
+}
+
+.dark-mode .instructions strong {
+    color: #63b3ed;
+}
+
+/* 底部样式 */
+footer {
+    text-align: center;
+    padding: 2.5rem;
+    color: #555;
+    margin-top: 3rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 1.1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    header {
+        padding: 1.8rem 1rem;
+    }
+    
+    header h1 {
+        font-size: 2.2rem;
+    }
+    
+    header p {
+        font-size: 1.1rem;
+    }
+    
+    .tools-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    main {
+        margin: 1.5rem auto;
+        padding: 0 1rem;
+    }
+    
+    .tool-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .tool-card h2 {
+        font-size: 1.7rem;
+    }
+    
+    .tool-card p {
+        font-size: 1.05rem;
+    }
+    
+    .tool-card button {
+        padding: 1rem 1.8rem;
+        font-size: 1.1rem;
+    }
+    
+    .instructions {
+        padding: 1.5rem;
+    }
+    
+    .instructions h3 {
+        font-size: 1.5rem;
+    }
+    
+    footer {
+        padding: 1.8rem;
+        font-size: 1rem;
+    }
+}
+
+/* 新增动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tool-card {
+    animation: fadeInUp 0.7s ease forwards;
+}
+
+.tool-card:nth-child(1) { animation-delay: 0.1s; }
+.tool-card:nth-child(2) { animation-delay: 0.2s; }
+.tool-card:nth-child(3) { animation-delay: 0.3s; }
+.tool-card:nth-child(4) { animation-delay: 0.4s; }
+.tool-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* 滚动条样式优化 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4b6cb7, #182848);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #3a5ca0, #0f1c35);
+}

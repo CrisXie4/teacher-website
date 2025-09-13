@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机点名器 - 教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .roll-call-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .roll-call-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .selected-student {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #4b6cb7;
+            margin: 2.5rem 0;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .student-id {
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.8rem;
+            margin: 2.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 1.1rem 2.2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.start {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            animation: pulse 2s infinite;
+        }
+        
+        .btn.stop {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+        
+        .btn.reset {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+        }
+        
+        .history-container {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(227, 242, 253, 0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+        }
+        
+        .history-title {
+            color: #182848;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+        
+        .history-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            text-align: left;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .instructions ol {
+            padding-left: 2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .instructions strong {
+            color: #4b6cb7;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .back-btn:hover {
+            background: rgba(90, 98, 104, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinning {
+            animation: spin 0.5s linear infinite;
+        }
+        
+        /* 自定义弹窗 */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .custom-modal.show {
+            opacity: 1;
+        }
+        
+        .custom-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .custom-modal.show .custom-modal-content {
+            transform: scale(1);
+        }
+        
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .custom-modal-title {
+            font-size: 1.4rem;
+            color: #182848;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .custom-modal-close:hover {
+            color: #ff416c;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-modal-body {
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            color: #444;
+            line-height: 1.6;
+        }
+        
+        .custom-modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        
+        .custom-modal-confirm {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+        }
+        
+        .custom-modal-confirm:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .roll-call-container {
+                padding: 1.8rem;
+            }
+            
+            .selected-student {
+                font-size: 2.5rem;
+                margin: 1.5rem 0;
+            }
+            
+            .controls {
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+            
+            .btn {
+                padding: 0.9rem 1.8rem;
+                font-size: 1rem;
+            }
+            
+            .instructions {
+                padding: 1.5rem;
+            }
+            
+            .instructions h3 {
+                font-size: 1.5rem;
+            }
+            
+            .instructions li {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>随机点名器</h1>
+        <p>随机选择学生回答问题，增加课堂互动</p>
+    </header>
+    
+    <div class="container">
+        <div class="roll-call-container">
+            <h2>当前选中学生</h2>
+            
+            <div class="selected-student" id="selectedStudent">
+                <div class="placeholder">点击"开始点名"选择学生</div>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn start">开始点名</button>
+                <button id="stopBtn" class="btn stop" disabled>停止点名</button>
+                <button id="resetBtn" class="btn reset">重置</button>
+            </div>
+            
+            <div class="history-container">
+                <h3 class="history-title">点名历史</h3>
+                <div class="history-list" id="historyList">
+                    <div class="history-item">暂无点名记录</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li><strong>准备工作</strong> - 请先在主页添加学生信息</li>
+                <li><strong>开始点名</strong> - 点击"开始点名"按钮开始随机选择学生</li>
+                <li><strong>停止点名</strong> - 点击"停止点名"按钮停止滚动并选定学生</li>
+                <li><strong>重置功能</strong> - 点击"重置"按钮清除当前选择和历史记录</li>
+                <li><strong>历史记录</strong> - 查看下方的点名历史，了解已选择的学生</li>
+                <li><strong>重复避免</strong> - 系统会尽量避免重复选择同一学生</li>
+            </ol>
+        </div>
+        
+        <!-- 自定义弹窗 -->
+    <div class="custom-modal" id="customModal">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title" id="customModalTitle">提示</h3>
+                <span class="custom-modal-close" id="customModalClose">&times;</span>
+            </div>
+            <div class="custom-modal-body" id="customModalBody">
+                这是提示内容
+            </div>
+            <div class="custom-modal-footer">
+                <button class="btn custom-modal-confirm" id="customModalConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <a href="index.html" class="back-btn">← 返回主页</a>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 随机点名器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const selectedStudent = document.getElementById('selectedStudent');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const historyList = document.getElementById('historyList');
+        
+        // 自定义弹窗元素
+        const customModal = document.getElementById('customModal');
+        const customModalTitle = document.getElementById('customModalTitle');
+        const customModalBody = document.getElementById('customModalBody');
+        const customModalClose = document.getElementById('customModalClose');
+        const customModalConfirm = document.getElementById('customModalConfirm');
+        
+        // 点名器变量
+        let students = [];
+        let selectedIndex = -1;
+        let intervalId = null;
+        let isRolling = false;
+        let selectedHistory = [];
+        
+        // 从学生管理器获取学生列表
+        function loadStudents() {
+            try {
+                // 尝试从localStorage获取学生数据
+                const savedStudents = localStorage.getItem('teacher_toolkit_students');
+                if (savedStudents) {
+                    students = JSON.parse(savedStudents);
+                } else {
+                    students = [];
+                }
+            } catch (e) {
+                console.error('加载学生数据失败:', e);
+                students = [];
+            }
+        }
+        
+        // 开始点名
+        function startRollCall() {
+            if (students.length === 0) {
+                showCustomModal('提示', '请先在主页添加学生信息。是否跳转到主页？', function() {
+                    // 跳转到主页并传递参数，以便主页知道是从随机点名器跳转过来的
+                    window.location.href = 'index.html?from=rollcall';
+                });
+                return;
+            }
+            
+            if (isRolling) return;
+            
+            isRolling = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            startBtn.classList.remove('pulse');
+            
+            // 开始滚动选择
+            intervalId = setInterval(() => {
+                // 随机选择一个学生（排除已选历史中的学生，除非所有学生都已选过）
+                let availableStudents = students;
+                if (selectedHistory.length > 0 && selectedHistory.length < students.length) {
+                    availableStudents = students.filter(student => 
+                        !selectedHistory.some(selected => 
+                            (selected.id && student.id && selected.id === student.id) || 
+                            selected.name === student.name
+                        )
+                    );
+                }
+                
+                // 如果所有学生都已选过，则使用全部学生
+                if (availableStudents.length === 0) {
+                    availableStudents = students;
+                }
+                
+                // 随机选择
+                selectedIndex = Math.floor(Math.random() * availableStudents.length);
+                const student = availableStudents[selectedIndex];
+                
+                // 显示选中的学生
+                displayStudent(student);
+            }, 100);
+        }
+        
+        // 停止点名
+        function stopRollCall() {
+            if (!isRolling) return;
+            
+            clearInterval(intervalId);
+            isRolling = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            // 将选中的学生添加到历史记录
+            if (selectedIndex >= 0 && selectedIndex < students.length) {
+                const student = students[selectedIndex];
+                selectedHistory.push({...student});
+                updateHistory();
+            }
+        }
+        
+        // 重置点名
+        function resetRollCall() {
+            if (isRolling) {
+                clearInterval(intervalId);
+                isRolling = false;
+            }
+            
+            selectedIndex = -1;
+            selectedHistory = [];
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            startBtn.classList.add('pulse');
+            
+            // 重置显示
+            selectedStudent.innerHTML = '<div class="placeholder">点击"开始点名"选择学生</div>';
+            historyList.innerHTML = '<div class="history-item">暂无点名记录</div>';
+        }
+        
+        // 显示学生信息
+        function displayStudent(student) {
+            if (student.id) {
+                selectedStudent.innerHTML = `
+                    <div class="student-id">${student.id}</div>
+                    <div>${student.name}</div>
+                `;
+            } else {
+                selectedStudent.innerHTML = `<div>${student.name}</div>`;
+            }
+        }
+        
+        // 更新历史记录
+        function updateHistory() {
+            if (selectedHistory.length === 0) {
+                historyList.innerHTML = '<div class="history-item">暂无点名记录</div>';
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            
+            // 倒序显示（最新在前）
+            selectedHistory.slice().reverse().forEach((student, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                if (student.id) {
+                    historyItem.innerHTML = `
+                        <span class="student-id">${student.id}</span> - ${student.name}
+                        <span style="float: right; color: #666; font-size: 0.9rem;">
+                            #${selectedHistory.length - index}
+                        </span>
+                    `;
+                } else {
+                    historyItem.innerHTML = `
+                        ${student.name}
+                        <span style="float: right; color: #666; font-size: 0.9rem;">
+                            #${selectedHistory.length - index}
+                        </span>
+                    `;
+                }
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // 自定义弹窗函数
+        function showCustomModal(title, message, callback) {
+            customModalTitle.textContent = title;
+            customModalBody.textContent = message;
+            customModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // 确认按钮点击事件
+            const confirmHandler = function() {
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+                hideCustomModal();
+                customModalConfirm.removeEventListener('click', confirmHandler);
+                customModalClose.removeEventListener('click', closeHandler);
+                window.removeEventListener('click', outsideClickHandler);
+                document.removeEventListener('keydown', escapeHandler);
+            };
+            
+            // 关闭按钮点击事件
+            const closeHandler = function() {
+                hideCustomModal();
+                customModalConfirm.removeEventListener('click', confirmHandler);
+                customModalClose.removeEventListener('click', closeHandler);
+                window.removeEventListener('click', outsideClickHandler);
+                document.removeEventListener('keydown', escapeHandler);
+            };
+            
+            // 点击外部关闭事件
+            const outsideClickHandler = function(e) {
+                if (e.target === customModal) {
+                    hideCustomModal();
+                    customModalConfirm.removeEventListener('click', confirmHandler);
+                    customModalClose.removeEventListener('click', closeHandler);
+                    window.removeEventListener('click', outsideClickHandler);
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            
+            // ESC键关闭事件
+            const escapeHandler = function(e) {
+                if (e.key === 'Escape') {
+                    hideCustomModal();
+                    customModalConfirm.removeEventListener('click', confirmHandler);
+                    customModalClose.removeEventListener('click', closeHandler);
+                    window.removeEventListener('click', outsideClickHandler);
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            
+            // 绑定事件
+            customModalConfirm.addEventListener('click', confirmHandler);
+            customModalClose.addEventListener('click', closeHandler);
+            window.addEventListener('click', outsideClickHandler);
+            document.addEventListener('keydown', escapeHandler);
+        }
+        
+        // 隐藏自定义弹窗
+        function hideCustomModal() {
+            customModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 初始化
+        function init() {
+            // 加载学生数据
+            loadStudents();
+            
+            // 绑定事件监听器
+            startBtn.addEventListener('click', startRollCall);
+            stopBtn.addEventListener('click', stopRollCall);
+            resetBtn.addEventListener('click', resetRollCall);
+            
+            // 添加脉冲动画到开始按钮
+            startBtn.classList.add('pulse');
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
