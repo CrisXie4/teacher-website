@@ -678,6 +678,8 @@
                         console.log('用户接受了PWA安装');
                         // 隐藏安装按钮
                         installPwaBtn.style.display = 'none';
+                        // 标记应用已安装
+                        localStorage.setItem('pwaInstalled', 'true');
                     } else {
                         console.log('用户拒绝了PWA安装');
                         // 用户拒绝后仍然显示按钮，允许再次尝试
@@ -698,6 +700,12 @@
         // 注册服务工作者
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
+                // 检查是否在本地文件系统中运行
+                if (window.location.protocol === 'file:') {
+                    console.log('Service Worker not supported in file:// protocol');
+                    return;
+                }
+                
                 navigator.serviceWorker.register('sw.js')
                 .then(function(registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
@@ -909,6 +917,15 @@
 
         // 检查是否需要显示新功能介绍
         function checkNewFeatures() {
+            // 检查用户是否选择了不再提示此版本
+            const skipVersion = localStorage.getItem('skipNewFeaturesVersion');
+            const currentVersion = '1.3.0'; // 当前版本号
+            
+            if (skipVersion === currentVersion) {
+                // 用户选择了不再提示此版本
+                return;
+            }
+            
             // 检查是否已经显示过新功能介绍
             const hasSeenNewFeatures = localStorage.getItem('hasSeenNewFeatures');
             
@@ -1388,6 +1405,10 @@
 
         // 页面加载完成后初始化
         window.onload = function() {
+            // 根据浏览器语言设置默认语言
+            const browserLanguage = navigator.language || navigator.userLanguage;
+            currentLanguage = browserLanguage.startsWith('zh') ? 'zh' : 'en';
+            
             // 检查是否保存了语言偏好
             const savedLanguage = localStorage.getItem('preferredLanguage');
             if (savedLanguage) {
@@ -1400,9 +1421,6 @@
             // 检查是否是教师节
             checkTeachersDay();
             
-            // 检查是否需要显示新功能介绍
-            checkNewFeatures();
-            
             // 检查并应用保存的主题设置
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
@@ -1412,11 +1430,17 @@
                 }
             }
             
+            // 检查是否需要显示新功能介绍
+            checkNewFeatures();
+            
             // 检查是否显示彩蛋按钮
             const eggClickCount = localStorage.getItem('eggClickCount') || 0;
             if (eggClickCount >= 5) {
                 document.getElementById('eggButton').style.display = 'block';
             }
+            
+            // 绑定事件监听器
+            bindEventListeners();
             
             // 绑定彩蛋触发元素事件
             const easterEggTrigger = document.getElementById('easterEggTrigger');
@@ -1437,6 +1461,30 @@
                     }
                 });
             }
+        };
+        
+        // 绑定事件监听器
+        function bindEventListeners() {
+            // 获取DOM元素
+            const toggleStudentsBtn = document.getElementById('toggleStudentsBtn');
+            const studentManagement = document.getElementById('studentManagement');
+            const studentManagementContainer = studentManagement.parentElement;
+            const studentId = document.getElementById('studentId');
+            const studentName = document.getElementById('studentName');
+            const addStudentBtn = document.getElementById('addStudentBtn');
+            const csvInput = document.getElementById('csvInput');
+            const importBtn = document.getElementById('importBtn');
+            const fileInput = document.getElementById('fileInput');
+            const importFileBtn = document.getElementById('importFileBtn');
+            const clearStudentsBtn = document.getElementById('clearStudentsBtn');
+            const studentList = document.getElementById('studentList');
+            const totalStudentsEl = document.getElementById('totalStudents');
+            const totalGroupsEl = document.getElementById('totalGroups');
+            const fileInfo = document.getElementById('fileInfo');
+            const feedbackBtn = document.getElementById('feedbackBtn');
+            const languageSwitcher = document.getElementById('languageSwitcher');
+            const themeSwitcher = document.getElementById('themeSwitcher');
+            const eggButton = document.getElementById('eggButton');
             
             // 绑定语言切换按钮事件
             if (languageSwitcher) {
@@ -1514,9 +1562,57 @@
                 });
             }
             
-            // 初始化学生管理器和其他功能
-            // StudentManager.init(); // 在student-manager.js中已经初始化
-        };
+            // 绑定安装按钮事件
+            const installPwaBtn = document.getElementById('installPwaBtn');
+            if (installPwaBtn) {
+                installPwaBtn.addEventListener('click', triggerPWAInstall);
+            }
+        }
+        
+        // 检查PWA是否已安装
+        function isPWAInstalled() {
+            // 检查localStorage标记
+            if (localStorage.getItem('pwaInstalled') === 'true') {
+                return true;
+            }
+            
+            // 检查是否在standalone模式下运行
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                localStorage.setItem('pwaInstalled', 'true');
+                return true;
+            }
+            
+            // 检查navigator.standalone (iOS Safari)
+            if (window.navigator.standalone === true) {
+                localStorage.setItem('pwaInstalled', 'true');
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // 触发PWA安装
+        function triggerPWAInstall() {
+            // 如果有延迟的安装提示，则触发它
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                
+                // 等待用户响应
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户接受了PWA安装');
+                        // 隐藏安装按钮
+                        installPwaBtn.style.display = 'none';
+                        // 标记应用已安装
+                        localStorage.setItem('pwaInstalled', 'true');
+                    } else {
+                        console.log('用户拒绝了PWA安装');
+                        // 用户拒绝后仍然显示按钮，允许再次尝试
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
     </script>
 </body>
 </html>

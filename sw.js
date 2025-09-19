@@ -1,5 +1,5 @@
 // 缓存名称
-const CACHE_NAME = 'teacher-toolkit-v1.2.0';
+const CACHE_NAME = 'teacher-toolkit-v1.3.0';
 const urlsToCache = [
   '/',
   '/index.html',

@@ -11,8 +11,8 @@
     <meta name="apple-mobile-web-app-title" content="教师工具箱">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="1.png" type="image/png">
-    <link rel="apple-touch-icon" href="1.png">
+    <link rel="icon" href="briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="briefcase-192x192.png">
     <title>新功能介绍 - 教师工具箱</title>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -135,7 +135,10 @@
                 </div>
             </div>
             
-            <button id="closeBtn" class="btn close-btn">关闭并返回主页</button>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+                <button id="closeBtn" class="btn close-btn">关闭并返回主页</button>
+                <button id="neverShowBtn" class="btn" style="background: linear-gradient(135deg, #6c757d, #495057);">不再提示此版本</button>
+            </div>
         </div>
     </div>
     
@@ -152,8 +155,27 @@
             window.location.href = 'index.html';
         });
         
+        // 不再提示按钮事件
+        document.getElementById('neverShowBtn').addEventListener('click', function() {
+            // 设置标记表示用户不想再看到此版本的提示
+            const currentVersion = '1.3.0'; // 当前版本号
+            localStorage.setItem('skipNewFeaturesVersion', currentVersion);
+            // 返回主页
+            window.location.href = 'index.html';
+        });
+        
         // 页面加载时检查是否应该显示新功能介绍
         window.onload = function() {
+            // 检查用户是否选择了不再提示此版本
+            const skipVersion = localStorage.getItem('skipNewFeaturesVersion');
+            const currentVersion = '1.3.0'; // 当前版本号
+            
+            if (skipVersion === currentVersion) {
+                // 用户选择了不再提示此版本，直接跳转回主页
+                window.location.href = 'index.html';
+                return;
+            }
+            
             // 检查是否需要显示新功能介绍
             checkNewFeatures();
         };
@@ -180,7 +202,7 @@
             const diffTime = Math.abs(now - startDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            // 如果3天内，则显示新功能介绍（移除了检查用户是否已查看的逻辑）
+            // 如果3天内，则显示新功能介绍
             if (diffDays <= 3) {
                 // 保持页面显示，不跳转
             } else {
