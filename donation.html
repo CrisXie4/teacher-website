@@ -150,8 +150,16 @@
 </head>
 <body>
     <header>
-        <h1>感谢您的支持</h1>
-        <p>您的鼓励是我持续改进的动力</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem;" title="返回主页">🏠 主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1;">
+                <h1>感谢您的支持</h1>
+                <p>您的鼓励是我持续改进的动力</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
     </header>
     
     <div class="container">
@@ -184,7 +192,7 @@
                 <p>您的支持将用于支付服务器费用和开发新功能。感谢您的慷慨支持！</p>
             </div>
             
-            <a href="index.html" class="back-btn">← 返回主页</a>
+            
         </div>
     </div>
     

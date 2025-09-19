@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="专为教师设计的实用工具集合">
+    <meta name="keywords" content="教师工具,教学工具,课堂管理,随机点名,计时器,电子白板">
+    <meta name="author" content="Teacher Toolkit Team">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="教师工具箱">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="briefcase-192x192.png">
     <title>教师工具箱</title>
     <link rel="stylesheet" href="styles.css">
     <script src="student-manager.js"></script>
@@ -463,12 +473,17 @@
 </head>
 <body>
     <header>
-        <h1>教师工具箱</h1>
-        <p>专为教师设计的实用工具集合</p>
-        <div class="header-controls">
-            <button class="language-switcher" id="languageSwitcher">English</button>
-            <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
-            <button class="egg-button" id="eggButton" style="background: linear-gradient(135deg, #FFD700, #FFA500); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" onclick="triggerEasterEgg()">彩蛋</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="text-align: center; flex-grow: 1;">
+                <h1>教师工具箱</h1>
+                <p>专为教师设计的实用工具集合</p>
+            </div>
+            <div class="header-controls">
+                <button class="language-switcher" id="languageSwitcher">English</button>
+                <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
+                <button class="install-pwa-btn" id="installPwaBtn" style="background: linear-gradient(135deg, #4CAF50, #8BC34A); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" title="安装应用到桌面">安装应用</button>
+                <button class="egg-button" id="eggButton" style="background: linear-gradient(135deg, #FFD700, #FFA500); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" onclick="triggerEasterEgg()">彩蛋</button>
+            </div>
         </div>
     </header>
     
@@ -534,6 +549,13 @@
                 <button onclick="navigateTo('math-generator.html')" data-lang="use_now">立即使用</button>
             </div>
             
+            <div class="tool-card" id="3d-viewer-card">
+                <div class="tool-icon">🧱</div>
+                <h2 data-lang="3d_viewer_title">3D观察物体</h2>
+                <p data-lang="3d_viewer_desc">创建、编辑和观察3D物体，支持多角度查看</p>
+                <button onclick="navigateTo('3d-viewer.html')" data-lang="use_now">立即使用</button>
+            </div>
+            
             <div class="tool-card" id="donation-card">
                 <div class="tool-icon">❤️</div>
                 <h2 data-lang="donation_title">打赏支持</h2>
@@ -559,10 +581,7 @@
                 
                 <div class="batch-import">
                     <h3 data-lang="batch_import_title">批量导入（CSV格式：学号,姓名）</h3>
-                    <textarea id="csvInput" placeholder="例如：
-2021001,张三
-2021002,李四
-2021003,王五" data-lang-placeholder="csv_example"></textarea>
+                    <textarea id="csvInput" placeholder="例如：&#10;2021001,张三&#10;2021002,李四&#10;2021003,王五" data-lang-placeholder="csv_example"></textarea>
                     <button id="importBtn" class="btn import" data-lang="import_csv">导入CSV</button>
                 </div>
                 
@@ -595,6 +614,17 @@
         </div>
     </div>
         
+        </div>
+        </div>
+        
+        <!-- PWA安装按钮 -->
+        <button id="installPwaBtn" class="btn install-pwa" style="display: none; background: linear-gradient(135deg, #4CAF50, #8BC34A); margin: 1.5rem auto; padding: 1rem 2rem; font-size: 1.1rem;" title="安装应用到桌面">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 0.5rem;">
+                <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z" fill="white"/>
+            </svg>
+            安装应用到桌面
+        </button>
+        
         <!-- 反馈建议按钮 -->
         <button id="feedbackBtn" class="btn feedback" data-lang="feedback">反馈建议</button>
         
@@ -622,6 +652,64 @@
     </footer>
     
     <script>
+        // PWA安装相关变量
+        let deferredPrompt;
+        const installPwaBtn = document.getElementById('installPwaBtn');
+        
+        // 监听beforeinstallprompt事件
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // 阻止默认的安装提示
+            e.preventDefault();
+            // 保存事件以便稍后触发
+            deferredPrompt = e;
+            // 显示安装按钮
+            installPwaBtn.style.display = 'block';
+        });
+        
+        // 安装按钮点击事件
+        installPwaBtn.addEventListener('click', () => {
+            // 如果有延迟的安装提示，则触发它
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                
+                // 等待用户响应
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户接受了PWA安装');
+                        // 隐藏安装按钮
+                        installPwaBtn.style.display = 'none';
+                    } else {
+                        console.log('用户拒绝了PWA安装');
+                        // 用户拒绝后仍然显示按钮，允许再次尝试
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+        
+        // 监听appinstalled事件
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA应用已成功安装');
+            // 隐藏安装按钮
+            installPwaBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+        
+        // 注册服务工作者
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                .then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                })
+                .catch(function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        } else {
+            console.log('Service Workers are not supported in this browser.');
+        }
+        
         // 页面加载时默认隐藏学生管理区域
         document.addEventListener('DOMContentLoaded', function() {
             const studentManagementContainer = document.querySelector('.student-management-container');
@@ -649,6 +737,8 @@
                 copybook_desc: "生成中英文临摹本，支持自定义字体",
                 math_title: "计算题生成器",
                 math_desc: "生成自定义计算题，支持多种运算符",
+                "3d_viewer_title": "3D观察物体",
+                "3d_viewer_desc": "创建、编辑和观察3D物体，支持多角度查看",
                 donation_title: "打赏支持",
                 donation_desc: "如果您喜欢这些工具，欢迎打赏支持",
                 use_now: "立即使用",
@@ -658,7 +748,7 @@
                 student_name_placeholder: "学生姓名",
                 add_student: "添加学生",
                 batch_import_title: "批量导入（CSV格式：学号,姓名）",
-                csv_example: "例如：\n2021001,张三\n2021002,李四\n2021003,王五",
+                csv_example: "例如：\\n2021001,张三\\n2021002,李四\\n2021003,王五",
                 import_csv: "导入CSV",
                 file_import_title: "文件导入（支持CSV、TXT、JSON格式）",
                 import_file: "导入文件",
@@ -684,6 +774,8 @@
                 whiteboard_desc2: "在线绘制和演示，支持多点触控、多种颜色和线条粗细调节",
                 tracker_guide: "课堂表现记录器",
                 tracker_desc2: "记录学生课堂表现，帮助教师了解学生参与度",
+                jiaocai_downloader_guide: "教材下载器",
+                jiaocai_downloader_desc2: "免登录下载国家中小学智慧教育平台电子教材，支持小学、初中、高中各学段",
                 feedback_guide: "反馈建议",
                 feedback_desc: "点击\"反馈建议\"按钮提交您的宝贵意见",
                 footer_text: "© 2025 教师工具箱 - 专为教师设计",
@@ -707,6 +799,8 @@
                 copybook_desc: "Generate Chinese and English copybooks, support custom fonts",
                 math_title: "Math Problem Generator",
                 math_desc: "Generate customizable math problems, supports multiple operators",
+                "3d_viewer_title": "3D Object Viewer",
+                "3d_viewer_desc": "Create, edit and view 3D objects, support multi-angle viewing",
                 donation_title: "Support Donation",
                 donation_desc: "If you like these tools, please consider supporting us",
                 use_now: "Use Now",
@@ -716,7 +810,7 @@
                 student_name_placeholder: "Student Name",
                 add_student: "Add Student",
                 batch_import_title: "Batch Import (CSV format: ID,Name)",
-                csv_example: "Example:\n2021001,John\n2021002,Jane\n2021003,Bob",
+                csv_example: "Example:\\n2021001,John\\n2021002,Jane\\n2021003,Bob",
                 import_csv: "Import CSV",
                 file_import_title: "File Import (supports CSV, TXT, JSON formats)",
                 import_file: "Import File",

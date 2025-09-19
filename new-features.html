@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="专为教师设计的实用工具集合">
+    <meta name="keywords" content="教师工具,教学工具,课堂管理,随机点名,计时器,电子白板">
+    <meta name="author" content="Teacher Toolkit Team">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="教师工具箱">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="1.png" type="image/png">
+    <link rel="apple-touch-icon" href="1.png">
     <title>新功能介绍 - 教师工具箱</title>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -100,43 +110,28 @@
         <div class="features-container">
             <div class="feature-list">
                 <div class="feature-item">
-                    <h3>临摹本生成器</h3>
-                    <p>支持生成中英文临摹本，可自定义字体、大小和样式，方便学生练习书写。</p>
+                    <h3>3D观察物体</h3>
+                    <p>新增3D观察物体功能，支持用户自己添加、删除物体，创建好了之后支持从不同角度进行观看，帮助学生更好地理解空间几何概念。支持鼠标拖拽旋转和滚轮缩放功能。</p>
                 </div>
                 
                 <div class="feature-item">
-                    <h3>计算题生成器</h3>
-                    <p>可自定义运算符和难度等级，生成符合教学需求的计算题，支持打印功能。</p>
+                    <h3>电子白板多人触控</h3>
+                    <p>电子白板现在支持多人同时触控操作，允许多个用户在同一块白板上同时绘制，非常适合协作教学和小组活动。</p>
                 </div>
                 
                 <div class="feature-item">
-                    <h3>黑夜模式</h3>
-                    <p>为保护您的眼睛，我们添加了黑夜模式，让您在低光环境下也能舒适使用。</p>
+                    <h3>计时器音频提醒</h3>
+                    <p>课堂计时器现在在倒计时结束时会播放音频提醒，确保不会错过重要时间节点，提高课堂管理效率。</p>
                 </div>
                 
                 <div class="feature-item">
-                    <h3>多语言支持</h3>
-                    <p>支持中文和英文两种语言，满足不同用户的使用需求。</p>
+                    <h3>随机点名器速度调节</h3>
+                    <p>随机点名器现在支持速度调节功能，可通过滑杆控制滚动速度，满足不同教学场景的需求。</p>
                 </div>
                 
                 <div class="feature-item">
-                    <h3>JSON格式导入</h3>
-                    <p>除了CSV和TXT格式，现在还支持JSON格式导入学生数据，更加灵活方便。</p>
-                </div>
-                
-                <div class="feature-item">
-                    <h3>教师节祝福</h3>
-                    <p>在教师节当天，系统会自动弹出祝福窗口，向您表达节日的问候。</p>
-                </div>
-                
-                <div class="feature-item">
-                    <h3>新用户引导</h3>
-                    <p>首次访问网站时，会显示引导信息，帮助您快速上手使用各项功能。</p>
-                </div>
-                
-                <div class="feature-item">
-                    <h3>界面优化</h3>
-                    <p>优化了UI色调和交互体验，让工具箱更加美观易用。</p>
+                    <h3>PWA应用支持</h3>
+                    <p>网站现在支持PWA（渐进式Web应用），可以像原生应用一样安装到桌面，离线使用，提供更好的用户体验。</p>
                 </div>
             </div>
             
@@ -159,9 +154,39 @@
         
         // 页面加载时检查是否应该显示新功能介绍
         window.onload = function() {
-            const hasSeenNewFeatures = localStorage.getItem('hasSeenNewFeatures');
-            // 这里可以添加逻辑来判断是否需要显示新功能介绍
-            // 目前我们只是展示页面
+            // 检查是否需要显示新功能介绍
+            checkNewFeatures();
+        };
+        
+        // 检查是否需要显示新功能介绍
+        function checkNewFeatures() {
+            // 获取当前日期
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`;
+            
+            // 获取新功能介绍的开始日期（假设从今天开始）
+            const newFeaturesStartDate = localStorage.getItem('newFeaturesStartDate') || today;
+            
+            // 保存开始日期
+            if (!localStorage.getItem('newFeaturesStartDate')) {
+                localStorage.setItem('newFeaturesStartDate', newFeaturesStartDate);
+            }
+            
+            // 计算日期差
+            const startDate = new Date(newFeaturesStartDate);
+            const diffTime = Math.abs(now - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // 如果3天内，则显示新功能介绍（移除了检查用户是否已查看的逻辑）
+            if (diffDays <= 3) {
+                // 保持页面显示，不跳转
+            } else {
+                // 超过3天则跳转回主页
+                window.location.href = 'index.html';
+            }
         };
     </script>
 </body>

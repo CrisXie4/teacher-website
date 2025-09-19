@@ -286,8 +286,16 @@
 <body>
     <div class="whiteboard-container">
         <div class="whiteboard-header">
-            <h1>电子白板</h1>
-            <a href="index.html" class="back-btn">← 返回主页</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <button class="back-btn-top" onclick="window.location.href='index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem;" title="返回主页">🏠 主页</button>
+                </div>
+                <div style="text-align: center; flex-grow: 1;">
+                    <h1>电子白板</h1>
+                    <p style="font-size: 1rem; opacity: 0.9; margin-top: 0.3rem;">在线绘制和演示，支持多点触控</p>
+                </div>
+                <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+            </div>
         </div>
         
         <div class="whiteboard-toolbar">
@@ -386,6 +394,10 @@
         let drawingHistory = [];
         let historyIndex = -1;
         
+        // 多人触控支持变量
+        let touchColors = {}; // 为每个触摸点分配颜色
+        let touchPoints = {}; // 存储每个触摸点的信息
+        
         // 初始化白板
         function initWhiteboard() {
             const canvas = whiteboardCanvas;
@@ -443,37 +455,84 @@
             const canvas = whiteboardCanvas;
             const rect = canvas.getBoundingClientRect();
             
-            let x, y;
+            // 处理触摸事件（支持多人同时触控）
             if (e.type.includes('touch')) {
-                x = e.touches[0].clientX - rect.left;
-                y = e.touches[0].clientY - rect.top;
+                for (let i = 0; i < e.touches.length; i++) {
+                    const touch = e.touches[i];
+                    const touchId = touch.identifier;
+                    
+                    if (touchPoints[touchId]) {
+                        const x = touch.clientX - rect.left;
+                        const y = touch.clientY - rect.top;
+                        
+                        // 设置绘制样式
+                        canvasContext.lineWidth = touchPoints[touchId].lineWidth;
+                        canvasContext.lineCap = 'round';
+                        canvasContext.lineJoin = 'round';
+                        
+                        // 如果橡皮擦激活，使用白色绘制
+                        if (isEraserActive) {
+                            canvasContext.strokeStyle = 'white';
+                            canvasContext.globalCompositeOperation = 'destination-out';
+                        } else {
+                            canvasContext.strokeStyle = touchPoints[touchId].color;
+                            canvasContext.globalCompositeOperation = 'source-over';
+                        }
+                        
+                        canvasContext.lineTo(x, y);
+                        canvasContext.stroke();
+                        canvasContext.beginPath();
+                        canvasContext.moveTo(x, y);
+                        
+                        // 更新触摸点位置
+                        touchPoints[touchId].x = x;
+                        touchPoints[touchId].y = y;
+                    }
+                }
             } else {
-                x = e.clientX - rect.left;
-                y = e.clientY - rect.top;
+                // 处理鼠标事件
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                canvasContext.lineWidth = lineWidth;
+                canvasContext.lineCap = 'round';
+                canvasContext.lineJoin = 'round';
+                
+                // 如果橡皮擦激活，使用白色绘制
+                if (isEraserActive) {
+                    canvasContext.strokeStyle = 'white';
+                    canvasContext.globalCompositeOperation = 'destination-out';
+                } else {
+                    canvasContext.strokeStyle = currentColor;
+                    canvasContext.globalCompositeOperation = 'source-over';
+                }
+                
+                canvasContext.lineTo(x, y);
+                canvasContext.stroke();
+                canvasContext.beginPath();
+                canvasContext.moveTo(x, y);
             }
-            
-            canvasContext.lineWidth = lineWidth;
-            canvasContext.lineCap = 'round';
-            canvasContext.lineJoin = 'round';
-            
-            // 如果橡皮擦激活，使用白色绘制
-            if (isEraserActive) {
-                canvasContext.strokeStyle = 'white';
-                canvasContext.globalCompositeOperation = 'destination-out';
-            } else {
-                canvasContext.strokeStyle = currentColor;
-                canvasContext.globalCompositeOperation = 'source-over';
-            }
-            
-            canvasContext.lineTo(x, y);
-            canvasContext.stroke();
-            canvasContext.beginPath();
-            canvasContext.moveTo(x, y);
         }
         
         // 停止绘制
-        function stopDrawing() {
+        function stopDrawing(e) {
             if (isDrawing) {
+                // 如果是触摸事件，清理对应的触摸点
+                if (e && e.type.includes('touch')) {
+                    // 清理已结束的触摸点
+                    if (e.changedTouches) {
+                        for (let i = 0; i < e.changedTouches.length; i++) {
+                            const touchId = e.changedTouches[i].identifier;
+                            delete touchPoints[touchId];
+                        }
+                    }
+                    
+                    // 如果还有触摸点在绘制，不结束绘制
+                    if (e.touches && e.touches.length > 0) {
+                        return;
+                    }
+                }
+                
                 isDrawing = false;
                 canvasContext.beginPath();
                 
@@ -485,12 +544,45 @@
         // 处理触摸开始
         function handleTouchStart(e) {
             e.preventDefault();
-            startDrawing(e);
+            
+            // 为每个触摸点分配唯一标识和颜色
+            for (let i = 0; i < e.touches.length; i++) {
+                const touch = e.touches[i];
+                const touchId = touch.identifier;
+                
+                // 如果这是新的触摸点，分配颜色
+                if (!touchPoints[touchId]) {
+                    touchPoints[touchId] = {
+                        x: touch.clientX,
+                        y: touch.clientY,
+                        color: currentColor,
+                        lineWidth: lineWidth
+                    };
+                }
+            }
+            
+            // 对于第一个触摸点，开始绘制
+            if (e.touches.length > 0) {
+                isDrawing = true;
+                draw(e);
+            }
         }
         
         // 处理触摸移动
         function handleTouchMove(e) {
             e.preventDefault();
+            
+            // 更新所有触摸点的位置
+            for (let i = 0; i < e.touches.length; i++) {
+                const touch = e.touches[i];
+                const touchId = touch.identifier;
+                
+                if (touchPoints[touchId]) {
+                    touchPoints[touchId].x = touch.clientX;
+                    touchPoints[touchId].y = touch.clientY;
+                }
+            }
+            
             draw(e);
         }
         

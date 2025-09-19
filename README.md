@@ -13,6 +13,7 @@
 - **课堂表现记录器** - 记录学生课堂表现，提升教学效果
 - **临摹本生成器** - 生成中英文临摹本，支持自定义字体
 - **计算题生成器** - 生成自定义计算题，支持多种运算符
+- **教材下载器** - 免登录下载国家中小学智慧教育平台电子教材
 
 ### 🎨 设计特色
 - **响应式设计** - 适配各种设备屏幕尺寸
@@ -86,8 +87,55 @@ teacher-website/
 ├── sound-detector.html     # 声音检测器
 ├── timer.html              # 课堂计时器
 ├── whiteboard.html         # 电子白板
+├── textbook-downloader.html # 教材下载器
+├── 启动教材下载器.bat        # Windows系统一键启动脚本
+├── Jiaocai-Downlaoder-main # 教材下载器原始代码（Python版本）
+│   ├── Jiaocai-Downlaoder.py # 教材下载器主程序
+│   ├── README.md           # 教材下载器说明文档
+│   └── icon.ico            # 程序图标
 └── README.md               # 项目说明文档
 ```
+
+## 教材下载器使用说明
+
+由于网站服务器的安全限制，直接在浏览器中下载教材可能会遇到403 Forbidden错误。为了解决这个问题，我们提供了专用的Python下载工具。
+
+### 运行环境要求
+- Python 3.6 或更高版本
+- Windows、macOS 或 Linux 操作系统
+
+### Windows系统一键启动（推荐）
+对于Windows用户，我们提供了一键启动脚本：
+1. 双击运行 `启动教材下载器.bat` 文件
+2. 脚本会自动检查Python环境和依赖库，并在需要时自动安装
+3. 启动下载器程序
+
+### 手动运行方法
+1. 确保您的电脑已安装Python。如果没有，请访问 [python.org](https://www.python.org/downloads/) 下载并安装。
+2. 打开命令提示符（CMD）或PowerShell，导航到项目根目录
+3. 安装依赖库：
+   ```
+   pip install -r Jiaocai-Downlaoder-main\requirements.txt
+   ```
+4. 运行下载器：
+   ```
+   python Jiaocai-Downlaoder-main\Jiaocai-Downlaoder.py
+   ```
+5. 在打开的程序窗口中：
+   - 复制教材页面的完整URL到输入框
+   - 点击"START"按钮
+   - 选择保存位置并等待下载完成
+
+### 注意事项
+- 如果双击无法运行程序，可以尝试右键点击文件并选择"使用Python运行"
+- 首次运行时会自动安装依赖库（requests和ttkbootstrap）
+- 如果自动安装失败，请以管理员身份运行命令提示符，然后手动安装：
+  ```
+  pip install requests ttkbootstrap
+  ```
+- 下载的教材为PDF格式，保存在您选择的位置
+
+## 特色功能详解
 
 ## 特色功能详解
 

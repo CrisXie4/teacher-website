@@ -328,8 +328,16 @@
 </head>
 <body>
     <header>
-        <h1>课堂计时器</h1>
-        <p>管理课堂活动时间，提高教学效率</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem;" title="返回主页">🏠 主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1;">
+                <h1>课堂计时器</h1>
+                <p>管理课堂活动时间，提高教学效率</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
     </header>
     
     <div class="container">
@@ -400,7 +408,7 @@
             </ol>
         </div>
         
-        <a href="index.html" class="back-btn">← 返回主页</a>
+        
     </div>
     
     <footer>
@@ -453,6 +461,9 @@
                 isRunning = false;
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
+                
+                // 播放音频提醒
+                playAlarmSound();
                 
                 // 5秒后停止震动效果
                 setTimeout(() => {
@@ -540,6 +551,18 @@
                     全屏
                 `;
                 isFullscreen = false;
+            }
+        }
+        
+        // 播放音频提醒
+        function playAlarmSound() {
+            try {
+                const audio = new Audio('basic-alarm-ringtone.mp3');
+                audio.play().catch(e => {
+                    console.log('音频播放失败:', e);
+                });
+            } catch (e) {
+                console.log('无法播放音频:', e);
             }
         }
         
