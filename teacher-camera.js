@@ -126,9 +126,19 @@ function updateStatus(message, isConnected = false) {
 
 // 连接到WebSocket服务器
 function connectToServer() {
+    // 动态检测协议和主机
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    let wsUrl;
 
+    // 如果是本地开发环境
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        wsUrl = `${protocol}//${window.location.host}`;
+    } else {
+        // 生产环境，使用当前域名
+        wsUrl = `${protocol}//${window.location.host}`;
+    }
+
+    console.log('尝试连接到:', wsUrl);
     updateStatus(languages[currentLanguage].connecting, false);
 
     socket = new WebSocket(wsUrl);
@@ -146,11 +156,22 @@ function connectToServer() {
         updateStatus(languages[currentLanguage].disconnected, false);
         console.log('WebSocket连接已断开');
         socket = null;
+
+        // 如果不是主动断开，尝试重连
+        if (clientId && currentRoomCode) {
+            console.log('尝试重新连接...');
+            setTimeout(connectToServer, 3000);
+        }
     };
 
     socket.onerror = (error) => {
         console.error('WebSocket错误:', error);
-        updateStatus(languages[currentLanguage].connection_error + ' WebSocket error', false);
+        updateStatus(languages[currentLanguage].connection_error + ' 连接服务器失败', false);
+
+        // 如果连接失败，提供本地测试提示
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            updateStatus('无法连接到服务器，请检查服务器是否运行', false);
+        }
     };
 }
 

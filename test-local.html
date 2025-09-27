@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地测试 - 房间码摄像头系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .connected { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .disconnected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        .button:hover { background: #0056b3; }
+        .button:disabled { background: #6c757d; cursor: not-allowed; }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .room-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .test-input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 200px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 本地测试 - 房间码摄像头系统</h1>
+
+        <div id="serverStatus" class="status disconnected">
+            服务器状态：未连接
+        </div>
+
+        <div class="test-section">
+            <h3>📡 服务器连接测试</h3>
+            <button id="testConnection" class="button">测试连接</button>
+            <button id="testApi" class="button">测试 API</button>
+            <div id="connectionResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎥 教师端测试</h3>
+            <button id="createRoom" class="button" disabled>创建房间</button>
+            <div id="roomCode" class="room-code" style="display: none;"></div>
+            <div id="teacherResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 观看者测试</h3>
+            <input type="text" id="joinRoomCode" class="test-input" placeholder="输入房间码" maxlength="6">
+            <button id="joinRoom" class="button" disabled>加入房间</button>
+            <div id="viewerResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 测试结果</h3>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let clientId = null;
+        let currentRoomCode = null;
+
+        // 更新服务器状态
+        function updateServerStatus(message, isConnected = false) {
+            const status = document.getElementById('serverStatus');
+            status.textContent = '服务器状态：' + message;
+            status.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        // 添加测试结果
+        function addTestResult(message, success = true) {
+            const results = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.style.padding = '5px';
+            div.style.color = success ? 'green' : 'red';
+            div.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        // 测试连接
+        function testConnection() {
+            updateServerStatus('正在连接...', false);
+            addTestResult('开始测试 WebSocket 连接...');
+
+            const wsUrl = `ws://${window.location.hostname}:3000`;
+            console.log('测试连接到:', wsUrl);
+
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                updateServerStatus('已连接', true);
+                addTestResult('✅ WebSocket 连接成功');
+                document.getElementById('createRoom').disabled = false;
+                document.getElementById('joinRoom').disabled = false;
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('收到消息:', data);
+                handleMessage(data);
+            };
+
+            socket.onclose = () => {
+                updateServerStatus('连接断开', false);
+                addTestResult('❌ WebSocket 连接断开');
+                document.getElementById('createRoom').disabled = true;
+                document.getElementById('joinRoom').disabled = true;
+            };
+
+            socket.onerror = (error) => {
+                updateServerStatus('连接失败', false);
+                addTestResult('❌ WebSocket 连接失败，请确保服务器运行在 localhost:3000');
+                console.error('连接错误:', error);
+            };
+        }
+
+        // 处理消息
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'connection':
+                    clientId = data.id;
+                    addTestResult(`✅ 获得客户端 ID: ${clientId}`);
+                    break;
+
+                case 'room-created':
+                    currentRoomCode = data.roomCode;
+                    document.getElementById('roomCode').textContent = `房间码: ${currentRoomCode}`;
+                    document.getElementById('roomCode').style.display = 'block';
+                    addTestResult(`✅ 房间创建成功，房间码: ${currentRoomCode}`);
+                    break;
+
+                case 'room-joined':
+                    addTestResult(`✅ 成功加入房间: ${data.roomCode}`);
+                    break;
+
+                case 'viewer-joined':
+                    addTestResult(`✅ 有观看者加入了房间`);
+                    break;
+
+                case 'error':
+                    addTestResult(`❌ 错误: ${data.message}`, false);
+                    break;
+            }
+        }
+
+        // 测试 API
+        async function testApi() {
+            addTestResult('开始测试 API 端点...');
+
+            try {
+                const response = await fetch(`http://${window.location.hostname}:3000/api/status`);
+                const data = await response.json();
+
+                if (data.status === 'running') {
+                    addTestResult('✅ API 端点正常工作');
+                    addTestResult(`   - 连接的客户端: ${data.connectedClients}`);
+                    addTestResult(`   - 活跃房间: ${data.activeRooms}`);
+                    addTestResult(`   - Supabase 配置: ${data.environment.supabaseConfigured ? '已配置' : '未配置'}`);
+                } else {
+                    addTestResult('❌ API 返回异常状态', false);
+                }
+            } catch (error) {
+                addTestResult('❌ API 请求失败，请确保服务器运行在 localhost:3000', false);
+            }
+        }
+
+        // 创建房间
+        function createRoom() {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                addTestResult('❌ 请先连接到服务器', false);
+                return;
+            }
+
+            addTestResult('创建房间...');
+            socket.send(JSON.stringify({ type: 'create-room' }));
+        }
+
+        // 加入房间
+        function joinRoom() {
+            const roomCode = document.getElementById('joinRoomCode').value.trim();
+
+            if (!roomCode) {
+                addTestResult('❌ 请输入房间码', false);
+                return;
+            }
+
+            if (!/^\d{6}$/.test(roomCode)) {
+                addTestResult('❌ 房间码必须是6位数字', false);
+                return;
+            }
+
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                addTestResult('❌ 请先连接到服务器', false);
+                return;
+            }
+
+            addTestResult(`尝试加入房间: ${roomCode}`);
+            socket.send(JSON.stringify({ type: 'join-room', roomCode: roomCode }));
+        }
+
+        // 绑定事件
+        document.getElementById('testConnection').addEventListener('click', testConnection);
+        document.getElementById('testApi').addEventListener('click', testApi);
+        document.getElementById('createRoom').addEventListener('click', createRoom);
+        document.getElementById('joinRoom').addEventListener('click', joinRoom);
+
+        // 限制房间码输入为数字
+        document.getElementById('joinRoomCode').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        // 页面加载时自动测试
+        window.addEventListener('load', () => {
+            addTestResult('页面加载完成，可以开始测试');
+            addTestResult('请先点击"测试连接"按钮');
+        });
+    </script>
+</body>
+</html>
