@@ -28,6 +28,7 @@
 - **样式框架**: 原生CSS，无第三方依赖
 - **兼容性**: 支持现代主流浏览器
 - **存储方式**: localStorage本地数据存储
+- **实时通信**: WebRTC, WebSocket (用于摄像头投屏功能)
 
 ## 快速开始 (Quick Start)
 
@@ -88,6 +89,12 @@ teacher-website/
 ├── timer.html              # 课堂计时器
 ├── whiteboard.html         # 电子白板
 ├── textbook-downloader.html # 教材下载器
+├── server.js              # WebRTC服务器端代码
+├── teacher-camera.html    # 教师摄像头页面（手机端）
+├── teacher-camera.js      # 教师摄像头控制脚本
+├── teacher-view.html      # 教师摄像头查看页面（电脑端）
+├── teacher-view.js        # 教师摄像头查看控制脚本
+├── start-server.bat       # 启动WebRTC服务器脚本
 ├── 启动教材下载器.bat        # Windows系统一键启动脚本
 ├── Jiaocai-Downlaoder-main # 教材下载器原始代码（Python版本）
 │   ├── Jiaocai-Downlaoder.py # 教材下载器主程序
@@ -95,6 +102,33 @@ teacher-website/
 │   └── icon.ico            # 程序图标
 └── README.md               # 项目说明文档
 ```
+
+## 教师摄像头投屏功能使用说明
+
+### 准备工作
+1. 确保已安装Node.js环境
+2. 确保手机和电脑在同一局域网内
+
+### 启动服务
+1. 双击运行`start-server.bat`脚本启动服务器
+2. 服务器启动后，控制台会显示访问地址
+
+### 使用方法
+1. **手机端（教师）**：
+   - 在手机浏览器中访问`http://[电脑IP地址]:3000/teacher-camera.html`
+   - 点击"开始广播"按钮，允许摄像头访问权限
+   - 手机屏幕上会显示摄像头画面
+
+2. **电脑端（观看者）**：
+   - 在电脑浏览器中访问`http://localhost:3000/teacher-view.html`
+   - 当教师端开始广播后，点击"连接教师摄像头"按钮
+   - 电脑屏幕上会显示教师手机摄像头的实时画面
+
+### 注意事项
+- 确保手机和电脑在同一局域网内
+- 如果连接失败，请检查防火墙设置
+- 首次使用时需要允许摄像头访问权限
+- 为获得最佳体验，建议使用Chrome或Firefox浏览器
 
 ## 教材下载器使用说明
 
