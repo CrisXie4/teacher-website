@@ -12,7 +12,11 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
