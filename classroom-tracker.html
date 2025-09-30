@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课堂表现记录器 - 教师工具箱</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="student-manager.js"></script>
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .tracker-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .tracker-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #182848;
+            margin-bottom: 1.8rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 1.1rem 2.2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.start {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        
+        .btn.stop {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+        
+        .btn.reset {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+        }
+        
+        .btn.fullscreen {
+            background: linear-gradient(135deg, #9C27B0, #E040FB);
+        }
+        
+        .btn.manage-students {
+            background: linear-gradient(135deg, #FF9800, #FFC107);
+            display: block;
+            margin: 1.5rem auto;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .tracker-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .tracker-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 1.3rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tracker-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tracker-btn:active {
+            transform: translateY(0);
+        }
+        
+        .good-btn {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        
+        .average-btn {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+        }
+        
+        .poor-btn {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+        
+        .tracker-display {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1.8rem;
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+        }
+        
+        .tracker-value {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #182848;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tracker-label {
+            color: #555;
+            font-size: 1.2rem;
+        }
+        
+        .tracker-history {
+            margin-top: 2.5rem;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .history-title {
+            color: #182848;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        #clearHistoryBtn {
+            background: #ff416c;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        #historyEntries {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            backdrop-filter: blur(5px);
+        }
+        
+        .history-entry {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .history-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .history-time {
+            font-weight: bold;
+            color: #182848;
+            min-width: 120px;
+        }
+        
+        .history-student {
+            font-weight: bold;
+            color: #4b6cb7;
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        .history-action {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .good-action {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .average-action {
+            background: #FFC107;
+            color: black;
+        }
+        
+        .poor-action {
+            background: #FF5722;
+            color: white;
+        }
+        
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            text-align: left;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .instructions ol {
+            padding-left: 2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .instructions strong {
+            color: #4b6cb7;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.8rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .back-btn:hover {
+            background: rgba(90, 98, 104, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .summary-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .summary-card {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .summary-label {
+            font-size: 1rem;
+            color: #555;
+        }
+        
+        /* 动画效果 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1.1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .empty-list {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+        }
+        
+        /* 震动动画 */
+        .vibrate {
+            animation: vibrate 0.5s infinite;
+        }
+        
+        @keyframes vibrate {
+            0% { transform: translate(0); }
+            25% { transform: translate(-5px, 0); }
+            50% { transform: translate(5px, 0); }
+            75% { transform: translate(-5px, 0); }
+            100% { transform: translate(0); }
+        }
+        
+        /* 全屏样式 */
+        .fullscreen-active {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .fullscreen-active .tracker-display {
+            font-size: 8rem;
+        }
+        
+        .fullscreen-active .tracker-controls {
+            margin-top: 3rem;
+        }
+        
+        /* 自定义弹窗 */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .custom-modal.show {
+            opacity: 1;
+        }
+        
+        .custom-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .custom-modal.show .custom-modal-content {
+            transform: scale(1);
+        }
+        
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .custom-modal-title {
+            font-size: 1.4rem;
+            color: #182848;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .custom-modal-close:hover {
+            color: #ff416c;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-modal-body {
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            color: #444;
+            line-height: 1.6;
+        }
+        
+        #studentListContainer {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #f8f9fa;
+            margin: 1rem 0;
+        }
+        
+        .custom-modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        
+        .custom-modal-confirm {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+        }
+        
+        .custom-modal-confirm:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .tracker-container {
+                padding: 1.8rem;
+            }
+            
+            .tracker-display {
+                padding: 1.5rem;
+            }
+            
+            .tracker-value {
+                font-size: 2.5rem;
+            }
+            
+            .tracker-controls {
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+            
+            .tracker-btn {
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+            
+            .instructions {
+                padding: 1.5rem;
+            }
+            
+            .instructions h3 {
+                font-size: 1.5rem;
+            }
+            
+            .instructions li {
+                font-size: 1rem;
+            }
+            
+            .summary-container {
+                gap: 1rem;
+            }
+            
+            .summary-card {
+                padding: 1rem;
+                min-width: 120px;
+            }
+            
+            .summary-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem;" title="返回主页">🏠 主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1;">
+                <h1>课堂表现记录器</h1>
+                <p>记录学生课堂表现，提升教学效果</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tracker-container" id="trackerContainer">
+            <h2 class="section-title">表现记录</h2>
+            
+            <div class="summary-container">
+                <div class="summary-card">
+                    <div class="summary-value" id="totalStudents">0</div>
+                    <div class="summary-label">总学生数</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="totalRecords">0</div>
+                    <div class="summary-label">总记录数</div>
+                </div>
+            </div>
+            
+            <div class="tracker-display">
+                <div>当前学生:</div>
+                <div id="currentStudent" class="tracker-value">未选择</div>
+                <div>平均评分:</div>
+                <div id="currentScore" class="tracker-value">-</div>
+            </div>
+            
+            <div class="tracker-controls">
+                <button class="tracker-btn good-btn" id="goodBtn">
+                    <span style="font-size: 2rem;">👍</span>
+                    <span>积极参与 (3分)</span>
+                </button>
+                <button class="tracker-btn average-btn" id="averageBtn">
+                    <span style="font-size: 2rem;">👌</span>
+                    <span>一般表现 (2分)</span>
+                </button>
+                <button class="tracker-btn poor-btn" id="poorBtn">
+                    <span style="font-size: 2rem;">👎</span>
+                    <span>需要改进 (1分)</span>
+                </button>
+                <button class="tracker-btn" id="deductBtn" style="background: linear-gradient(135deg, #f44336, #e91e63);">
+                    <span style="font-size: 2rem;">➖</span>
+                    <span>扣分 (-1分)</span>
+                </button>
+            </div>
+            
+            <button id="selectStudentBtn" class="btn manage-students">选择学生</button>
+            
+            <div class="tracker-history">
+                <div class="history-header">
+                    <h3 class="history-title">记录历史</h3>
+                    <button id="clearHistoryBtn" class="btn">清空历史</button>
+                </div>
+                <div id="historyEntries">
+                    <div class="empty-list">暂无记录</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li><strong>准备工作</strong> - 请先在主页添加学生信息</li>
+                <li><strong>选择学生</strong> - 点击"选择学生"按钮在弹窗中选择要记录表现的学生</li>
+                <li><strong>记录表现</strong> - 在右侧点击相应的按钮记录学生表现（积极参与3分、一般表现2分、需要改进1分）</li>
+                <li><strong>扣分功能</strong> - 点击"扣分"按钮扣除学生1分</li>
+                <li><strong>查看统计</strong> - 系统会自动计算学生的平均评分</li>
+                <li><strong>历史记录</strong> - 查看详细的记录历史，了解学生的课堂表现</li>
+                <li><strong>添加学生</strong> - 在学生选择弹窗中点击"添加学生"按钮跳转到主页添加新学生</li>
+                <li><strong>数据保存</strong> - 所有记录会自动保存到本地，下次访问时会自动加载</li>
+            </ol>
+        </div>
+        
+        <!-- 自定义弹窗 -->
+    <div class="custom-modal" id="customModal">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title" id="customModalTitle">提示</h3>
+                <span class="custom-modal-close" id="customModalClose">&times;</span>
+            </div>
+            <div class="custom-modal-body" id="customModalBody">
+                这是提示内容
+            </div>
+            <div class="custom-modal-footer">
+                <button class="btn custom-modal-confirm" id="customModalConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    </div>
+    
+    <!-- 学生选择模态框 -->
+    <div class="custom-modal" id="studentSelectModal">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title">选择学生</h3>
+                <span class="custom-modal-close" id="studentSelectModalClose">&times;</span>
+            </div>
+            <div class="custom-modal-body">
+                <div id="studentListContainer">
+                    <div class="empty-list">暂无学生，请先在主页添加学生</div>
+                </div>
+            </div>
+            <div class="custom-modal-footer">
+                <button class="btn" id="addStudentFromTrackerBtn" style="background: linear-gradient(135deg, #4CAF50, #8BC34A);">添加学生</button>
+                <button class="btn custom-modal-confirm" id="studentSelectModalConfirm">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 课堂表现记录器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const trackerContainer = document.getElementById('trackerContainer');
+        const totalStudentsEl = document.getElementById('totalStudents');
+        const totalRecordsEl = document.getElementById('totalRecords');
+        const currentStudentEl = document.getElementById('currentStudent');
+        const currentScoreEl = document.getElementById('currentScore');
+        const goodBtn = document.getElementById('goodBtn');
+        const averageBtn = document.getElementById('averageBtn');
+        const poorBtn = document.getElementById('poorBtn');
+        const deductBtn = document.getElementById('deductBtn');
+        const selectStudentBtn = document.getElementById('selectStudentBtn');
+        const historyEntries = document.getElementById('historyEntries');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        
+        // 自定义弹窗元素
+        const customModal = document.getElementById('customModal');
+        const customModalTitle = document.getElementById('customModalTitle');
+        const customModalBody = document.getElementById('customModalBody');
+        const customModalClose = document.getElementById('customModalClose');
+        const customModalConfirm = document.getElementById('customModalConfirm');
+        
+        // 学生选择模态框元素
+        const studentSelectModal = document.getElementById('studentSelectModal');
+        const studentSelectModalClose = document.getElementById('studentSelectModalClose');
+        const studentSelectModalConfirm = document.getElementById('studentSelectModalConfirm');
+        const studentListContainer = document.getElementById('studentListContainer');
+        const addStudentFromTrackerBtn = document.getElementById('addStudentFromTrackerBtn');
+        
+        // 记录变量
+        let records = [];
+        let currentStudent = null;
+        
+        // 存储键名
+        const RECORDS_STORAGE_KEY = 'classroom_tracker_records';
+        const CURRENT_STUDENT_KEY = 'classroom_tracker_current_student';
+        
+        // 记录类
+        class Record {
+            constructor(studentName, score, action, time) {
+                this.id = Date.now() + Math.random();
+                this.studentName = studentName;
+                this.score = score;
+                this.action = action;
+                this.time = time || new Date();
+            }
+        }
+        
+        // 加载主页学生数据
+        function loadStudents() {
+            try {
+                // 从localStorage获取学生数据，使用与主页相同的键名
+                const savedStudents = localStorage.getItem('teacher_toolkit_students');
+                if (savedStudents) {
+                    return JSON.parse(savedStudents);
+                } else {
+                    return [];
+                }
+            } catch (e) {
+                console.error('加载学生数据失败:', e);
+                return [];
+            }
+        }
+        
+        // 加载当前选中学生
+        function loadCurrentStudent() {
+            try {
+                // 首先检查是否有从主页传递过来的学生数据
+                const selectedStudent = localStorage.getItem('classroom_tracker_current_student');
+                if (selectedStudent) {
+                    currentStudent = JSON.parse(selectedStudent);
+                    currentStudentEl.textContent = currentStudent.id ? 
+                        `${currentStudent.id} - ${currentStudent.name}` : 
+                        currentStudent.name;
+                    updateCurrentStudentScore(); // 更新平均分显示
+                    
+                    // 保存当前学生到持久化存储
+                    saveCurrentStudent();
+                    
+                    // 清除临时存储的学生数据
+                    localStorage.removeItem('classroom_tracker_current_student');
+                    return;
+                }
+                
+                // 如果没有临时数据，则从持久化存储加载
+                const savedStudent = localStorage.getItem(CURRENT_STUDENT_KEY);
+                if (savedStudent) {
+                    currentStudent = JSON.parse(savedStudent);
+                    currentStudentEl.textContent = currentStudent.id ? 
+                        `${currentStudent.id} - ${currentStudent.name}` : 
+                        currentStudent.name;
+                    updateCurrentStudentScore(); // 更新平均分显示
+                } else {
+                    currentStudent = null;
+                    currentStudentEl.textContent = '未选择';
+                    currentScoreEl.textContent = '-';
+                }
+            } catch (e) {
+                console.error('加载当前学生失败:', e);
+                currentStudent = null;
+                currentStudentEl.textContent = '未选择';
+                currentScoreEl.textContent = '-';
+            }
+        }
+        
+        // 保存当前选中学生
+        function saveCurrentStudent() {
+            try {
+                if (currentStudent) {
+                    localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(currentStudent));
+                } else {
+                    localStorage.removeItem(CURRENT_STUDENT_KEY);
+                }
+            } catch (e) {
+                console.error('保存当前学生失败:', e);
+            }
+        }
+        
+        // 选择学生（从主页跳转过来时调用）
+        function selectStudentFromHomepage() {
+            // 从URL参数获取学生信息
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentName = urlParams.get('student');
+            
+            if (studentName) {
+                // 从学生列表中查找匹配的学生
+                const students = loadStudents();
+                const student = students.find(s => s.name === decodeURIComponent(studentName));
+                
+                if (student) {
+                    currentStudent = student;
+                    saveCurrentStudent();
+                    currentStudentEl.textContent = student.id ? 
+                        `${student.id} - ${student.name}` : 
+                        student.name;
+                    updateCurrentStudentScore(); // 更新平均分显示
+                }
+            }
+        }
+        
+        // 记录表现
+        function recordPerformance(score, actionText) {
+            if (!currentStudent) {
+                showStudentSelectModal();
+                return;
+            }
+            
+            // 创建记录
+            const record = new Record(currentStudent.name, score, actionText);
+            records.unshift(record); // 添加到开头
+            
+            // 保存记录
+            saveRecords();
+            
+            // 更新UI
+            renderHistory();
+            updateSummary();
+            updateCurrentStudentScore(); // 更新当前学生平均分
+            
+            // 使用setTimeout确保UI更新完成后再显示模态框
+            setTimeout(() => {
+                showCustomModal('成功', `已记录 ${currentStudent.name} 的表现: ${actionText}`);
+            }, 100);
+        }
+        
+        // 扣分功能
+        function deductPoints() {
+            if (!currentStudent) {
+                showStudentSelectModal();
+                return;
+            }
+            
+            // 创建扣分记录（-1分）
+            const record = new Record(currentStudent.name, -1, '扣分');
+            records.unshift(record); // 添加到开头
+            
+            // 保存记录
+            saveRecords();
+            
+            // 更新UI
+            renderHistory();
+            updateSummary();
+            updateCurrentStudentScore(); // 更新当前学生平均分
+            
+            // 使用setTimeout确保UI更新完成后再显示模态框
+            setTimeout(() => {
+                showCustomModal('成功', `已扣除 ${currentStudent.name} 1分`);
+            }, 100);
+        }
+        
+        // 渲染历史记录
+        function renderHistory() {
+            if (records.length === 0) {
+                historyEntries.innerHTML = '<div class="empty-list">暂无记录</div>';
+                return;
+            }
+            
+            historyEntries.innerHTML = '';
+            
+            records.forEach(record => {
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'history-entry';
+                
+                const timeString = record.time.toLocaleTimeString('zh-CN');
+                const dateString = record.time.toLocaleDateString('zh-CN');
+                
+                // 确定动作样式
+                let actionClass = '';
+                if (record.action.includes('积极参与')) {
+                    actionClass = 'good-action';
+                } else if (record.action.includes('一般表现')) {
+                    actionClass = 'average-action';
+                } else if (record.action.includes('需要改进')) {
+                    actionClass = 'poor-action';
+                }
+                
+                historyEntry.innerHTML = `
+                    <span class="history-time">${dateString} ${timeString}</span>
+                    <span class="history-student">${record.studentName}</span>
+                    <span class="history-action ${actionClass}">${record.action}</span>
+                    <span>(${record.score}分)</span>
+                `;
+                
+                historyEntries.appendChild(historyEntry);
+            });
+        }
+        
+        // 清空历史记录
+        function clearHistory() {
+            // 先清理可能存在的旧事件
+            cleanupModalEvents();
+            
+            showCustomModal('确认清空', '确定要清空所有记录吗？', function() {
+                records = [];
+                saveRecords();
+                renderHistory();
+                updateSummary();
+                updateCurrentStudentScore(); // 更新当前学生平均分
+            });
+        }
+        
+        // 更新当前学生平均分
+        function updateCurrentStudentScore() {
+            if (!currentStudent) {
+                currentScoreEl.textContent = '-';
+                return;
+            }
+            
+            // 获取当前学生的记录
+            const studentRecords = records.filter(record => record.studentName === currentStudent.name);
+            
+            if (studentRecords.length === 0) {
+                currentScoreEl.textContent = '-';
+                return;
+            }
+            
+            // 计算平均分
+            const totalScore = studentRecords.reduce((sum, record) => sum + record.score, 0);
+            const averageScore = totalScore / studentRecords.length;
+            
+            // 显示平均分（保留一位小数）
+            currentScoreEl.textContent = averageScore.toFixed(1);
+        }
+        
+        // 更新统计摘要
+        function updateSummary() {
+            const students = loadStudents();
+            totalStudentsEl.textContent = students.length;
+            
+            // 计算总记录数
+            const totalRecords = records.length;
+            totalRecordsEl.textContent = totalRecords;
+        }
+        
+        // 保存记录到本地存储
+        function saveRecords() {
+            try {
+                // 转换日期对象为字符串以便存储
+                const recordsToSave = records.map(record => ({
+                    ...record,
+                    time: record.time.toISOString()
+                }));
+                
+                localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(recordsToSave));
+            } catch (e) {
+                console.error('保存记录数据失败:', e);
+            }
+        }
+        
+        // 加载记录从本地存储
+        function loadRecords() {
+            try {
+                const stored = localStorage.getItem(RECORDS_STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    records = parsed.map(data => ({
+                        ...data,
+                        time: new Date(data.time)
+                    }));
+                }
+            } catch (e) {
+                console.error('加载记录数据失败:', e);
+                records = [];
+            }
+        }
+        
+        // 自定义弹窗函数
+        function showCustomModal(title, message, callback) {
+            customModalTitle.textContent = title;
+            customModalBody.textContent = message;
+            customModal.classList.add('show');
+            customModal.style.display = 'flex';  // 确保模态框显示
+            document.body.style.overflow = 'hidden';
+            
+            // 先移除之前可能绑定的事件监听器，防止重复绑定
+            cleanupModalEvents();
+            
+            // 简化的事件处理
+            const handleConfirm = function() {
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+                hideCustomModal();
+                cleanupModalEvents();
+            };
+            
+            const handleClose = function() {
+                hideCustomModal();
+                cleanupModalEvents();
+            };
+            
+            const handleOutsideClick = function(e) {
+                if (e.target === customModal) {
+                    hideCustomModal();
+                    cleanupModalEvents();
+                }
+            };
+            
+            const handleEscape = function(e) {
+                if (e.key === 'Escape') {
+                    hideCustomModal();
+                    cleanupModalEvents();
+                }
+            };
+            
+            // 绑定事件
+            customModalConfirm.addEventListener('click', handleConfirm);
+            customModalClose.addEventListener('click', handleClose);
+            window.addEventListener('click', handleOutsideClick);
+            document.addEventListener('keydown', handleEscape);
+        }
+        
+        // 清理事件监听器的函数
+        function cleanupModalEvents() {
+            const handleConfirm = function() {};
+            const handleClose = function() {};
+            const handleOutsideClick = function(e) {};
+            const handleEscape = function(e) {};
+            
+            customModalConfirm.removeEventListener('click', handleConfirm);
+            customModalClose.removeEventListener('click', handleClose);
+            window.removeEventListener('click', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
+        }
+        
+        // 隐藏自定义弹窗
+        function hideCustomModal() {
+            customModal.classList.remove('show');
+            customModal.style.display = 'none';  // 确保模态框隐藏
+            document.body.style.overflow = 'auto';
+            // 清理事件监听器
+            cleanupModalEvents();
+        }
+        
+        // 显示学生选择模态框
+        function showStudentSelectModal() {
+            console.log('尝试显示学生选择模态框');
+            
+            // 检查元素是否存在
+            if (!studentSelectModal) {
+                console.error('找不到学生选择模态框元素');
+                return;
+            }
+            
+            // 加载学生列表
+            loadStudentList();
+            
+            // 先清理可能存在的旧事件
+            cleanupSelectModalEvents();
+            
+            // 初始化学生选择模态框事件
+            initStudentSelectModal();
+            
+            // 显示模态框
+            studentSelectModal.classList.add('show');
+            studentSelectModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            console.log('学生选择模态框已显示');
+        }
+        
+        // 隐藏学生选择模态框
+        function hideStudentSelectModal() {
+            console.log('尝试隐藏学生选择模态框');
+            
+            // 检查元素是否存在
+            if (!studentSelectModal) {
+                console.error('找不到学生选择模态框元素');
+                return;
+            }
+            
+            // 隐藏模态框
+            studentSelectModal.classList.remove('show');
+            studentSelectModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            console.log('学生选择模态框已隐藏');
+            
+            // 清理事件监听器
+            cleanupSelectModalEvents();
+        }
+        
+        // 加载学生列表
+        function loadStudentList() {
+            const students = loadStudents();
+            studentListContainer.innerHTML = '';
+            
+            if (students.length === 0) {
+                studentListContainer.innerHTML = '<div class="empty-list">暂无学生，请先在主页添加学生</div>';
+                return;
+            }
+            
+            students.forEach((student, index) => {
+                const studentItem = document.createElement('div');
+                studentItem.className = 'history-entry';
+                studentItem.style.cursor = 'pointer';
+                studentItem.style.marginBottom = '0.5rem';
+                
+                const studentInfo = student.id ? 
+                    `<span class="history-student">${student.id} - ${student.name}</span>` : 
+                    `<span class="history-student">${student.name}</span>`;
+                
+                studentItem.innerHTML = studentInfo;
+                
+                // 清理可能存在的旧事件监听器
+                const handleClick = () => {
+                    selectStudent(student);
+                    hideStudentSelectModal();
+                };
+                
+                // 添加点击事件选择学生
+                studentItem.addEventListener('click', handleClick);
+                
+                studentListContainer.appendChild(studentItem);
+            });
+        }
+        
+        // 学生选择模态框事件处理
+        function initStudentSelectModal() {
+            // 先清理可能存在的旧事件监听器
+            cleanupSelectModalEvents();
+            
+            // 简化的事件处理
+            const handleSelectClose = function() {
+                hideStudentSelectModal();
+                cleanupSelectModalEvents();
+            };
+            
+            const handleSelectConfirm = function() {
+                hideStudentSelectModal();
+                cleanupSelectModalEvents();
+            };
+            
+            const handleSelectOutsideClick = function(e) {
+                if (e.target === studentSelectModal) {
+                    hideStudentSelectModal();
+                    cleanupSelectModalEvents();
+                }
+            };
+            
+            // 绑定事件
+            studentSelectModalClose.addEventListener('click', handleSelectClose);
+            studentSelectModalConfirm.addEventListener('click', handleSelectConfirm);
+            window.addEventListener('click', handleSelectOutsideClick);
+        }
+        
+        // 清理学生选择模态框事件监听器的函数
+        function cleanupSelectModalEvents() {
+            const handleSelectClose = function() {};
+            const handleSelectConfirm = function() {};
+            const handleSelectOutsideClick = function(e) {};
+            
+            studentSelectModalClose.removeEventListener('click', handleSelectClose);
+            studentSelectModalConfirm.removeEventListener('click', handleSelectConfirm);
+            window.removeEventListener('click', handleSelectOutsideClick);
+        }
+        
+        // 选择学生
+        function selectStudent(student) {
+            currentStudent = student;
+            currentStudentEl.textContent = student.id ? 
+                `${student.id} - ${student.name}` : 
+                student.name;
+            saveCurrentStudent();
+            updateCurrentStudentScore();
+            
+            // 使用setTimeout确保UI更新完成后再显示模态框
+            setTimeout(() => {
+                showCustomModal('成功', `已选择学生: ${student.name}`);
+            }, 100);
+        }
+        
+        // 添加学生（跳转到主页）
+        function addStudentFromTracker() {
+            window.location.href = 'index.html?from=tracker';
+        }
+        
+        // 跳转到学生管理页面
+        function goToStudentManagement() {
+            showStudentSelectModal();
+        }
+        
+        // 保存事件处理函数的引用，以便可以正确移除
+        let handleGoodBtn, handleAverageBtn, handlePoorBtn, handleDeductBtn, handleClearHistoryBtn, handleSelectStudentBtn, handleAddStudentFromTrackerBtn;
+        
+        // 初始化
+        function init() {
+            // 加载数据
+            loadRecords();
+            loadCurrentStudent();
+            selectStudentFromHomepage();
+            
+            // 渲染UI
+            renderHistory();
+            updateSummary();
+            updateCurrentStudentScore(); // 初始化时更新当前学生平均分
+            
+            // 初始化模态框事件处理
+            initStudentSelectModal();
+            
+            // 先移除可能已存在的事件监听器，防止重复绑定
+            if (handleGoodBtn) goodBtn.removeEventListener('click', handleGoodBtn);
+            if (handleAverageBtn) averageBtn.removeEventListener('click', handleAverageBtn);
+            if (handlePoorBtn) poorBtn.removeEventListener('click', handlePoorBtn);
+            if (handleDeductBtn) deductBtn.removeEventListener('click', handleDeductBtn);
+            if (handleClearHistoryBtn) clearHistoryBtn.removeEventListener('click', handleClearHistoryBtn);
+            if (handleSelectStudentBtn) selectStudentBtn.removeEventListener('click', handleSelectStudentBtn);
+            if (handleAddStudentFromTrackerBtn) addStudentFromTrackerBtn.removeEventListener('click', handleAddStudentFromTrackerBtn);
+            
+            // 定义事件处理函数并保存引用
+            handleGoodBtn = () => {
+                console.log('点击了积极参与按钮');
+                recordPerformance(3, '积极参与');
+            };
+            
+            handleAverageBtn = () => {
+                console.log('点击了一般表现按钮');
+                recordPerformance(2, '一般表现');
+            };
+            
+            handlePoorBtn = () => {
+                console.log('点击了需要改进按钮');
+                recordPerformance(1, '需要改进');
+            };
+            
+            handleDeductBtn = () => {
+                console.log('点击了扣分按钮');
+                deductPoints();
+            };
+            
+            handleClearHistoryBtn = () => {
+                console.log('点击了清空历史按钮');
+                clearHistory();
+            };
+            
+            handleSelectStudentBtn = () => {
+                console.log('点击了选择学生按钮');
+                showStudentSelectModal();
+            };
+            
+            handleAddStudentFromTrackerBtn = addStudentFromTracker;
+            
+            // 绑定事件监听器
+            goodBtn.addEventListener('click', handleGoodBtn);
+            averageBtn.addEventListener('click', handleAverageBtn);
+            poorBtn.addEventListener('click', handlePoorBtn);
+            deductBtn.addEventListener('click', handleDeductBtn);
+            clearHistoryBtn.addEventListener('click', handleClearHistoryBtn);
+            selectStudentBtn.addEventListener('click', handleSelectStudentBtn);
+            addStudentFromTrackerBtn.addEventListener('click', handleAddStudentFromTrackerBtn);
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
