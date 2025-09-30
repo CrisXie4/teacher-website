@@ -29,64 +29,65 @@
             grid-template-columns: repeat(18, 1fr);
             gap: 4px;
             margin: 30px auto;
-            max-width: 1500px;
+            max-width: 1400px;
+            font-size: 16px;
         }
 
         .element {
-            aspect-ratio: 1;
             border: 2px solid #333;
-            border-radius: 8px;
-            padding: 6px;
+            border-radius: 6px;
+            padding: 4px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
-            font-size: 0.75rem;
+            justify-content: center;
+            align-items: center;
             position: relative;
-            overflow: visible;
-            min-height: 80px;
+            overflow: hidden;
+            background: white;
         }
 
         .element:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
             z-index: 10;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .element .number {
-            font-size: 0.65rem;
+            font-size: 0.5em;
             font-weight: bold;
-            text-align: left;
+            position: absolute;
+            top: 2px;
+            left: 3px;
             line-height: 1;
         }
 
         .element .symbol {
-            font-size: 1.8rem;
+            font-size: 1.2em;
             font-weight: bold;
-            margin: 2px 0;
-            line-height: 1;
+            line-height: 1.2;
         }
 
         .element .name-zh {
-            font-size: 0.85rem;
-            line-height: 1.1;
-            font-weight: 600;
+            font-size: 0.7em;
+            line-height: 1.2;
+            font-weight: 500;
         }
 
         .element .name-en {
-            font-size: 0.6rem;
-            opacity: 0.8;
+            font-size: 0.45em;
+            opacity: 0.7;
             line-height: 1;
-            margin-top: 2px;
+            display: none;
         }
 
         .element .weight {
-            font-size: 0.6rem;
-            opacity: 0.9;
+            font-size: 0.45em;
+            opacity: 0.8;
             line-height: 1;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         /* 元素分类颜色 */
@@ -247,54 +248,30 @@
 
         @media (max-width: 1200px) {
             .periodic-table {
-                grid-template-columns: repeat(18, minmax(50px, 1fr));
+                grid-template-columns: repeat(18, 1fr);
                 gap: 3px;
+                font-size: 14px;
             }
 
             .element {
-                font-size: 0.65rem;
-                padding: 5px;
-                min-height: 70px;
-            }
-
-            .element .symbol {
-                font-size: 1.4rem;
-            }
-
-            .element .name-zh {
-                font-size: 0.75rem;
+                padding: 3px;
             }
         }
 
         @media (max-width: 768px) {
             .periodic-table {
-                grid-template-columns: repeat(18, minmax(40px, 1fr));
+                grid-template-columns: repeat(18, 1fr);
                 gap: 2px;
+                font-size: 10px;
             }
 
             .element {
-                font-size: 0.55rem;
-                padding: 3px;
+                padding: 2px;
                 border-width: 1px;
-                min-height: 60px;
             }
 
-            .element .symbol {
-                font-size: 1.1rem;
-                margin: 1px 0;
-            }
-
-            .element .name-zh {
-                font-size: 0.65rem;
-            }
-
-            .element .number {
-                font-size: 0.5rem;
-            }
-
-            .element .name-en,
             .element .weight {
-                font-size: 0.5rem;
+                display: none;
             }
 
             .modal-content {
