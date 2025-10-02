@@ -1,7 +1,7 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "release_date": "2025-10-02",
-  "forced_update": false,
+  "forced_update": true,
   "changelog": {
     "zh-CN": [
       "新增用户反馈入口，支持图片上传功能",
