@@ -1,0 +1,16 @@
+{
+  "version": "1.0.1",
+  "release_date": "2025-10-02",
+  "forced_update": false,
+  "changelog": {
+    "zh-CN": [
+      "新增用户反馈入口，支持图片上传功能",
+      "优化首页加载速度，提升用户体验",
+      "修复部分设备上登录状态丢失的问题",
+      "更新隐私政策与服务条款"
+    ],
+  },
+  "download_url": {
+    "windows": "https://teacher.homes/ota/config.json 
+  }
+}
