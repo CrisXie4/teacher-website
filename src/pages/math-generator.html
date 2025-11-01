@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>计算题生成器 - 教师工具箱</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <style>
         .container {
             max-width: 1200px;
@@ -192,11 +192,22 @@
             }
         }
     </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
 </head>
 <body>
     <header class="no-print">
-        <h1>教师工具箱</h1>
-        <p>专为教师设计的实用工具集合</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="btn" onclick="window.location.href='../../index.html'" style="z-index: 1000; position: relative;">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">教师工具箱</h1>
+                <p style="margin: 0.5rem 0 0 0;">专为教师设计的实用工具集合</p>
+            </div>
+            <div style="width: 100px;"></div>
+        </div>
     </header>
     
     <div class="container">
@@ -262,7 +273,6 @@
                 <button id="generateBtn" class="btn generate">生成题目</button>
                 <button id="printBtn" class="btn print">打印题目</button>
                 <button id="clearBtn" class="btn clear">清空题目</button>
-                <button class="btn" onclick="window.location.href='index.html'">返回主页</button>
             </div>
         </div>
         

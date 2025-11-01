@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据同步测试</title>
-    <script src="student-manager.js"></script>
+    <script src="../js/student-manager.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -152,10 +152,24 @@
             box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
         }
     </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
 </head>
 <body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="btn" onclick="window.location.href='../../index.html'" style="z-index: 1000; position: relative;">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1;">
+                <h1 style="margin: 0;">数据同步测试</h1>
+            </div>
+            <div style="width: 100px;"></div>
+        </div>
+    </header>
+
     <div class="container">
-        <h1>数据同步测试</h1>
         
         <div>
             <h2>添加测试学生</h2>
@@ -172,12 +186,7 @@
                 点击"刷新列表"加载学生数据
             </div>
         </div>
-        
-        <div>
-            <h2>导航</h2>
-            <button class="btn" onclick="window.location.href='index.html'">返回主页</button>
-            <button class="btn" onclick="window.location.href='classroom-tracker.html'">课堂表现记录器</button>
-        </div>
+    </div>
     <!-- 自定义弹窗 -->
     <div class="custom-modal" id="customModal">
         <div class="custom-modal-content">

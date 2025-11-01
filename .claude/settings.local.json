@@ -16,7 +16,16 @@
       "Bash(git commit:*)",
       "Bash(git remote add:*)",
       "Bash(git remote set-url:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(xargs:*)",
+      "Bash(for file in whiteboard.html roll-call.html grouping.html classroom-tracker.html math-generator.html copybook-generator.html handwriting-generator.html teacher-view.html teacher-camera-vercel.html viewer.html viewer-vercel.html test-local.html test-data-sync.html donation.html)",
+      "Bash(do echo \"$file:\")",
+      "Bash(grep:*)",
+      "Bash(done)",
+      "Bash(for:*)",
+      "Bash(do)"
     ],
     "deny": [],
     "ask": []

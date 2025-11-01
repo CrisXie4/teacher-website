@@ -7,6 +7,9 @@
     <meta name="description" content="交互式元素周期表 - 专为教师设计的化学教学工具">
     <meta name="keywords" content="元素周期表,化学教学,教师工具,教学工具">
     <meta name="author" content="Teacher Toolkit Team">
+    <link rel="manifest" href="../../config/manifest.json">
+    <link rel="icon" href="../../images/icons/icon-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../images/icons/icon-192x192.png">
     <title>教师工具箱 - 元素周期表</title>
     <link rel="stylesheet" href="../css/styles.css">
     <style>
@@ -237,6 +240,22 @@
             align-items: center;
             gap: 8px;
             font-size: 0.9rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .legend-item:hover {
+            background: rgba(75, 108, 183, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .legend-item.active {
+            background: rgba(75, 108, 183, 0.2);
+            border: 2px solid #4b6cb7;
         }
 
         .legend-color {
@@ -332,9 +351,16 @@
 </head>
 <body>
     <header>
-        <h1>元素周期表</h1>
-        <p>交互式化学元素周期表</p>
-        <button class="btn" onclick="window.location.href='../../index.html'">返回主页</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="btn" onclick="window.location.href='../../index.html'" style="z-index: 1000; position: relative;">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">元素周期表</h1>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">交互式化学元素周期表</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
     </header>
 
     <div class="container">
@@ -343,16 +369,36 @@
         </div>
 
         <div class="legend">
-            <div class="legend-item"><div class="legend-color nonmetal"></div><span>非金属</span></div>
-            <div class="legend-item"><div class="legend-color noble-gas"></div><span>稀有气体</span></div>
-            <div class="legend-item"><div class="legend-color alkali"></div><span>碱金属</span></div>
-            <div class="legend-item"><div class="legend-color alkaline-earth"></div><span>碱土金属</span></div>
-            <div class="legend-item"><div class="legend-color metalloid"></div><span>类金属</span></div>
-            <div class="legend-item"><div class="legend-color halogen"></div><span>卤素</span></div>
-            <div class="legend-item"><div class="legend-color metal"></div><span>金属</span></div>
-            <div class="legend-item"><div class="legend-color transition-metal"></div><span>过渡金属</span></div>
-            <div class="legend-item"><div class="legend-color lanthanide"></div><span>镧系元素</span></div>
-            <div class="legend-item"><div class="legend-color actinide"></div><span>锕系元素</span></div>
+            <div class="legend-item" data-category="nonmetal" onclick="toggleCategoryHighlight('nonmetal', this)">
+                <div class="legend-color nonmetal"></div><span>非金属</span>
+            </div>
+            <div class="legend-item" data-category="noble-gas" onclick="toggleCategoryHighlight('noble-gas', this)">
+                <div class="legend-color noble-gas"></div><span>稀有气体</span>
+            </div>
+            <div class="legend-item" data-category="alkali" onclick="toggleCategoryHighlight('alkali', this)">
+                <div class="legend-color alkali"></div><span>碱金属</span>
+            </div>
+            <div class="legend-item" data-category="alkaline-earth" onclick="toggleCategoryHighlight('alkaline-earth', this)">
+                <div class="legend-color alkaline-earth"></div><span>碱土金属</span>
+            </div>
+            <div class="legend-item" data-category="metalloid" onclick="toggleCategoryHighlight('metalloid', this)">
+                <div class="legend-color metalloid"></div><span>类金属</span>
+            </div>
+            <div class="legend-item" data-category="halogen" onclick="toggleCategoryHighlight('halogen', this)">
+                <div class="legend-color halogen"></div><span>卤素</span>
+            </div>
+            <div class="legend-item" data-category="metal" onclick="toggleCategoryHighlight('metal', this)">
+                <div class="legend-color metal"></div><span>金属</span>
+            </div>
+            <div class="legend-item" data-category="transition-metal" onclick="toggleCategoryHighlight('transition-metal', this)">
+                <div class="legend-color transition-metal"></div><span>过渡金属</span>
+            </div>
+            <div class="legend-item" data-category="lanthanide" onclick="toggleCategoryHighlight('lanthanide', this)">
+                <div class="legend-color lanthanide"></div><span>镧系元素</span>
+            </div>
+            <div class="legend-item" data-category="actinide" onclick="toggleCategoryHighlight('actinide', this)">
+                <div class="legend-color actinide"></div><span>锕系元素</span>
+            </div>
         </div>
 
         <div class="periodic-table" id="periodicTable"></div>
@@ -386,6 +432,7 @@
         <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
     </footer>
 
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
     <script>
         // 元素数据
         const elements = [
@@ -424,7 +471,89 @@
             { number: 33, symbol: 'As', nameZh: '砷', nameEn: 'Arsenic', weight: '74.92', category: 'metalloid', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p³', row: 4, col: 15 },
             { number: 34, symbol: 'Se', nameZh: '硒', nameEn: 'Selenium', weight: '78.96', category: 'nonmetal', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁴', row: 4, col: 16 },
             { number: 35, symbol: 'Br', nameZh: '溴', nameEn: 'Bromine', weight: '79.90', category: 'halogen', state: '液态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁵', row: 4, col: 17 },
-            { number: 36, symbol: 'Kr', nameZh: '氪', nameEn: 'Krypton', weight: '83.80', category: 'noble-gas', state: '气态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁶', row: 4, col: 18 }
+            { number: 36, symbol: 'Kr', nameZh: '氪', nameEn: 'Krypton', weight: '83.80', category: 'noble-gas', state: '气态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁶', row: 4, col: 18 },
+            { number: 37, symbol: 'Rb', nameZh: '铷', nameEn: 'Rubidium', weight: '85.47', category: 'alkali', state: '固态', electronConfig: '[Kr] 5s¹', row: 5, col: 1 },
+            { number: 38, symbol: 'Sr', nameZh: '锶', nameEn: 'Strontium', weight: '87.62', category: 'alkaline-earth', state: '固态', electronConfig: '[Kr] 5s²', row: 5, col: 2 },
+            { number: 39, symbol: 'Y', nameZh: '钇', nameEn: 'Yttrium', weight: '88.91', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹ 5s²', row: 5, col: 3 },
+            { number: 40, symbol: 'Zr', nameZh: '锆', nameEn: 'Zirconium', weight: '91.22', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d² 5s²', row: 5, col: 4 },
+            { number: 41, symbol: 'Nb', nameZh: '铌', nameEn: 'Niobium', weight: '92.91', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁴ 5s¹', row: 5, col: 5 },
+            { number: 42, symbol: 'Mo', nameZh: '钼', nameEn: 'Molybdenum', weight: '95.94', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁵ 5s¹', row: 5, col: 6 },
+            { number: 43, symbol: 'Tc', nameZh: '锝', nameEn: 'Technetium', weight: '(98)', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁵ 5s²', row: 5, col: 7 },
+            { number: 44, symbol: 'Ru', nameZh: '钌', nameEn: 'Ruthenium', weight: '101.1', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁷ 5s¹', row: 5, col: 8 },
+            { number: 45, symbol: 'Rh', nameZh: '铑', nameEn: 'Rhodium', weight: '102.9', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁸ 5s¹', row: 5, col: 9 },
+            { number: 46, symbol: 'Pd', nameZh: '钯', nameEn: 'Palladium', weight: '106.4', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹⁰', row: 5, col: 10 },
+            { number: 47, symbol: 'Ag', nameZh: '银', nameEn: 'Silver', weight: '107.9', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s¹', row: 5, col: 11 },
+            { number: 48, symbol: 'Cd', nameZh: '镉', nameEn: 'Cadmium', weight: '112.4', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s²', row: 5, col: 12 },
+            { number: 49, symbol: 'In', nameZh: '铟', nameEn: 'Indium', weight: '114.8', category: 'metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p¹', row: 5, col: 13 },
+            { number: 50, symbol: 'Sn', nameZh: '锡', nameEn: 'Tin', weight: '118.7', category: 'metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p²', row: 5, col: 14 },
+            { number: 51, symbol: 'Sb', nameZh: '锑', nameEn: 'Antimony', weight: '121.8', category: 'metalloid', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p³', row: 5, col: 15 },
+            { number: 52, symbol: 'Te', nameZh: '碲', nameEn: 'Tellurium', weight: '127.6', category: 'metalloid', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁴', row: 5, col: 16 },
+            { number: 53, symbol: 'I', nameZh: '碘', nameEn: 'Iodine', weight: '126.9', category: 'halogen', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁵', row: 5, col: 17 },
+            { number: 54, symbol: 'Xe', nameZh: '氙', nameEn: 'Xenon', weight: '131.3', category: 'noble-gas', state: '气态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁶', row: 5, col: 18 },
+            { number: 55, symbol: 'Cs', nameZh: '铯', nameEn: 'Cesium', weight: '132.9', category: 'alkali', state: '固态', electronConfig: '[Xe] 6s¹', row: 6, col: 1 },
+            { number: 56, symbol: 'Ba', nameZh: '钡', nameEn: 'Barium', weight: '137.3', category: 'alkaline-earth', state: '固态', electronConfig: '[Xe] 6s²', row: 6, col: 2 },
+            { number: 57, symbol: 'La', nameZh: '镧', nameEn: 'Lanthanum', weight: '138.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 5d¹ 6s²', row: 8, col: 4 },
+            { number: 58, symbol: 'Ce', nameZh: '铈', nameEn: 'Cerium', weight: '140.1', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹ 5d¹ 6s²', row: 8, col: 5 },
+            { number: 59, symbol: 'Pr', nameZh: '镨', nameEn: 'Praseodymium', weight: '140.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f³ 6s²', row: 8, col: 6 },
+            { number: 60, symbol: 'Nd', nameZh: '钕', nameEn: 'Neodymium', weight: '144.2', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁴ 6s²', row: 8, col: 7 },
+            { number: 61, symbol: 'Pm', nameZh: '钷', nameEn: 'Promethium', weight: '(145)', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁵ 6s²', row: 8, col: 8 },
+            { number: 62, symbol: 'Sm', nameZh: '钐', nameEn: 'Samarium', weight: '150.4', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁶ 6s²', row: 8, col: 9 },
+            { number: 63, symbol: 'Eu', nameZh: '铕', nameEn: 'Europium', weight: '152.0', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁷ 6s²', row: 8, col: 10 },
+            { number: 64, symbol: 'Gd', nameZh: '钆', nameEn: 'Gadolinium', weight: '157.3', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁷ 5d¹ 6s²', row: 8, col: 11 },
+            { number: 65, symbol: 'Tb', nameZh: '铽', nameEn: 'Terbium', weight: '158.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁹ 6s²', row: 8, col: 12 },
+            { number: 66, symbol: 'Dy', nameZh: '镝', nameEn: 'Dysprosium', weight: '162.5', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹⁰ 6s²', row: 8, col: 13 },
+            { number: 67, symbol: 'Ho', nameZh: '钬', nameEn: 'Holmium', weight: '164.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹¹ 6s²', row: 8, col: 14 },
+            { number: 68, symbol: 'Er', nameZh: '铒', nameEn: 'Erbium', weight: '167.3', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹² 6s²', row: 8, col: 15 },
+            { number: 69, symbol: 'Tm', nameZh: '铥', nameEn: 'Thulium', weight: '168.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹³ 6s²', row: 8, col: 16 },
+            { number: 70, symbol: 'Yb', nameZh: '镱', nameEn: 'Ytterbium', weight: '173.0', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹⁴ 6s²', row: 8, col: 17 },
+            { number: 71, symbol: 'Lu', nameZh: '镥', nameEn: 'Lutetium', weight: '175.0', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹ 6s²', row: 8, col: 18 },
+            { number: 72, symbol: 'Hf', nameZh: '铪', nameEn: 'Hafnium', weight: '178.5', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d² 6s²', row: 6, col: 4 },
+            { number: 73, symbol: 'Ta', nameZh: '钽', nameEn: 'Tantalum', weight: '180.9', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d³ 6s²', row: 6, col: 5 },
+            { number: 74, symbol: 'W', nameZh: '钨', nameEn: 'Tungsten', weight: '183.8', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁴ 6s²', row: 6, col: 6 },
+            { number: 75, symbol: 'Re', nameZh: '铼', nameEn: 'Rhenium', weight: '186.2', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁵ 6s²', row: 6, col: 7 },
+            { number: 76, symbol: 'Os', nameZh: '锇', nameEn: 'Osmium', weight: '190.2', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁶ 6s²', row: 6, col: 8 },
+            { number: 77, symbol: 'Ir', nameZh: '铱', nameEn: 'Iridium', weight: '192.2', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁷ 6s²', row: 6, col: 9 },
+            { number: 78, symbol: 'Pt', nameZh: '铂', nameEn: 'Platinum', weight: '195.1', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁹ 6s¹', row: 6, col: 10 },
+            { number: 79, symbol: 'Au', nameZh: '金', nameEn: 'Gold', weight: '197.0', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s¹', row: 6, col: 11 },
+            { number: 80, symbol: 'Hg', nameZh: '汞', nameEn: 'Mercury', weight: '200.6', category: 'transition-metal', state: '液态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s²', row: 6, col: 12 },
+            { number: 81, symbol: 'Tl', nameZh: '铊', nameEn: 'Thallium', weight: '204.4', category: 'metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹', row: 6, col: 13 },
+            { number: 82, symbol: 'Pb', nameZh: '铅', nameEn: 'Lead', weight: '207.2', category: 'metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²', row: 6, col: 14 },
+            { number: 83, symbol: 'Bi', nameZh: '铋', nameEn: 'Bismuth', weight: '209.0', category: 'metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³', row: 6, col: 15 },
+            { number: 84, symbol: 'Po', nameZh: '钋', nameEn: 'Polonium', weight: '(209)', category: 'metalloid', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴', row: 6, col: 16 },
+            { number: 85, symbol: 'At', nameZh: '砹', nameEn: 'Astatine', weight: '(210)', category: 'halogen', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵', row: 6, col: 17 },
+            { number: 86, symbol: 'Rn', nameZh: '氡', nameEn: 'Radon', weight: '(222)', category: 'noble-gas', state: '气态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶', row: 6, col: 18 },
+            { number: 87, symbol: 'Fr', nameZh: '钫', nameEn: 'Francium', weight: '(223)', category: 'alkali', state: '固态', electronConfig: '[Rn] 7s¹', row: 7, col: 1 },
+            { number: 88, symbol: 'Ra', nameZh: '镭', nameEn: 'Radium', weight: '(226)', category: 'alkaline-earth', state: '固态', electronConfig: '[Rn] 7s²', row: 7, col: 2 },
+            { number: 89, symbol: 'Ac', nameZh: '锕', nameEn: 'Actinium', weight: '(227)', category: 'actinide', state: '固态', electronConfig: '[Rn] 6d¹ 7s²', row: 9, col: 4 },
+            { number: 90, symbol: 'Th', nameZh: '钍', nameEn: 'Thorium', weight: '232.0', category: 'actinide', state: '固态', electronConfig: '[Rn] 6d² 7s²', row: 9, col: 5 },
+            { number: 91, symbol: 'Pa', nameZh: '镤', nameEn: 'Protactinium', weight: '231.0', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f² 6d¹ 7s²', row: 9, col: 6 },
+            { number: 92, symbol: 'U', nameZh: '铀', nameEn: 'Uranium', weight: '238.0', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f³ 6d¹ 7s²', row: 9, col: 7 },
+            { number: 93, symbol: 'Np', nameZh: '镎', nameEn: 'Neptunium', weight: '(237)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁴ 6d¹ 7s²', row: 9, col: 8 },
+            { number: 94, symbol: 'Pu', nameZh: '钚', nameEn: 'Plutonium', weight: '(244)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁶ 7s²', row: 9, col: 9 },
+            { number: 95, symbol: 'Am', nameZh: '镅', nameEn: 'Americium', weight: '(243)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁷ 7s²', row: 9, col: 10 },
+            { number: 96, symbol: 'Cm', nameZh: '锔', nameEn: 'Curium', weight: '(247)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁷ 6d¹ 7s²', row: 9, col: 11 },
+            { number: 97, symbol: 'Bk', nameZh: '锫', nameEn: 'Berkelium', weight: '(247)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁹ 7s²', row: 9, col: 12 },
+            { number: 98, symbol: 'Cf', nameZh: '锎', nameEn: 'Californium', weight: '(251)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹⁰ 7s²', row: 9, col: 13 },
+            { number: 99, symbol: 'Es', nameZh: '锿', nameEn: 'Einsteinium', weight: '(252)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹¹ 7s²', row: 9, col: 14 },
+            { number: 100, symbol: 'Fm', nameZh: '镄', nameEn: 'Fermium', weight: '(257)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹² 7s²', row: 9, col: 15 },
+            { number: 101, symbol: 'Md', nameZh: '钔', nameEn: 'Mendelevium', weight: '(258)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹³ 7s²', row: 9, col: 16 },
+            { number: 102, symbol: 'No', nameZh: '锘', nameEn: 'Nobelium', weight: '(259)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹⁴ 7s²', row: 9, col: 17 },
+            { number: 103, symbol: 'Lr', nameZh: '铹', nameEn: 'Lawrencium', weight: '(266)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹ 7s²', row: 9, col: 18 },
+            { number: 104, symbol: 'Rf', nameZh: '𬬻', nameEn: 'Rutherfordium', weight: '(267)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d² 7s²', row: 7, col: 4 },
+            { number: 105, symbol: 'Db', nameZh: '𬭊', nameEn: 'Dubnium', weight: '(268)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d³ 7s²', row: 7, col: 5 },
+            { number: 106, symbol: 'Sg', nameZh: '𬭳', nameEn: 'Seaborgium', weight: '(269)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁴ 7s²', row: 7, col: 6 },
+            { number: 107, symbol: 'Bh', nameZh: '𬭛', nameEn: 'Bohrium', weight: '(270)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁵ 7s²', row: 7, col: 7 },
+            { number: 108, symbol: 'Hs', nameZh: '𬭶', nameEn: 'Hassium', weight: '(277)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁶ 7s²', row: 7, col: 8 },
+            { number: 109, symbol: 'Mt', nameZh: '鿏', nameEn: 'Meitnerium', weight: '(278)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁷ 7s²', row: 7, col: 9 },
+            { number: 110, symbol: 'Ds', nameZh: '𫟼', nameEn: 'Darmstadtium', weight: '(281)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁹ 7s¹', row: 7, col: 10 },
+            { number: 111, symbol: 'Rg', nameZh: '𬬭', nameEn: 'Roentgenium', weight: '(282)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s¹', row: 7, col: 11 },
+            { number: 112, symbol: 'Cn', nameZh: '鿔', nameEn: 'Copernicium', weight: '(285)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s²', row: 7, col: 12 },
+            { number: 113, symbol: 'Nh', nameZh: '鿭', nameEn: 'Nihonium', weight: '(286)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹', row: 7, col: 13 },
+            { number: 114, symbol: 'Fl', nameZh: '𫓧', nameEn: 'Flerovium', weight: '(289)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²', row: 7, col: 14 },
+            { number: 115, symbol: 'Mc', nameZh: '镆', nameEn: 'Moscovium', weight: '(290)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³', row: 7, col: 15 },
+            { number: 116, symbol: 'Lv', nameZh: '𫟷', nameEn: 'Livermorium', weight: '(293)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴', row: 7, col: 16 },
+            { number: 117, symbol: 'Ts', nameZh: '鿬', nameEn: 'Tennessine', weight: '(294)', category: 'halogen', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵', row: 7, col: 17 },
+            { number: 118, symbol: 'Og', nameZh: '鿫', nameEn: 'Oganesson', weight: '(294)', category: 'noble-gas', state: '气态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', row: 7, col: 18 }
         ];
 
         const periodicTable = document.getElementById('periodicTable');
@@ -434,8 +563,8 @@
 
         // 创建周期表
         function createPeriodicTable() {
-            // 创建7行18列的网格
-            for (let row = 1; row <= 7; row++) {
+            // 创建9行18列的网格（包括镧系和锕系）
+            for (let row = 1; row <= 9; row++) {
                 for (let col = 1; col <= 18; col++) {
                     const element = elements.find(e => e.row === row && e.col === col);
 
@@ -528,6 +657,31 @@
                 div.style.filter = '';
                 div.style.transform = '';
             });
+            // 清除所有图例项的激活状态
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        // 切换类别高亮（新功能：点击图例）
+        function toggleCategoryHighlight(category, legendItem) {
+            // 检查当前图例项是否已激活
+            const isActive = legendItem.classList.contains('active');
+
+            if (isActive) {
+                // 如果已激活，清除高亮
+                clearHighlight();
+            } else {
+                // 否则，高亮该类别
+                // 先清除所有激活状态
+                document.querySelectorAll('.legend-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                // 激活当前图例项
+                legendItem.classList.add('active');
+                // 高亮对应类别
+                highlightCategory(category);
+            }
         }
 
         // 搜索功能
