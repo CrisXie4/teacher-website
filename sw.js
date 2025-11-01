@@ -14,7 +14,6 @@ const urlsToCache = [
   '/src/pages/copybook-generator.html',
   '/src/pages/math-generator.html',
   '/src/pages/donation.html',
-  '/src/pages/new-features.html',
   '/src/pages/3d-viewer.html',
   '/src/pages/periodic-table.html',
   '/assets/sounds/basic-alarm-ringtone.mp3',
