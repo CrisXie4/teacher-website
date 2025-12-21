@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课堂计时器 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .container {
+            max-width: 850px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .timer-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .timer-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: 700;
+            color: #4b6cb7;
+            margin: 2.5rem 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            letter-spacing: 3px;
+        }
+        
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.8rem;
+            margin: 2.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.start {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        
+        .btn.stop {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+        
+        .btn.reset {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+        }
+        
+        .btn.fullscreen {
+            background: linear-gradient(135deg, #9C27B0, #E040FB);
+        }
+        
+        .preset-timers {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin: 2.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .preset-btn {
+            background: rgba(227, 242, 253, 0.8);
+            border: none;
+            padding: 1rem 1.3rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+        }
+        
+        .preset-btn:hover {
+            background: rgba(187, 222, 251, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .time-input {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .time-input input {
+            width: 90px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            transition: border-color 0.3s ease;
+        }
+        
+        .time-input input:focus {
+            border-color: #4b6cb7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+        }
+        
+        .time-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .time-label span {
+            margin-top: 0.8rem;
+            font-weight: 600;
+            color: #444;
+            font-size: 1.1rem;
+        }
+        
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            text-align: left;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(179, 219, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .instructions ol {
+            padding-left: 2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .instructions strong {
+            color: #4b6cb7;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.8rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .back-btn:hover {
+            background: rgba(90, 98, 104, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .timer-warning {
+            color: #ff416c;
+            animation: blink 0.4s infinite;
+            transform: scale(1.05);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1.05); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        
+        /* 全屏样式 */
+        .fullscreen-active {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .fullscreen-active .timer-display {
+            font-size: 8rem;
+        }
+        
+        .fullscreen-active .timer-controls {
+            margin-top: 3rem;
+        }
+        
+        /* 震动动画 */
+        .vibrate {
+            animation: vibrate 0.4s infinite;
+        }
+        
+        @keyframes vibrate {
+            0% { transform: translate(0); }
+            25% { transform: translate(-6px, 0); }
+            50% { transform: translate(6px, 0); }
+            75% { transform: translate(-6px, 0); }
+            100% { transform: translate(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .timer-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .timer-display {
+                font-size: 4rem;
+                margin: 1.5rem 0;
+            }
+            
+            .timer-controls {
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+            
+            .btn {
+                padding: 0.9rem 1.8rem;
+                font-size: 1rem;
+            }
+            
+            .preset-timers {
+                gap: 0.8rem;
+                margin: 1.5rem 0;
+            }
+            
+            .preset-btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .time-input {
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+            
+            .time-input input {
+                width: 70px;
+                padding: 0.8rem;
+                font-size: 1.1rem;
+            }
+            
+            .instructions {
+                padding: 1.5rem;
+            }
+            
+            .instructions h3 {
+                font-size: 1.5rem;
+            }
+            
+            .instructions li {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">课堂计时器</h1>
+                <p style="margin: 0.5rem 0 0 0;">管理课堂活动时间，提高教学效率</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="timer-container" id="timerContainer">
+            <h2>倒计时器</h2>
+            
+            <div class="time-input">
+                <div class="time-label">
+                    <input type="number" id="minutes" min="0" max="59" value="5">
+                    <span>分钟</span>
+                </div>
+                <div class="time-label">
+                    <input type="number" id="seconds" min="0" max="59" value="0">
+                    <span>秒钟</span>
+                </div>
+            </div>
+            
+            <div class="preset-timers">
+                <button class="preset-btn" data-minutes="1">1分钟</button>
+                <button class="preset-btn" data-minutes="3">3分钟</button>
+                <button class="preset-btn" data-minutes="5">5分钟</button>
+                <button class="preset-btn" data-minutes="10">10分钟</button>
+                <button class="preset-btn" data-minutes="15">15分钟</button>
+            </div>
+            
+            <div id="timerDisplay" class="timer-display">
+                05:00
+            </div>
+            
+            <div class="timer-controls">
+                <button id="startBtn" class="btn start">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5V19L19 12L8 5Z" fill="white"/>
+                    </svg>
+                    开始
+                </button>
+                <button id="stopBtn" class="btn stop" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 6H18V18H6V6Z" fill="white"/>
+                    </svg>
+                    暂停
+                </button>
+                <button id="resetBtn" class="btn reset">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z" fill="white"/>
+                    </svg>
+                    重置
+                </button>
+                <button id="fullscreenBtn" class="btn fullscreen">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 14H5V19H10V17H7V14M12 14H14V17H17V19H12V14M14 10H17V5H12V7H14V10M10 10H7V7H10V5H5V10H7V12H5V19H10V17H7V14H10V12H12V14H17V19H19V12H17V10H19V5H12V7H14V10H12V12H10V10Z" fill="white"/>
+                    </svg>
+                    全屏
+                </button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li><strong>设置时间</strong> - 使用输入框设置倒计时时间（分钟和秒钟）</li>
+                <li><strong>快速设置</strong> - 点击预设时间按钮快速设置常见时间</li>
+                <li><strong>开始计时</strong> - 点击"开始"按钮启动计时器</li>
+                <li><strong>暂停计时</strong> - 点击"暂停"按钮暂停计时器</li>
+                <li><strong>重置计时</strong> - 点击"重置"按钮重置计时器到初始设置时间</li>
+                <li><strong>全屏模式</strong> - 点击"全屏"按钮进入全屏模式，ESC键退出</li>
+                <li><strong>时间提醒</strong> - 倒计时结束时会有强烈的视觉提醒效果</li>
+            </ol>
+        </div>
+        
+        
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 课堂计时器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const timerContainer = document.getElementById('timerContainer');
+        
+        // 计时器变量
+        let totalSeconds = 300; // 默认5分钟
+        let remainingSeconds = totalSeconds;
+        let timerInterval;
+        let isRunning = false;
+        let isFullscreen = false;
+        
+        // 更新显示
+        function updateDisplay() {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // 只有在计时器运行时，且剩余时间少于10秒且大于0秒，才添加警告样式
+            if (isRunning && remainingSeconds <= 10 && remainingSeconds > 0) {
+                timerDisplay.classList.add('timer-warning');
+                timerDisplay.classList.add('vibrate');
+            } else {
+                timerDisplay.classList.remove('timer-warning');
+                timerDisplay.classList.remove('vibrate');
+            }
+            
+            // 时间结束时的处理（只有当剩余时间确实为0或负数且计时器正在运行时才触发）
+            if (remainingSeconds <= 0 && isRunning) {
+                timerDisplay.textContent = '00:00';
+                timerDisplay.classList.add('timer-warning');
+                timerDisplay.classList.add('vibrate');
+                timerContainer.classList.add('vibrate');
+                
+                clearInterval(timerInterval);
+                isRunning = false;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                
+                // 播放音频提醒
+                playAlarmSound();
+                
+                // 5秒后停止震动效果
+                setTimeout(() => {
+                    timerDisplay.classList.remove('vibrate');
+                    timerContainer.classList.remove('vibrate');
+                }, 5000);
+            }
+        }
+        
+        // 开始计时
+        function startTimer() {
+            // 如果总时间为0，不启动计时器
+            if (totalSeconds <= 0) {
+                alert('请设置有效的时间');
+                return;
+            }
+            
+            if (isRunning) return;
+            
+            isRunning = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay();
+            }, 1000);
+        }
+        
+        // 暂停计时
+        function stopTimer() {
+            if (!isRunning) return;
+            
+            clearInterval(timerInterval);
+            isRunning = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+        
+        // 重置计时
+        function resetTimer() {
+            stopTimer();
+            totalSeconds = parseInt(minutesInput.value) * 60 + parseInt(secondsInput.value);
+            // 确保总时间至少为1秒
+            if (totalSeconds <= 0) {
+                totalSeconds = 1;
+                secondsInput.value = 1;
+                minutesInput.value = 0;
+            }
+            remainingSeconds = totalSeconds;
+            timerDisplay.classList.remove('timer-warning');
+            timerDisplay.classList.remove('vibrate');
+            timerContainer.classList.remove('vibrate');
+            updateDisplay();
+        }
+        
+        // 设置预设时间
+        function setPresetTime(minutes) {
+            minutesInput.value = minutes;
+            secondsInput.value = 0;
+            resetTimer();
+        }
+        
+        // 切换全屏模式
+        function toggleFullscreen() {
+            if (!isFullscreen) {
+                // 进入全屏模式
+                document.body.classList.add('fullscreen-active');
+                timerContainer.classList.add('fullscreen-active');
+                fullscreenBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 14H19V16H16V19H14V14M5 14H10V19H8V16H5V14M8 5H10V10H5V8H8V5M19 8V10H14V5H16V8H19Z" fill="white"/>
+                    </svg>
+                    退出全屏
+                `;
+                isFullscreen = true;
+            } else {
+                // 退出全屏模式
+                document.body.classList.remove('fullscreen-active');
+                timerContainer.classList.remove('fullscreen-active');
+                fullscreenBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 14H5V19H10V17H7V14M12 14H14V17H17V19H12V14M14 10H17V5H12V7H14V10M10 10H7V7H10V5H5V10H7V12H5V19H10V17H7V14H10V12H12V14H17V19H19V12H17V10H19V5H12V7H14V10H12V12H10V10Z" fill="white"/>
+                    </svg>
+                    全屏
+                `;
+                isFullscreen = false;
+            }
+        }
+        
+        // 播放音频提醒
+        function playAlarmSound() {
+            try {
+                const audio = new Audio('basic-alarm-ringtone.mp3');
+                audio.play().catch(e => {
+                    console.log('音频播放失败:', e);
+                });
+            } catch (e) {
+                console.log('无法播放音频:', e);
+            }
+        }
+        
+        // 初始化
+        function init() {
+            // 更新显示
+            updateDisplay();
+            
+            // 绑定事件监听器
+            startBtn.addEventListener('click', startTimer);
+            stopBtn.addEventListener('click', stopTimer);
+            resetBtn.addEventListener('click', resetTimer);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            // 输入框变化时重置计时器
+            minutesInput.addEventListener('change', () => {
+                const minutes = parseInt(minutesInput.value) || 0;
+                if (minutes < 0) minutesInput.value = 0;
+                if (minutes > 59) minutesInput.value = 59;
+                resetTimer();
+            });
+            
+            secondsInput.addEventListener('change', () => {
+                const seconds = parseInt(secondsInput.value) || 0;
+                if (seconds < 0) secondsInput.value = 0;
+                if (seconds > 59) secondsInput.value = 59;
+                resetTimer();
+            });
+            
+            // 预设按钮事件
+            presetButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const minutes = parseInt(button.dataset.minutes);
+                    setPresetTime(minutes);
+                });
+            });
+            
+            // 监听ESC键退出全屏
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isFullscreen) {
+                    toggleFullscreen();
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

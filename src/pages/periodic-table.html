@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="交互式元素周期表 - 专为教师设计的化学教学工具">
+    <meta name="keywords" content="元素周期表,化学教学,教师工具,教学工具">
+    <meta name="author" content="Teacher Toolkit Team">
+    <link rel="manifest" href="../../config/manifest.json">
+    <link rel="icon" href="../../images/icons/icon-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../images/icons/icon-192x192.png">
+    <title>教师工具箱 - 元素周期表</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 4px;
+            margin: 30px auto;
+            max-width: 1400px;
+            font-size: 16px;
+        }
+
+        .element {
+            border: 2px solid #333;
+            border-radius: 6px;
+            padding: 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
+
+        .element:hover {
+            transform: scale(1.15);
+            z-index: 10;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .element .number {
+            font-size: 0.5em;
+            font-weight: bold;
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            line-height: 1;
+        }
+
+        .element .symbol {
+            font-size: 1.2em;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .element .name-zh {
+            font-size: 0.7em;
+            line-height: 1.2;
+            font-weight: 500;
+        }
+
+        .element .name-en {
+            font-size: 0.45em;
+            opacity: 0.7;
+            line-height: 1;
+            display: none;
+        }
+
+        .element .weight {
+            font-size: 0.45em;
+            opacity: 0.8;
+            line-height: 1;
+            margin-top: 1px;
+        }
+
+        /* 元素分类颜色 */
+        .nonmetal { background: linear-gradient(135deg, #a8e6cf 0%, #7fcdbb 100%); }
+        .noble-gas { background: linear-gradient(135deg, #c7ceea 0%, #9fa8da 100%); }
+        .alkali { background: linear-gradient(135deg, #ffd3b6 0%, #ffaaa5 100%); }
+        .alkaline-earth { background: linear-gradient(135deg, #ffcccc 0%, #ff9999 100%); }
+        .metalloid { background: linear-gradient(135deg, #dcedc1 0%, #a8e6cf 100%); }
+        .halogen { background: linear-gradient(135deg, #ffd6a5 0%, #fdcb6e 100%); }
+        .metal { background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); }
+        .transition-metal { background: linear-gradient(135deg, #fab1a0 0%, #ff7675 100%); }
+        .lanthanide { background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); }
+        .actinide { background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); }
+
+        .empty {
+            background: transparent;
+            border: none;
+            cursor: default;
+        }
+
+        .empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-symbol {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4b6cb7;
+        }
+
+        .modal-info {
+            flex: 1;
+        }
+
+        .modal-info h2 {
+            margin: 0;
+            font-size: 2rem;
+            color: #182848;
+        }
+
+        .modal-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .modal-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4b6cb7;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #182848;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .legend-item:hover {
+            background: rgba(75, 108, 183, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .legend-item.active {
+            background: rgba(75, 108, 183, 0.2);
+            border: 2px solid #4b6cb7;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+
+        @media (max-width: 1200px) {
+            .periodic-table {
+                grid-template-columns: repeat(18, 1fr);
+                gap: 3px;
+                font-size: 14px;
+            }
+
+            .element {
+                padding: 3px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .periodic-table {
+                grid-template-columns: repeat(18, 1fr);
+                gap: 2px;
+                font-size: 10px;
+            }
+
+            .element {
+                padding: 2px;
+                border-width: 1px;
+            }
+
+            .element .weight {
+                display: none;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+
+            .modal-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+
+        .search-box {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .search-box input {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid #4b6cb7;
+            border-radius: 50px;
+            width: 300px;
+            max-width: 90%;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(75, 108, 183, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="btn" onclick="window.location.href='../../index.html'" style="z-index: 1000; position: relative;">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">元素周期表</h1>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">交互式化学元素周期表</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索元素名称、符号或原子序数...">
+        </div>
+
+        <div class="legend">
+            <div class="legend-item" data-category="nonmetal" onclick="toggleCategoryHighlight('nonmetal', this)">
+                <div class="legend-color nonmetal"></div><span>非金属</span>
+            </div>
+            <div class="legend-item" data-category="noble-gas" onclick="toggleCategoryHighlight('noble-gas', this)">
+                <div class="legend-color noble-gas"></div><span>稀有气体</span>
+            </div>
+            <div class="legend-item" data-category="alkali" onclick="toggleCategoryHighlight('alkali', this)">
+                <div class="legend-color alkali"></div><span>碱金属</span>
+            </div>
+            <div class="legend-item" data-category="alkaline-earth" onclick="toggleCategoryHighlight('alkaline-earth', this)">
+                <div class="legend-color alkaline-earth"></div><span>碱土金属</span>
+            </div>
+            <div class="legend-item" data-category="metalloid" onclick="toggleCategoryHighlight('metalloid', this)">
+                <div class="legend-color metalloid"></div><span>类金属</span>
+            </div>
+            <div class="legend-item" data-category="halogen" onclick="toggleCategoryHighlight('halogen', this)">
+                <div class="legend-color halogen"></div><span>卤素</span>
+            </div>
+            <div class="legend-item" data-category="metal" onclick="toggleCategoryHighlight('metal', this)">
+                <div class="legend-color metal"></div><span>金属</span>
+            </div>
+            <div class="legend-item" data-category="transition-metal" onclick="toggleCategoryHighlight('transition-metal', this)">
+                <div class="legend-color transition-metal"></div><span>过渡金属</span>
+            </div>
+            <div class="legend-item" data-category="lanthanide" onclick="toggleCategoryHighlight('lanthanide', this)">
+                <div class="legend-color lanthanide"></div><span>镧系元素</span>
+            </div>
+            <div class="legend-item" data-category="actinide" onclick="toggleCategoryHighlight('actinide', this)">
+                <div class="legend-color actinide"></div><span>锕系元素</span>
+            </div>
+        </div>
+
+        <div class="periodic-table" id="periodicTable"></div>
+
+        <div class="controls">
+            <button class="btn" onclick="highlightCategory('metal')">高亮金属</button>
+            <button class="btn" onclick="highlightCategory('nonmetal')">高亮非金属</button>
+            <button class="btn" onclick="clearHighlight()">清除高亮</button>
+        </div>
+    </div>
+
+    <!-- 元素详情模态框 -->
+    <div id="elementModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <div class="modal-symbol" id="modalSymbol">H</div>
+                <div class="modal-info">
+                    <h2 id="modalName">氢 (Hydrogen)</h2>
+                    <p><strong>原子序数:</strong> <span id="modalNumber">1</span></p>
+                    <p><strong>原子量:</strong> <span id="modalWeight">1.008</span></p>
+                </div>
+            </div>
+            <div class="modal-details" id="modalDetails">
+                <!-- 详细信息将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
+    </footer>
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
+    <script>
+        // 元素数据
+        const elements = [
+            { number: 1, symbol: 'H', nameZh: '氢', nameEn: 'Hydrogen', weight: '1.008', category: 'nonmetal', state: '气态', electronConfig: '1s¹', row: 1, col: 1 },
+            { number: 2, symbol: 'He', nameZh: '氦', nameEn: 'Helium', weight: '4.003', category: 'noble-gas', state: '气态', electronConfig: '1s²', row: 1, col: 18 },
+            { number: 3, symbol: 'Li', nameZh: '锂', nameEn: 'Lithium', weight: '6.941', category: 'alkali', state: '固态', electronConfig: '[He] 2s¹', row: 2, col: 1 },
+            { number: 4, symbol: 'Be', nameZh: '铍', nameEn: 'Beryllium', weight: '9.012', category: 'alkaline-earth', state: '固态', electronConfig: '[He] 2s²', row: 2, col: 2 },
+            { number: 5, symbol: 'B', nameZh: '硼', nameEn: 'Boron', weight: '10.81', category: 'metalloid', state: '固态', electronConfig: '[He] 2s² 2p¹', row: 2, col: 13 },
+            { number: 6, symbol: 'C', nameZh: '碳', nameEn: 'Carbon', weight: '12.01', category: 'nonmetal', state: '固态', electronConfig: '[He] 2s² 2p²', row: 2, col: 14 },
+            { number: 7, symbol: 'N', nameZh: '氮', nameEn: 'Nitrogen', weight: '14.01', category: 'nonmetal', state: '气态', electronConfig: '[He] 2s² 2p³', row: 2, col: 15 },
+            { number: 8, symbol: 'O', nameZh: '氧', nameEn: 'Oxygen', weight: '16.00', category: 'nonmetal', state: '气态', electronConfig: '[He] 2s² 2p⁴', row: 2, col: 16 },
+            { number: 9, symbol: 'F', nameZh: '氟', nameEn: 'Fluorine', weight: '19.00', category: 'halogen', state: '气态', electronConfig: '[He] 2s² 2p⁵', row: 2, col: 17 },
+            { number: 10, symbol: 'Ne', nameZh: '氖', nameEn: 'Neon', weight: '20.18', category: 'noble-gas', state: '气态', electronConfig: '[He] 2s² 2p⁶', row: 2, col: 18 },
+            { number: 11, symbol: 'Na', nameZh: '钠', nameEn: 'Sodium', weight: '22.99', category: 'alkali', state: '固态', electronConfig: '[Ne] 3s¹', row: 3, col: 1 },
+            { number: 12, symbol: 'Mg', nameZh: '镁', nameEn: 'Magnesium', weight: '24.31', category: 'alkaline-earth', state: '固态', electronConfig: '[Ne] 3s²', row: 3, col: 2 },
+            { number: 13, symbol: 'Al', nameZh: '铝', nameEn: 'Aluminum', weight: '26.98', category: 'metal', state: '固态', electronConfig: '[Ne] 3s² 3p¹', row: 3, col: 13 },
+            { number: 14, symbol: 'Si', nameZh: '硅', nameEn: 'Silicon', weight: '28.09', category: 'metalloid', state: '固态', electronConfig: '[Ne] 3s² 3p²', row: 3, col: 14 },
+            { number: 15, symbol: 'P', nameZh: '磷', nameEn: 'Phosphorus', weight: '30.97', category: 'nonmetal', state: '固态', electronConfig: '[Ne] 3s² 3p³', row: 3, col: 15 },
+            { number: 16, symbol: 'S', nameZh: '硫', nameEn: 'Sulfur', weight: '32.07', category: 'nonmetal', state: '固态', electronConfig: '[Ne] 3s² 3p⁴', row: 3, col: 16 },
+            { number: 17, symbol: 'Cl', nameZh: '氯', nameEn: 'Chlorine', weight: '35.45', category: 'halogen', state: '气态', electronConfig: '[Ne] 3s² 3p⁵', row: 3, col: 17 },
+            { number: 18, symbol: 'Ar', nameZh: '氩', nameEn: 'Argon', weight: '39.95', category: 'noble-gas', state: '气态', electronConfig: '[Ne] 3s² 3p⁶', row: 3, col: 18 },
+            { number: 19, symbol: 'K', nameZh: '钾', nameEn: 'Potassium', weight: '39.10', category: 'alkali', state: '固态', electronConfig: '[Ar] 4s¹', row: 4, col: 1 },
+            { number: 20, symbol: 'Ca', nameZh: '钙', nameEn: 'Calcium', weight: '40.08', category: 'alkaline-earth', state: '固态', electronConfig: '[Ar] 4s²', row: 4, col: 2 },
+            { number: 21, symbol: 'Sc', nameZh: '钪', nameEn: 'Scandium', weight: '44.96', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d¹ 4s²', row: 4, col: 3 },
+            { number: 22, symbol: 'Ti', nameZh: '钛', nameEn: 'Titanium', weight: '47.87', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d² 4s²', row: 4, col: 4 },
+            { number: 23, symbol: 'V', nameZh: '钒', nameEn: 'Vanadium', weight: '50.94', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d³ 4s²', row: 4, col: 5 },
+            { number: 24, symbol: 'Cr', nameZh: '铬', nameEn: 'Chromium', weight: '52.00', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d⁵ 4s¹', row: 4, col: 6 },
+            { number: 25, symbol: 'Mn', nameZh: '锰', nameEn: 'Manganese', weight: '54.94', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d⁵ 4s²', row: 4, col: 7 },
+            { number: 26, symbol: 'Fe', nameZh: '铁', nameEn: 'Iron', weight: '55.85', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d⁶ 4s²', row: 4, col: 8 },
+            { number: 27, symbol: 'Co', nameZh: '钴', nameEn: 'Cobalt', weight: '58.93', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d⁷ 4s²', row: 4, col: 9 },
+            { number: 28, symbol: 'Ni', nameZh: '镍', nameEn: 'Nickel', weight: '58.69', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d⁸ 4s²', row: 4, col: 10 },
+            { number: 29, symbol: 'Cu', nameZh: '铜', nameEn: 'Copper', weight: '63.55', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s¹', row: 4, col: 11 },
+            { number: 30, symbol: 'Zn', nameZh: '锌', nameEn: 'Zinc', weight: '65.39', category: 'transition-metal', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s²', row: 4, col: 12 },
+            { number: 31, symbol: 'Ga', nameZh: '镓', nameEn: 'Gallium', weight: '69.72', category: 'metal', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p¹', row: 4, col: 13 },
+            { number: 32, symbol: 'Ge', nameZh: '锗', nameEn: 'Germanium', weight: '72.64', category: 'metalloid', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p²', row: 4, col: 14 },
+            { number: 33, symbol: 'As', nameZh: '砷', nameEn: 'Arsenic', weight: '74.92', category: 'metalloid', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p³', row: 4, col: 15 },
+            { number: 34, symbol: 'Se', nameZh: '硒', nameEn: 'Selenium', weight: '78.96', category: 'nonmetal', state: '固态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁴', row: 4, col: 16 },
+            { number: 35, symbol: 'Br', nameZh: '溴', nameEn: 'Bromine', weight: '79.90', category: 'halogen', state: '液态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁵', row: 4, col: 17 },
+            { number: 36, symbol: 'Kr', nameZh: '氪', nameEn: 'Krypton', weight: '83.80', category: 'noble-gas', state: '气态', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁶', row: 4, col: 18 },
+            { number: 37, symbol: 'Rb', nameZh: '铷', nameEn: 'Rubidium', weight: '85.47', category: 'alkali', state: '固态', electronConfig: '[Kr] 5s¹', row: 5, col: 1 },
+            { number: 38, symbol: 'Sr', nameZh: '锶', nameEn: 'Strontium', weight: '87.62', category: 'alkaline-earth', state: '固态', electronConfig: '[Kr] 5s²', row: 5, col: 2 },
+            { number: 39, symbol: 'Y', nameZh: '钇', nameEn: 'Yttrium', weight: '88.91', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹ 5s²', row: 5, col: 3 },
+            { number: 40, symbol: 'Zr', nameZh: '锆', nameEn: 'Zirconium', weight: '91.22', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d² 5s²', row: 5, col: 4 },
+            { number: 41, symbol: 'Nb', nameZh: '铌', nameEn: 'Niobium', weight: '92.91', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁴ 5s¹', row: 5, col: 5 },
+            { number: 42, symbol: 'Mo', nameZh: '钼', nameEn: 'Molybdenum', weight: '95.94', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁵ 5s¹', row: 5, col: 6 },
+            { number: 43, symbol: 'Tc', nameZh: '锝', nameEn: 'Technetium', weight: '(98)', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁵ 5s²', row: 5, col: 7 },
+            { number: 44, symbol: 'Ru', nameZh: '钌', nameEn: 'Ruthenium', weight: '101.1', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁷ 5s¹', row: 5, col: 8 },
+            { number: 45, symbol: 'Rh', nameZh: '铑', nameEn: 'Rhodium', weight: '102.9', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d⁸ 5s¹', row: 5, col: 9 },
+            { number: 46, symbol: 'Pd', nameZh: '钯', nameEn: 'Palladium', weight: '106.4', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹⁰', row: 5, col: 10 },
+            { number: 47, symbol: 'Ag', nameZh: '银', nameEn: 'Silver', weight: '107.9', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s¹', row: 5, col: 11 },
+            { number: 48, symbol: 'Cd', nameZh: '镉', nameEn: 'Cadmium', weight: '112.4', category: 'transition-metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s²', row: 5, col: 12 },
+            { number: 49, symbol: 'In', nameZh: '铟', nameEn: 'Indium', weight: '114.8', category: 'metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p¹', row: 5, col: 13 },
+            { number: 50, symbol: 'Sn', nameZh: '锡', nameEn: 'Tin', weight: '118.7', category: 'metal', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p²', row: 5, col: 14 },
+            { number: 51, symbol: 'Sb', nameZh: '锑', nameEn: 'Antimony', weight: '121.8', category: 'metalloid', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p³', row: 5, col: 15 },
+            { number: 52, symbol: 'Te', nameZh: '碲', nameEn: 'Tellurium', weight: '127.6', category: 'metalloid', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁴', row: 5, col: 16 },
+            { number: 53, symbol: 'I', nameZh: '碘', nameEn: 'Iodine', weight: '126.9', category: 'halogen', state: '固态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁵', row: 5, col: 17 },
+            { number: 54, symbol: 'Xe', nameZh: '氙', nameEn: 'Xenon', weight: '131.3', category: 'noble-gas', state: '气态', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁶', row: 5, col: 18 },
+            { number: 55, symbol: 'Cs', nameZh: '铯', nameEn: 'Cesium', weight: '132.9', category: 'alkali', state: '固态', electronConfig: '[Xe] 6s¹', row: 6, col: 1 },
+            { number: 56, symbol: 'Ba', nameZh: '钡', nameEn: 'Barium', weight: '137.3', category: 'alkaline-earth', state: '固态', electronConfig: '[Xe] 6s²', row: 6, col: 2 },
+            { number: 57, symbol: 'La', nameZh: '镧', nameEn: 'Lanthanum', weight: '138.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 5d¹ 6s²', row: 8, col: 4 },
+            { number: 58, symbol: 'Ce', nameZh: '铈', nameEn: 'Cerium', weight: '140.1', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹ 5d¹ 6s²', row: 8, col: 5 },
+            { number: 59, symbol: 'Pr', nameZh: '镨', nameEn: 'Praseodymium', weight: '140.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f³ 6s²', row: 8, col: 6 },
+            { number: 60, symbol: 'Nd', nameZh: '钕', nameEn: 'Neodymium', weight: '144.2', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁴ 6s²', row: 8, col: 7 },
+            { number: 61, symbol: 'Pm', nameZh: '钷', nameEn: 'Promethium', weight: '(145)', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁵ 6s²', row: 8, col: 8 },
+            { number: 62, symbol: 'Sm', nameZh: '钐', nameEn: 'Samarium', weight: '150.4', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁶ 6s²', row: 8, col: 9 },
+            { number: 63, symbol: 'Eu', nameZh: '铕', nameEn: 'Europium', weight: '152.0', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁷ 6s²', row: 8, col: 10 },
+            { number: 64, symbol: 'Gd', nameZh: '钆', nameEn: 'Gadolinium', weight: '157.3', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁷ 5d¹ 6s²', row: 8, col: 11 },
+            { number: 65, symbol: 'Tb', nameZh: '铽', nameEn: 'Terbium', weight: '158.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f⁹ 6s²', row: 8, col: 12 },
+            { number: 66, symbol: 'Dy', nameZh: '镝', nameEn: 'Dysprosium', weight: '162.5', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹⁰ 6s²', row: 8, col: 13 },
+            { number: 67, symbol: 'Ho', nameZh: '钬', nameEn: 'Holmium', weight: '164.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹¹ 6s²', row: 8, col: 14 },
+            { number: 68, symbol: 'Er', nameZh: '铒', nameEn: 'Erbium', weight: '167.3', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹² 6s²', row: 8, col: 15 },
+            { number: 69, symbol: 'Tm', nameZh: '铥', nameEn: 'Thulium', weight: '168.9', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹³ 6s²', row: 8, col: 16 },
+            { number: 70, symbol: 'Yb', nameZh: '镱', nameEn: 'Ytterbium', weight: '173.0', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹⁴ 6s²', row: 8, col: 17 },
+            { number: 71, symbol: 'Lu', nameZh: '镥', nameEn: 'Lutetium', weight: '175.0', category: 'lanthanide', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹ 6s²', row: 8, col: 18 },
+            { number: 72, symbol: 'Hf', nameZh: '铪', nameEn: 'Hafnium', weight: '178.5', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d² 6s²', row: 6, col: 4 },
+            { number: 73, symbol: 'Ta', nameZh: '钽', nameEn: 'Tantalum', weight: '180.9', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d³ 6s²', row: 6, col: 5 },
+            { number: 74, symbol: 'W', nameZh: '钨', nameEn: 'Tungsten', weight: '183.8', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁴ 6s²', row: 6, col: 6 },
+            { number: 75, symbol: 'Re', nameZh: '铼', nameEn: 'Rhenium', weight: '186.2', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁵ 6s²', row: 6, col: 7 },
+            { number: 76, symbol: 'Os', nameZh: '锇', nameEn: 'Osmium', weight: '190.2', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁶ 6s²', row: 6, col: 8 },
+            { number: 77, symbol: 'Ir', nameZh: '铱', nameEn: 'Iridium', weight: '192.2', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁷ 6s²', row: 6, col: 9 },
+            { number: 78, symbol: 'Pt', nameZh: '铂', nameEn: 'Platinum', weight: '195.1', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d⁹ 6s¹', row: 6, col: 10 },
+            { number: 79, symbol: 'Au', nameZh: '金', nameEn: 'Gold', weight: '197.0', category: 'transition-metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s¹', row: 6, col: 11 },
+            { number: 80, symbol: 'Hg', nameZh: '汞', nameEn: 'Mercury', weight: '200.6', category: 'transition-metal', state: '液态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s²', row: 6, col: 12 },
+            { number: 81, symbol: 'Tl', nameZh: '铊', nameEn: 'Thallium', weight: '204.4', category: 'metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹', row: 6, col: 13 },
+            { number: 82, symbol: 'Pb', nameZh: '铅', nameEn: 'Lead', weight: '207.2', category: 'metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²', row: 6, col: 14 },
+            { number: 83, symbol: 'Bi', nameZh: '铋', nameEn: 'Bismuth', weight: '209.0', category: 'metal', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³', row: 6, col: 15 },
+            { number: 84, symbol: 'Po', nameZh: '钋', nameEn: 'Polonium', weight: '(209)', category: 'metalloid', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴', row: 6, col: 16 },
+            { number: 85, symbol: 'At', nameZh: '砹', nameEn: 'Astatine', weight: '(210)', category: 'halogen', state: '固态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵', row: 6, col: 17 },
+            { number: 86, symbol: 'Rn', nameZh: '氡', nameEn: 'Radon', weight: '(222)', category: 'noble-gas', state: '气态', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶', row: 6, col: 18 },
+            { number: 87, symbol: 'Fr', nameZh: '钫', nameEn: 'Francium', weight: '(223)', category: 'alkali', state: '固态', electronConfig: '[Rn] 7s¹', row: 7, col: 1 },
+            { number: 88, symbol: 'Ra', nameZh: '镭', nameEn: 'Radium', weight: '(226)', category: 'alkaline-earth', state: '固态', electronConfig: '[Rn] 7s²', row: 7, col: 2 },
+            { number: 89, symbol: 'Ac', nameZh: '锕', nameEn: 'Actinium', weight: '(227)', category: 'actinide', state: '固态', electronConfig: '[Rn] 6d¹ 7s²', row: 9, col: 4 },
+            { number: 90, symbol: 'Th', nameZh: '钍', nameEn: 'Thorium', weight: '232.0', category: 'actinide', state: '固态', electronConfig: '[Rn] 6d² 7s²', row: 9, col: 5 },
+            { number: 91, symbol: 'Pa', nameZh: '镤', nameEn: 'Protactinium', weight: '231.0', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f² 6d¹ 7s²', row: 9, col: 6 },
+            { number: 92, symbol: 'U', nameZh: '铀', nameEn: 'Uranium', weight: '238.0', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f³ 6d¹ 7s²', row: 9, col: 7 },
+            { number: 93, symbol: 'Np', nameZh: '镎', nameEn: 'Neptunium', weight: '(237)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁴ 6d¹ 7s²', row: 9, col: 8 },
+            { number: 94, symbol: 'Pu', nameZh: '钚', nameEn: 'Plutonium', weight: '(244)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁶ 7s²', row: 9, col: 9 },
+            { number: 95, symbol: 'Am', nameZh: '镅', nameEn: 'Americium', weight: '(243)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁷ 7s²', row: 9, col: 10 },
+            { number: 96, symbol: 'Cm', nameZh: '锔', nameEn: 'Curium', weight: '(247)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁷ 6d¹ 7s²', row: 9, col: 11 },
+            { number: 97, symbol: 'Bk', nameZh: '锫', nameEn: 'Berkelium', weight: '(247)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f⁹ 7s²', row: 9, col: 12 },
+            { number: 98, symbol: 'Cf', nameZh: '锎', nameEn: 'Californium', weight: '(251)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹⁰ 7s²', row: 9, col: 13 },
+            { number: 99, symbol: 'Es', nameZh: '锿', nameEn: 'Einsteinium', weight: '(252)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹¹ 7s²', row: 9, col: 14 },
+            { number: 100, symbol: 'Fm', nameZh: '镄', nameEn: 'Fermium', weight: '(257)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹² 7s²', row: 9, col: 15 },
+            { number: 101, symbol: 'Md', nameZh: '钔', nameEn: 'Mendelevium', weight: '(258)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹³ 7s²', row: 9, col: 16 },
+            { number: 102, symbol: 'No', nameZh: '锘', nameEn: 'Nobelium', weight: '(259)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹⁴ 7s²', row: 9, col: 17 },
+            { number: 103, symbol: 'Lr', nameZh: '铹', nameEn: 'Lawrencium', weight: '(266)', category: 'actinide', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹ 7s²', row: 9, col: 18 },
+            { number: 104, symbol: 'Rf', nameZh: '𬬻', nameEn: 'Rutherfordium', weight: '(267)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d² 7s²', row: 7, col: 4 },
+            { number: 105, symbol: 'Db', nameZh: '𬭊', nameEn: 'Dubnium', weight: '(268)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d³ 7s²', row: 7, col: 5 },
+            { number: 106, symbol: 'Sg', nameZh: '𬭳', nameEn: 'Seaborgium', weight: '(269)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁴ 7s²', row: 7, col: 6 },
+            { number: 107, symbol: 'Bh', nameZh: '𬭛', nameEn: 'Bohrium', weight: '(270)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁵ 7s²', row: 7, col: 7 },
+            { number: 108, symbol: 'Hs', nameZh: '𬭶', nameEn: 'Hassium', weight: '(277)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁶ 7s²', row: 7, col: 8 },
+            { number: 109, symbol: 'Mt', nameZh: '鿏', nameEn: 'Meitnerium', weight: '(278)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁷ 7s²', row: 7, col: 9 },
+            { number: 110, symbol: 'Ds', nameZh: '𫟼', nameEn: 'Darmstadtium', weight: '(281)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d⁹ 7s¹', row: 7, col: 10 },
+            { number: 111, symbol: 'Rg', nameZh: '𬬭', nameEn: 'Roentgenium', weight: '(282)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s¹', row: 7, col: 11 },
+            { number: 112, symbol: 'Cn', nameZh: '鿔', nameEn: 'Copernicium', weight: '(285)', category: 'transition-metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s²', row: 7, col: 12 },
+            { number: 113, symbol: 'Nh', nameZh: '鿭', nameEn: 'Nihonium', weight: '(286)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹', row: 7, col: 13 },
+            { number: 114, symbol: 'Fl', nameZh: '𫓧', nameEn: 'Flerovium', weight: '(289)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²', row: 7, col: 14 },
+            { number: 115, symbol: 'Mc', nameZh: '镆', nameEn: 'Moscovium', weight: '(290)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³', row: 7, col: 15 },
+            { number: 116, symbol: 'Lv', nameZh: '𫟷', nameEn: 'Livermorium', weight: '(293)', category: 'metal', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴', row: 7, col: 16 },
+            { number: 117, symbol: 'Ts', nameZh: '鿬', nameEn: 'Tennessine', weight: '(294)', category: 'halogen', state: '固态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵', row: 7, col: 17 },
+            { number: 118, symbol: 'Og', nameZh: '鿫', nameEn: 'Oganesson', weight: '(294)', category: 'noble-gas', state: '气态', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', row: 7, col: 18 }
+        ];
+
+        const periodicTable = document.getElementById('periodicTable');
+        const modal = document.getElementById('elementModal');
+        const closeBtn = document.querySelector('.close');
+        const searchInput = document.getElementById('searchInput');
+
+        // 创建周期表
+        function createPeriodicTable() {
+            // 创建9行18列的网格（包括镧系和锕系）
+            for (let row = 1; row <= 9; row++) {
+                for (let col = 1; col <= 18; col++) {
+                    const element = elements.find(e => e.row === row && e.col === col);
+
+                    if (element) {
+                        const elementDiv = document.createElement('div');
+                        elementDiv.className = `element ${element.category}`;
+                        elementDiv.dataset.number = element.number;
+                        elementDiv.innerHTML = `
+                            <div class="number">${element.number}</div>
+                            <div class="symbol">${element.symbol}</div>
+                            <div class="name-zh">${element.nameZh}</div>
+                            <div class="name-en">${element.nameEn}</div>
+                            <div class="weight">${element.weight}</div>
+                        `;
+                        elementDiv.addEventListener('click', () => showElementDetails(element));
+                        periodicTable.appendChild(elementDiv);
+                    } else {
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.className = 'element empty';
+                        periodicTable.appendChild(emptyDiv);
+                    }
+                }
+            }
+        }
+
+        // 显示元素详情
+        function showElementDetails(element) {
+            document.getElementById('modalSymbol').textContent = element.symbol;
+            document.getElementById('modalName').textContent = `${element.nameZh} (${element.nameEn})`;
+            document.getElementById('modalNumber').textContent = element.number;
+            document.getElementById('modalWeight').textContent = element.weight;
+
+            const modalDetails = document.getElementById('modalDetails');
+            modalDetails.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">元素符号</div>
+                    <div class="detail-value">${element.symbol}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">元素类别</div>
+                    <div class="detail-value">${getCategoryName(element.category)}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">状态</div>
+                    <div class="detail-value">${element.state}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">电子构型</div>
+                    <div class="detail-value">${element.electronConfig}</div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        // 获取类别中文名
+        function getCategoryName(category) {
+            const categoryNames = {
+                'nonmetal': '非金属',
+                'noble-gas': '稀有气体',
+                'alkali': '碱金属',
+                'alkaline-earth': '碱土金属',
+                'metalloid': '类金属',
+                'halogen': '卤素',
+                'metal': '金属',
+                'transition-metal': '过渡金属',
+                'lanthanide': '镧系元素',
+                'actinide': '锕系元素'
+            };
+            return categoryNames[category] || category;
+        }
+
+        // 高亮分类
+        function highlightCategory(category) {
+            const elementDivs = document.querySelectorAll('.element');
+            elementDivs.forEach(div => {
+                if (div.classList.contains(category)) {
+                    div.style.filter = 'brightness(1.2)';
+                    div.style.transform = 'scale(1.05)';
+                } else if (!div.classList.contains('empty')) {
+                    div.style.filter = 'brightness(0.6)';
+                }
+            });
+        }
+
+        // 清除高亮
+        function clearHighlight() {
+            const elementDivs = document.querySelectorAll('.element');
+            elementDivs.forEach(div => {
+                div.style.filter = '';
+                div.style.transform = '';
+            });
+            // 清除所有图例项的激活状态
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        // 切换类别高亮（新功能：点击图例）
+        function toggleCategoryHighlight(category, legendItem) {
+            // 检查当前图例项是否已激活
+            const isActive = legendItem.classList.contains('active');
+
+            if (isActive) {
+                // 如果已激活，清除高亮
+                clearHighlight();
+            } else {
+                // 否则，高亮该类别
+                // 先清除所有激活状态
+                document.querySelectorAll('.legend-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                // 激活当前图例项
+                legendItem.classList.add('active');
+                // 高亮对应类别
+                highlightCategory(category);
+            }
+        }
+
+        // 搜索功能
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const elementDivs = document.querySelectorAll('.element');
+
+            if (searchTerm === '') {
+                clearHighlight();
+                return;
+            }
+
+            elementDivs.forEach(div => {
+                if (div.classList.contains('empty')) return;
+
+                const number = div.dataset.number;
+                const element = elements.find(e => e.number === parseInt(number));
+
+                if (element) {
+                    const matches =
+                        element.nameZh.toLowerCase().includes(searchTerm) ||
+                        element.nameEn.toLowerCase().includes(searchTerm) ||
+                        element.symbol.toLowerCase().includes(searchTerm) ||
+                        element.number.toString().includes(searchTerm);
+
+                    if (matches) {
+                        div.style.filter = 'brightness(1.2)';
+                        div.style.transform = 'scale(1.05)';
+                    } else {
+                        div.style.filter = 'brightness(0.6)';
+                    }
+                }
+            });
+        });
+
+        // 关闭模态框
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // 初始化
+        createPeriodicTable();
+    </script>
+</body>
+</html>

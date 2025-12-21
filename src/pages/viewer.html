@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="通过房间码观看教师摄像头">
+    <meta name="keywords" content="教师工具,摄像头观看,课堂工具,教学工具">
+    <title>教师工具箱 - 观看者</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #remoteVideo {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            border: 3px solid #4b6cb7;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .status {
+            background-color: rgba(30, 30, 46, 0.9);
+            color: #f0f0f0;
+        }
+
+        .connected {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .disconnected {
+            border-left: 5px solid #f44336;
+        }
+
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .room-input {
+            padding: 12px 20px;
+            border: 2px solid #4b6cb7;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+            width: 200px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .room-input:focus {
+            border-color: #182848;
+            box-shadow: 0 0 10px rgba(75, 108, 183, 0.3);
+        }
+
+        .dark-mode .room-input {
+            background: rgba(30, 30, 46, 0.8);
+            color: #f0f0f0;
+            border-color: #0f3460;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            margin: 10px 15px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .video-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .video-container {
+            background: rgba(30, 30, 46, 0.8);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dark-mode header {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switcher:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <header>
+        <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
+        <h1>教师工具箱 - 观看者</h1>
+        <p>输入房间码观看教师摄像头</p>
+    </header>
+
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="roomCodeInput" class="room-input" placeholder="输入6位房间码" maxlength="6" pattern="[0-9]{6}">
+            <button id="joinButton" class="button">加入房间</button>
+        </div>
+
+        <div id="statusMessage" class="status disconnected">请输入房间码加入房间</div>
+
+        <div class="video-container">
+            <h3>教师摄像头画面</h3>
+            <video id="remoteVideo" autoplay playsinline controls></video>
+        </div>
+
+        <div class="controls">
+            <button id="disconnectButton" class="button" disabled>断开连接</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        const joinButton = document.getElementById('joinButton');
+        const disconnectButton = document.getElementById('disconnectButton');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const statusMessage = document.getElementById('statusMessage');
+        const themeSwitcher = document.getElementById('themeSwitcher');
+
+        // WebRTC和WebSocket变量
+        let socket = null;
+        let peerConnection = null;
+        let clientId = null;
+        let currentRoomCode = null;
+
+        // 主题切换
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+
+            if (document.body.classList.contains('dark-mode')) {
+                themeSwitcher.textContent = '日间模式';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeSwitcher.textContent = '黑夜模式';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // 更新状态消息
+        function updateStatus(message, isConnected = false) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        // 连接到WebSocket服务器
+        function connectToServer() {
+            // 动态检测协议和主机
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            let wsUrl;
+
+            // 如果是本地开发环境
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                wsUrl = `${protocol}//${window.location.host}`;
+            } else {
+                // 生产环境，使用当前域名
+                wsUrl = `${protocol}//${window.location.host}`;
+            }
+
+            console.log('尝试连接到:', wsUrl);
+            updateStatus('正在连接服务器...', false);
+
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                updateStatus('已连接到服务器', true);
+                console.log('WebSocket连接已建立');
+            };
+
+            socket.onmessage = (event) => {
+                handleWebSocketMessage(JSON.parse(event.data));
+            };
+
+            socket.onclose = () => {
+                updateStatus('与服务器断开连接', false);
+                console.log('WebSocket连接已断开');
+                socket = null;
+
+                // 如果不是主动断开，尝试重连
+                if (clientId && currentRoomCode) {
+                    console.log('尝试重新连接...');
+                    setTimeout(connectToServer, 3000);
+                }
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket错误:', error);
+                updateStatus('连接失败: 无法连接到服务器', false);
+
+                // 如果连接失败，提供本地测试提示
+                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    updateStatus('无法连接到服务器，请检查服务器是否运行', false);
+                }
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            console.log('收到WebSocket消息:', data);
+
+            switch (data.type) {
+                case 'connection':
+                    clientId = data.id;
+                    console.log('获得客户端ID:', clientId);
+                    break;
+
+                case 'room-joined':
+                    currentRoomCode = data.roomCode;
+                    updateStatus(`已加入房间 ${currentRoomCode}，等待教师开始直播...`, true);
+
+                    // 更新UI状态
+                    joinButton.disabled = true;
+                    disconnectButton.disabled = false;
+                    roomCodeInput.disabled = true;
+                    break;
+
+                case 'offer':
+                    // 收到教师的offer，创建PeerConnection并回应answer
+                    handleOffer(data);
+                    break;
+
+                case 'ice-candidate':
+                    // 处理ICE候选
+                    if (peerConnection && data.candidate) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                    }
+                    break;
+
+                case 'room-closed':
+                    updateStatus('房间已关闭', false);
+                    disconnect();
+                    break;
+
+                case 'error':
+                    console.error('服务器错误:', data.message);
+                    updateStatus('错误: ' + data.message, false);
+                    break;
+            }
+        }
+
+        // 处理教师的offer
+        async function handleOffer(offerData) {
+            try {
+                // 创建PeerConnection
+                peerConnection = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                });
+
+                // 监听ICE候选
+                peerConnection.onicecandidate = event => {
+                    if (event.candidate && socket) {
+                        socket.send(JSON.stringify({
+                            type: 'ice-candidate',
+                            candidate: event.candidate
+                        }));
+                    }
+                };
+
+                // 监听远程流
+                peerConnection.ontrack = event => {
+                    console.log('收到远程流');
+                    remoteVideo.srcObject = event.streams[0];
+                    updateStatus('正在接收视频流...', true);
+                };
+
+                // 监听连接状态变化
+                peerConnection.onconnectionstatechange = () => {
+                    console.log('连接状态:', peerConnection.connectionState);
+                    if (peerConnection.connectionState === 'connected') {
+                        updateStatus('视频连接成功', true);
+                    } else if (peerConnection.connectionState === 'failed') {
+                        updateStatus('视频连接失败', false);
+                    }
+                };
+
+                // 设置远程描述
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offerData));
+
+                // 创建并发送answer
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+
+                if (socket) {
+                    socket.send(JSON.stringify({
+                        type: 'answer',
+                        ...answer
+                    }));
+                }
+
+                console.log('已发送answer');
+            } catch (error) {
+                console.error('处理offer失败:', error);
+                updateStatus('连接失败: ' + error.message, false);
+            }
+        }
+
+        // 加入房间
+        function joinRoom() {
+            const roomCode = roomCodeInput.value.trim();
+
+            if (!/^\d{6}$/.test(roomCode)) {
+                alert('请输入正确的6位数字房间码');
+                return;
+            }
+
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                connectToServer();
+                socket.addEventListener('open', () => {
+                    socket.send(JSON.stringify({
+                        type: 'join-room',
+                        roomCode: roomCode
+                    }));
+                });
+            } else {
+                socket.send(JSON.stringify({
+                    type: 'join-room',
+                    roomCode: roomCode
+                }));
+            }
+        }
+
+        // 断开连接
+        function disconnect() {
+            // 关闭PeerConnection
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+
+            // 关闭WebSocket连接
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+
+            // 清除视频源
+            remoteVideo.srcObject = null;
+
+            // 重置变量
+            currentRoomCode = null;
+            clientId = null;
+
+            // 更新UI状态
+            joinButton.disabled = false;
+            disconnectButton.disabled = true;
+            roomCodeInput.disabled = false;
+            roomCodeInput.value = '';
+            updateStatus('请输入房间码加入房间', false);
+
+            console.log("连接已断开");
+        }
+
+        // 房间码输入限制（只允许数字）
+        roomCodeInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        // 回车键加入房间
+        roomCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinRoom();
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查并应用保存的主题设置
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeSwitcher.textContent = '日间模式';
+            }
+
+            // 绑定事件监听器
+            joinButton.addEventListener('click', joinRoom);
+            disconnectButton.addEventListener('click', disconnect);
+            themeSwitcher.addEventListener('click', toggleTheme);
+
+            // 自动连接到服务器
+            connectToServer();
+        });
+    </script>
+</body>
+</html>

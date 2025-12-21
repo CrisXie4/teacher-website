@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <title>教师工具箱 - 摄像头投屏（Vercel版）</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #localVideo {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            border: 3px solid #4b6cb7;
+            transform: scaleX(-1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .status {
+            background-color: rgba(30, 30, 46, 0.9);
+            color: #f0f0f0;
+        }
+
+        .connected {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .disconnected {
+            border-left: 5px solid #f44336;
+        }
+
+        .room-code {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.4);
+            letter-spacing: 4px;
+        }
+
+        .dark-mode .room-code {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+
+        .button {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            margin: 10px 15px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .video-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .video-container {
+            background: rgba(30, 30, 46, 0.8);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dark-mode header {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switcher:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #4b6cb7;
+        }
+
+        .dark-mode .info-box {
+            background: rgba(30, 30, 46, 0.9);
+            color: #f0f0f0;
+        }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <header>
+        <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
+        <h1>教师工具箱 - 摄像头投屏</h1>
+        <p>兼容 Vercel 的 HTTP 版本</p>
+    </header>
+
+    <div class="container">
+        <div class="info-box">
+            <strong>📡 连接模式：</strong>HTTP API（兼容 Vercel Serverless）
+        </div>
+
+        <div class="video-container">
+            <h3>本地摄像头画面</h3>
+            <video id="localVideo" autoplay playsinline></video>
+        </div>
+
+        <div id="statusMessage" class="status disconnected">等待启动摄像头</div>
+
+        <div id="roomCodeDisplay" class="room-code" style="display: none;">
+            房间码: 000000
+        </div>
+
+        <div class="controls">
+            <button id="startCameraButton" class="button">启动摄像头</button>
+            <button id="createRoomButton" class="button" disabled>创建房间</button>
+            <button id="disconnectButton" class="button" disabled>断开连接</button>
+        </div>
+
+        <div class="info-box">
+            <p><strong>使用说明：</strong></p>
+            <p>1. 点击"启动摄像头"开启摄像头</p>
+            <p>2. 点击"创建房间"获得房间码</p>
+            <p>3. 将房间码分享给观看者</p>
+            <p>4. 观看者访问 viewer-vercel.html 输入房间码即可观看</p>
+        </div>
+    </div>
+
+    <script>
+        // 变量
+        let localStream = null;
+        let currentRoomCode = null;
+        let teacherId = null;
+
+        // 主题切换
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('themeSwitcher').textContent = isDark ? '日间模式' : '黑夜模式';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // 更新状态消息
+        function updateStatus(message, isConnected = false) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        // 启动摄像头
+        async function startCamera() {
+            try {
+                updateStatus('正在启动摄像头...', false);
+
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'environment'
+                    },
+                    audio: true
+                });
+
+                document.getElementById('localVideo').srcObject = localStream;
+
+                // 更新UI状态
+                document.getElementById('startCameraButton').disabled = true;
+                document.getElementById('createRoomButton').disabled = false;
+                updateStatus('摄像头已启动，可以创建房间', true);
+
+                console.log("摄像头已启动");
+            } catch (error) {
+                console.error("无法访问摄像头:", error);
+                updateStatus('无法访问摄像头: ' + error.message, false);
+            }
+        }
+
+        // 创建房间
+        async function createRoom() {
+            try {
+                updateStatus('正在创建房间...', false);
+
+                const response = await fetch('/api/create-room', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentRoomCode = data.roomCode;
+                    teacherId = data.teacherId;
+
+                    // 显示房间码
+                    const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+                    roomCodeDisplay.textContent = `房间码: ${currentRoomCode}`;
+                    roomCodeDisplay.style.display = 'block';
+
+                    // 更新UI状态
+                    document.getElementById('createRoomButton').disabled = true;
+                    document.getElementById('disconnectButton').disabled = false;
+                    updateStatus(`房间已创建，房间码: ${currentRoomCode}`, true);
+
+                    // 开始监控房间状态
+                    startRoomMonitoring();
+                } else {
+                    updateStatus('创建房间失败: ' + data.message, false);
+                }
+            } catch (error) {
+                console.error('创建房间失败:', error);
+                updateStatus('创建房间失败: 网络错误', false);
+            }
+        }
+
+        // 监控房间状态
+        function startRoomMonitoring() {
+            const checkInterval = setInterval(async () => {
+                if (!currentRoomCode) {
+                    clearInterval(checkInterval);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/room/${currentRoomCode}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const viewerCount = data.room.viewerCount;
+                        updateStatus(`房间活跃中，当前观看者: ${viewerCount} 人`, true);
+                    } else {
+                        updateStatus('房间已关闭', false);
+                        clearInterval(checkInterval);
+                    }
+                } catch (error) {
+                    console.error('检查房间状态失败:', error);
+                }
+            }, 5000); // 每5秒检查一次
+        }
+
+        // 断开连接
+        async function disconnect() {
+            try {
+                // 离开房间
+                if (currentRoomCode && teacherId) {
+                    await fetch('/api/leave-room', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            roomCode: currentRoomCode,
+                            clientId: teacherId
+                        })
+                    });
+                }
+
+                // 停止本地流
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+
+                // 清除视频源
+                document.getElementById('localVideo').srcObject = null;
+
+                // 隐藏房间码
+                document.getElementById('roomCodeDisplay').style.display = 'none';
+
+                // 重置变量
+                currentRoomCode = null;
+                teacherId = null;
+
+                // 更新UI状态
+                document.getElementById('startCameraButton').disabled = false;
+                document.getElementById('createRoomButton').disabled = true;
+                document.getElementById('disconnectButton').disabled = true;
+                updateStatus('等待启动摄像头', false);
+
+                console.log("连接已断开");
+            } catch (error) {
+                console.error('断开连接失败:', error);
+            }
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 应用保存的主题
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeSwitcher').textContent = '日间模式';
+            }
+
+            // 绑定事件
+            document.getElementById('startCameraButton').addEventListener('click', startCamera);
+            document.getElementById('createRoomButton').addEventListener('click', createRoom);
+            document.getElementById('disconnectButton').addEventListener('click', disconnect);
+            document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
+
+            updateStatus('点击"启动摄像头"开始使用', false);
+        });
+    </script>
+</body>
+</html>

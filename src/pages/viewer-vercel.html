@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <title>教师工具箱 - 观看者（Vercel版）</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #remoteVideo {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            border: 3px solid #4b6cb7;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .status {
+            background-color: rgba(30, 30, 46, 0.9);
+            color: #f0f0f0;
+        }
+
+        .connected {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .disconnected {
+            border-left: 5px solid #f44336;
+        }
+
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .room-input {
+            padding: 12px 20px;
+            border: 2px solid #4b6cb7;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+            width: 200px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .room-input:focus {
+            border-color: #182848;
+            box-shadow: 0 0 10px rgba(75, 108, 183, 0.3);
+        }
+
+        .dark-mode .room-input {
+            background: rgba(30, 30, 46, 0.8);
+            color: #f0f0f0;
+            border-color: #0f3460;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            margin: 10px 15px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .video-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .video-container {
+            background: rgba(30, 30, 46, 0.8);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dark-mode header {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switcher:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #4b6cb7;
+        }
+
+        .dark-mode .info-box {
+            background: rgba(30, 30, 46, 0.9);
+            color: #f0f0f0;
+        }
+
+        .placeholder-video {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            background: #000;
+            border-radius: 12px;
+            border: 3px solid #4b6cb7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.5rem;
+        }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <header>
+        <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
+        <h1>教师工具箱 - 观看者</h1>
+        <p>兼容 Vercel 的 HTTP 版本</p>
+    </header>
+
+    <div class="container">
+        <div class="info-box">
+            <strong>📡 连接模式：</strong>HTTP API（兼容 Vercel Serverless）
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="roomCodeInput" class="room-input" placeholder="输入6位房间码" maxlength="6" pattern="[0-9]{6}">
+            <button id="joinButton" class="button">加入房间</button>
+        </div>
+
+        <div id="statusMessage" class="status disconnected">请输入房间码加入房间</div>
+
+        <div class="video-container">
+            <h3>教师摄像头画面</h3>
+            <div id="videoPlaceholder" class="placeholder-video">
+                等待连接教师摄像头...
+            </div>
+            <video id="remoteVideo" autoplay playsinline controls style="display: none;"></video>
+        </div>
+
+        <div class="controls">
+            <button id="disconnectButton" class="button" disabled>断开连接</button>
+        </div>
+
+        <div class="info-box">
+            <p><strong>使用说明：</strong></p>
+            <p>1. 向教师获取6位数字房间码</p>
+            <p>2. 在上方输入框输入房间码</p>
+            <p>3. 点击"加入房间"开始观看</p>
+            <p><strong>注意：</strong>此版本兼容 Vercel 部署，但 WebRTC 直播功能需要额外配置</p>
+        </div>
+    </div>
+
+    <script>
+        // 变量
+        let currentRoomCode = null;
+        let viewerId = null;
+        let roomMonitorInterval = null;
+
+        // 主题切换
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('themeSwitcher').textContent = isDark ? '日间模式' : '黑夜模式';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // 更新状态消息
+        function updateStatus(message, isConnected = false) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        // 加入房间
+        async function joinRoom() {
+            const roomCode = document.getElementById('roomCodeInput').value.trim();
+
+            if (!/^\d{6}$/.test(roomCode)) {
+                alert('请输入正确的6位数字房间码');
+                return;
+            }
+
+            try {
+                updateStatus('正在加入房间...', false);
+
+                const response = await fetch('/api/join-room', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        roomCode: roomCode
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentRoomCode = data.roomCode;
+                    viewerId = data.viewerId;
+
+                    // 更新UI状态
+                    document.getElementById('joinButton').disabled = true;
+                    document.getElementById('disconnectButton').disabled = false;
+                    document.getElementById('roomCodeInput').disabled = true;
+
+                    updateStatus(`已加入房间 ${currentRoomCode}`, true);
+
+                    // 开始监控房间状态
+                    startRoomMonitoring();
+
+                    // 显示连接提示
+                    showConnectionInfo();
+                } else {
+                    updateStatus('加入房间失败: ' + data.message, false);
+                }
+            } catch (error) {
+                console.error('加入房间失败:', error);
+                updateStatus('加入房间失败: 网络错误', false);
+            }
+        }
+
+        // 显示连接信息
+        function showConnectionInfo() {
+            const placeholder = document.getElementById('videoPlaceholder');
+            placeholder.innerHTML = `
+                <div style="text-align: center; color: #4b6cb7;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📹</div>
+                    <div>已加入房间 ${currentRoomCode}</div>
+                    <div style="font-size: 1rem; margin-top: 10px; color: #666;">
+                        WebRTC 直播功能需要额外配置<br>
+                        当前为 HTTP API 演示版本
+                    </div>
+                </div>
+            `;
+        }
+
+        // 监控房间状态
+        function startRoomMonitoring() {
+            roomMonitorInterval = setInterval(async () => {
+                if (!currentRoomCode) {
+                    clearInterval(roomMonitorInterval);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/room/${currentRoomCode}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const room = data.room;
+                        updateStatus(`房间 ${currentRoomCode} 活跃中，观看者: ${room.viewerCount} 人`, true);
+                    } else {
+                        updateStatus('房间已关闭或不存在', false);
+                        disconnect();
+                    }
+                } catch (error) {
+                    console.error('检查房间状态失败:', error);
+                    updateStatus('连接异常，正在重试...', false);
+                }
+            }, 5000); // 每5秒检查一次
+        }
+
+        // 断开连接
+        async function disconnect() {
+            try {
+                // 停止监控
+                if (roomMonitorInterval) {
+                    clearInterval(roomMonitorInterval);
+                    roomMonitorInterval = null;
+                }
+
+                // 离开房间
+                if (currentRoomCode && viewerId) {
+                    await fetch('/api/leave-room', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            roomCode: currentRoomCode,
+                            clientId: viewerId
+                        })
+                    });
+                }
+
+                // 清除视频
+                document.getElementById('remoteVideo').style.display = 'none';
+                const placeholder = document.getElementById('videoPlaceholder');
+                placeholder.innerHTML = '等待连接教师摄像头...';
+                placeholder.style.display = 'flex';
+
+                // 重置变量
+                currentRoomCode = null;
+                viewerId = null;
+
+                // 更新UI状态
+                document.getElementById('joinButton').disabled = false;
+                document.getElementById('disconnectButton').disabled = true;
+                document.getElementById('roomCodeInput').disabled = false;
+                document.getElementById('roomCodeInput').value = '';
+                updateStatus('请输入房间码加入房间', false);
+
+                console.log("连接已断开");
+            } catch (error) {
+                console.error('断开连接失败:', error);
+            }
+        }
+
+        // 房间码输入限制（只允许数字）
+        document.getElementById('roomCodeInput').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        // 回车键加入房间
+        document.getElementById('roomCodeInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinRoom();
+            }
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 应用保存的主题
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeSwitcher').textContent = '日间模式';
+            }
+
+            // 绑定事件
+            document.getElementById('joinButton').addEventListener('click', joinRoom);
+            document.getElementById('disconnectButton').addEventListener('click', disconnect);
+            document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
+
+            updateStatus('请输入房间码加入房间', false);
+        });
+    </script>
+</body>
+</html>

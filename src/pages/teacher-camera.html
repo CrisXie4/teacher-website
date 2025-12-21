@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="专为教师设计的摄像头投屏工具">
+    <meta name="keywords" content="教师工具,摄像头投屏,课堂工具,教学工具">
+    <meta name="author" content="Teacher Toolkit Team">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="教师工具箱">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+    <title>教师工具箱 - 摄像头投屏</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        /* 黑夜模式样式 */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        
+        #localVideo { 
+            width: 100%; 
+            max-width: 800px; 
+            border-radius: 12px; 
+            border: 3px solid #4b6cb7; 
+            transform: scaleX(-1); /* 镜像翻转 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+        
+        #remoteVideo { 
+            width: 100%; 
+            max-width: 800px; 
+            border-radius: 12px; 
+            border: 3px solid #4b6cb7; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+        
+        .status { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .status {
+            background-color: rgba(30, 30, 46, 0.9);
+            color: #f0f0f0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .connected { 
+            border-left: 5px solid #4CAF50; 
+        }
+        
+        .disconnected {
+            border-left: 5px solid #f44336;
+        }
+
+        .room-code {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 4px;
+        }
+
+        .dark-mode .room-code {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            box-shadow: 0 8px 20px rgba(99, 179, 237, 0.4);
+        }
+        
+        .button { 
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            font-size: 1.1rem; 
+            margin: 10px 15px; 
+            cursor: pointer; 
+            border-radius: 50px; 
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dark-mode .button {
+            box-shadow: 0 4px 15px rgba(99, 179, 237, 0.4);
+        }
+        
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .button:hover::before {
+            left: 100%;
+        }
+        
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .dark-mode .button:hover {
+            box-shadow: 0 8px 20px rgba(99, 179, 237, 0.6);
+        }
+        
+        .button:disabled { 
+            background: linear-gradient(135deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .video-box {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .video-box {
+            background: rgba(30, 30, 46, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .video-box h3 {
+            margin-bottom: 15px;
+            color: #182848;
+            font-size: 1.4rem;
+        }
+        
+        .dark-mode .video-box h3 {
+            color: #e2e8f0;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .dark-mode header {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .language-switcher, .theme-switcher {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .language-switcher:hover, .theme-switcher:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #555;
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+        }
+        
+        .dark-mode footer {
+            background: rgba(30, 30, 46, 0.8);
+            color: #cbd5e1;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .video-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .video-box {
+                min-width: 100%;
+            }
+            
+            #localVideo, #remoteVideo {
+                max-width: 100%;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="text-align: center; flex-grow: 1;">
+                <h1>教师工具箱 - 摄像头投屏</h1>
+                <p>实时投屏教师摄像头画面到电脑端</p>
+            </div>
+            <div class="header-controls">
+                <button class="language-switcher" id="languageSwitcher">English</button>
+                <button class="theme-switcher" id="themeSwitcher">黑夜模式</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="video-container">
+            <div class="video-box">
+                <h3 id="localVideoTitle">本地摄像头画面</h3>
+                <video id="localVideo" autoplay playsinline></video>
+            </div>
+            <div class="video-box">
+                <h3 id="remoteVideoTitle">远程投屏画面</h3>
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status disconnected">未连接到服务器</div>
+
+        <!-- 房间码显示 -->
+        <div id="roomCodeDisplay" class="room-code" style="display: none;">
+            房间码: 000000
+        </div>
+
+        <div class="controls">
+            <button id="startCameraButton" class="button">启动摄像头</button>
+            <button id="createRoomButton" class="button" disabled>创建房间</button>
+            <button id="connectButton" class="button" disabled>连接并开始投屏</button>
+            <button id="disconnectButton" class="button" disabled>断开连接</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
+    </footer>
+    
+    <script src="../js/teacher-camera.js"></script>
+</body>
+</html>

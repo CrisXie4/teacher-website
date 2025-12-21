@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>教师工具箱 - 404 页面未找到</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="抱歉，您访问的页面不存在">
+  <link rel="icon" href="assets/images/briefcase-192x192.png" type="image/png">
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --primary-dark: #2E7D32;
+      --accent: #8BC34A;
+      --bg-light: #f8f9fa;
+      --text-dark: #333;
+      --text-muted: #666;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font: 16px/1.6 "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #43A047 0%, #1B5E20 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    /* 背景动画粒子 */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: float 15s infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+    
+    .box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 50px 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* 404数字动画 */
+    .error-code {
+      font-size: 120px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 10px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    
+    /* 工具箱图标 */
+    .icon-container {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 25px;
+      position: relative;
+    }
+    
+    .icon-container svg {
+      width: 100%;
+      height: 100%;
+      fill: var(--primary);
+      animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    /* 问号动画 */
+    .question-mark {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 36px;
+      color: #FF6B6B;
+      animation: shake 1s ease-in-out infinite;
+    }
+    
+    @keyframes shake {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(15deg);
+      }
+      75% {
+        transform: rotate(-15deg);
+      }
+    }
+    
+    h1 {
+      font-size: 26px;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    
+    p {
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 28px rgba(76, 175, 80, 0.5);
+    }
+    
+    .btn-secondary {
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+    
+    /* 搜索建议 */
+    .suggestions {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(46, 125, 50, 0.08) 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 25px;
+    }
+    
+    .suggestions h3 {
+      font-size: 14px;
+      color: var(--primary-dark);
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    
+    .suggestion-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .suggestion-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: white;
+      border-radius: 20px;
+      text-decoration: none;
+      color: var(--text-dark);
+      font-size: 13px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .suggestion-link:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+    
+    .suggestion-link .emoji {
+      font-size: 16px;
+    }
+    
+    .tips {
+      font-size: 13px;
+      color: #999;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .tips code {
+      background: rgba(76, 175, 80, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--primary);
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 480px) {
+      .box {
+        padding: 35px 25px;
+      }
+      
+      .error-code {
+        font-size: 80px;
+      }
+      
+      .icon-container {
+        width: 70px;
+        height: 70px;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* 深色模式支持 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(135deg, #1B5E20 0%, #0D3311 100%);
+      }
+      
+      .box {
+        background: rgba(30, 30, 50, 0.95);
+      }
+      
+      h1, .suggestions h3 {
+        color: #81C784;
+      }
+      
+      p, .subtitle {
+        color: #a0a0a0;
+      }
+      
+      .suggestion-link {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e0e0e0;
+      }
+      
+      .tips {
+        color: #888;
+        border-top-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景粒子效果 -->
+  <div class="particles" id="particles"></div>
+  
+  <div class="box">
+    <!-- 404数字 -->
+    <div class="error-code">404</div>
+    
+    <!-- 工具箱图标 -->
+    <div class="icon-container">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M58 18H38V8a4 4 0 0 0-4-4H18a4 4 0 0 0-4 4v10H6a4 4 0 0 0-4 4v34a4 4 0 0 0 4 4h52a4 4 0 0 0 4-4V22a4 4 0 0 0-4-4zM18 8h16v10H18zm38 48H8V26h48z"/>
+        <path d="M32 34a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/>
+      </svg>
+      <span class="question-mark">❓</span>
+    </div>
+
+    <h1>哎呀！工具找不到了</h1>
+    <p class="subtitle">您访问的页面可能已被移动或网址输入有误</p>
+    <p>别担心，让我们帮您找到正确的方向。<br>您可以返回首页浏览所有可用的教学工具。</p>
+    
+    <div class="btn-group">
+      <a class="btn btn-primary" href="/">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        返回首页
+      </a>
+      <a class="btn btn-secondary" href="javascript:history.back()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        返回上一页
+      </a>
+    </div>
+    
+    <!-- 快捷链接建议 -->
+    <div class="suggestions">
+      <h3>🔧 热门工具快捷入口</h3>
+      <div class="suggestion-links">
+        <a class="suggestion-link" href="src/pages/roll-call.html">
+          <span class="emoji">🎲</span> 随机点名
+        </a>
+        <a class="suggestion-link" href="src/pages/timer.html">
+          <span class="emoji">⏱️</span> 计时器
+        </a>
+        <a class="suggestion-link" href="src/pages/whiteboard.html">
+          <span class="emoji">✏️</span> 电子白板
+        </a>
+        <a class="suggestion-link" href="src/pages/clock.html">
+          <span class="emoji">🕐</span> 全屏时钟
+        </a>
+      </div>
+    </div>
+    
+    <div class="tips">
+      💡 提示：请检查网址拼写，或尝试刷新页面
+    </div>
+  </div>
+  
+  <script>
+    // 创建背景粒子效果
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particleCount = 20;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.width = (Math.random() * 10 + 5) + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+    
+    // 页面加载时创建粒子
+    document.addEventListener('DOMContentLoaded', createParticles);
+  </script>
+</body>
+</html>

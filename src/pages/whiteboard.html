@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子白板 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .whiteboard-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        
+        .whiteboard-header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .whiteboard-header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .whiteboard-toolbar {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(240, 240, 240, 0.95);
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .toolbar-group-label {
+            font-weight: 500;
+            color: #444;
+            font-size: 0.95rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.reset {
+            background: linear-gradient(135deg, #FF5252, #FF4081);
+        }
+        
+        .btn.save {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        
+        .btn.fullscreen {
+            background: linear-gradient(135deg, #9C27B0, #E040FB);
+        }
+        
+        .btn.eraser {
+            background: linear-gradient(135deg, #FF9800, #FFC107);
+        }
+        
+        .btn.load {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }
+        
+        .color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .color-option::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 50%;
+            border: 2px solid white;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .color-option.active::after {
+            opacity: 1;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.15);
+        }
+        
+        .color-option.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .black { background-color: #000000; }
+        .red { background-color: #f44336; }
+        .blue { background-color: #2196F3; }
+        .green { background-color: #4CAF50; }
+        .yellow { background-color: #FFEB3B; }
+        .purple { background-color: #9C27B0; }
+        .orange { background-color: #FF9800; }
+        
+        .whiteboard-canvas {
+            flex: 1;
+            cursor: crosshair;
+            background: white;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .custom-color-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .custom-color-input {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background: #4b6cb7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .custom-color-input:hover {
+            transform: scale(1.1);
+        }
+        
+        .custom-color-selector {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background: transparent;
+            position: relative;
+        }
+        
+        .custom-color-selector::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+        
+        .custom-color-selector::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .eraser-active {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="white" d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L20.59,9.11C21.37,8.32 21.37,7.07 20.59,6.28L15.71,1.41C14.93,0.62 13.67,0.62 12.88,1.41L2.28,12C1.5,12.79 1.5,14.04 2.28,14.83L4.22,15.58Z" /></svg>') 12 12, auto !important;
+        }
+        
+        @media (max-width: 768px) {
+            .whiteboard-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.8rem 1rem;
+            }
+            
+            .toolbar-group {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+            
+            .whiteboard-header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <div class="whiteboard-container">
+        <div class="whiteboard-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页">← 返回主页</button>
+                </div>
+                <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                    <h1 style="margin: 0;">电子白板</h1>
+                    <p style="font-size: 1rem; opacity: 0.9; margin: 0.3rem 0 0 0;">在线绘制和演示，支持多点触控</p>
+                </div>
+                <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+            </div>
+        </div>
+        
+        <div class="whiteboard-toolbar">
+            <div class="toolbar-group">
+                <button id="clearCanvasBtn" class="btn reset">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="white"/>
+                    </svg>
+                    清空白板
+                </button>
+                <button id="saveCanvasBtn" class="btn save">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V7L17 3ZM12 19C10.34 19 9 17.66 9 16S10.34 13 12 13 15 14.34 15 16 13.66 19 12 19ZM15 9H5V5H15V9Z" fill="white"/>
+                    </svg>
+                    保存图片
+                </button>
+                <button id="loadCanvasBtn" class="btn load">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" fill="white"/>
+                    </svg>
+                    加载图片
+                </button>
+                <input type="file" id="imageLoader" class="file-input" accept="image/*">
+            </div>
+            
+            <div class="toolbar-group">
+                <span class="toolbar-group-label">工具:</span>
+                <button id="eraserBtn" class="btn eraser">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L20.59,9.11C21.37,8.32 21.37,7.07 20.59,6.28L15.71,1.41C14.93,0.62 13.67,0.62 12.88,1.41L2.28,12C1.5,12.79 1.5,14.04 2.28,14.83L4.22,15.58Z" fill="white"/>
+                    </svg>
+                    橡皮擦
+                </button>
+            </div>
+            
+            <div class="toolbar-group">
+                <span class="toolbar-group-label">颜色:</span>
+                <div class="color-picker">
+                    <div class="color-option black active" data-color="#000000"></div>
+                    <div class="color-option red" data-color="#f44336"></div>
+                    <div class="color-option blue" data-color="#2196F3"></div>
+                    <div class="color-option green" data-color="#4CAF50"></div>
+                    <div class="color-option yellow" data-color="#FFEB3B"></div>
+                    <div class="color-option purple" data-color="#9C27B0"></div>
+                    <div class="color-option orange" data-color="#FF9800"></div>
+                </div>
+                <div class="custom-color-picker">
+                    <input type="color" id="customColor" class="custom-color-selector" value="#4b6cb7">
+                    <div id="customColorDisplay" class="custom-color-input" style="background-color: #4b6cb7;"></div>
+                </div>
+            </div>
+            
+            <div class="toolbar-group">
+                <span class="toolbar-group-label">线条粗细:</span>
+                <input type="range" id="lineWidth" min="1" max="30" value="3">
+                <span id="lineWidthValue">3</span>
+                <button id="fullscreenBtn" class="btn fullscreen">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7,14H5V19H10V17H7V14M12,14H14V17H17V19H12V14M14,10H17V5H12V7H14V10M10,10H7V7H10V5H5V10H7V12H5V19H10V17H7V14H10V12H12V14H17V19H19V12H17V10H19V5H12V7H14V10H12V12H10V10Z" fill="white"/>
+                    </svg>
+                    全屏
+                </button>
+            </div>
+        </div>
+        
+        <canvas id="whiteboardCanvas" class="whiteboard-canvas"></canvas>
+    </div>
+    
+    <div class="instructions" id="instructions">
+        按住鼠标左键并拖动进行绘制，支持触摸操作
+    </div>
+    
+    <script>
+        // 获取DOM元素
+        const clearCanvasBtn = document.getElementById('clearCanvasBtn');
+        const saveCanvasBtn = document.getElementById('saveCanvasBtn');
+        const loadCanvasBtn = document.getElementById('loadCanvasBtn');
+        const eraserBtn = document.getElementById('eraserBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const whiteboardCanvas = document.getElementById('whiteboardCanvas');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const lineWidthInput = document.getElementById('lineWidth');
+        const lineWidthValue = document.getElementById('lineWidthValue');
+        const customColorInput = document.getElementById('customColor');
+        const customColorDisplay = document.getElementById('customColorDisplay');
+        const imageLoader = document.getElementById('imageLoader');
+        const instructions = document.getElementById('instructions');
+        
+        // 白板变量
+        let canvasContext;
+        let isDrawing = false;
+        let currentColor = '#000000';
+        let lineWidth = 3;
+        let isFullscreen = false;
+        let isEraserActive = false;
+        let drawingHistory = [];
+        let historyIndex = -1;
+        
+        // 多人触控支持变量
+        let touchColors = {}; // 为每个触摸点分配颜色
+        let touchPoints = {}; // 存储每个触摸点的信息
+        
+        // 初始化白板
+        function initWhiteboard() {
+            const canvas = whiteboardCanvas;
+            canvasContext = canvas.getContext('2d');
+            
+            // 设置画布大小
+            resizeCanvas();
+            
+            // 清空画布
+            clearCanvas();
+            
+            // 绑定鼠标事件
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // 绑定触摸事件（支持移动设备）
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+        
+        // 调整画布大小
+        function resizeCanvas() {
+            const canvas = whiteboardCanvas;
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        
+        // 清空白板
+        function clearCanvas() {
+            const canvas = whiteboardCanvas;
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 重置历史记录
+            drawingHistory = [];
+            historyIndex = -1;
+            
+            // 显示提示信息
+            showInstruction("画板已清空");
+        }
+        
+        // 开始绘制
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+        
+        // 绘制
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const canvas = whiteboardCanvas;
+            const rect = canvas.getBoundingClientRect();
+
+            // 优化：预设置通用样式，避免重复设置
+            canvasContext.lineCap = 'round';
+            canvasContext.lineJoin = 'round';
+
+            // 处理触摸事件（支持多人同时触控）
+            if (e.type.includes('touch')) {
+                for (let i = 0; i < e.touches.length; i++) {
+                    const touch = e.touches[i];
+                    const touchId = touch.identifier;
+
+                    if (touchPoints[touchId]) {
+                        const x = touch.clientX - rect.left;
+                        const y = touch.clientY - rect.top;
+
+                        // 设置绘制样式
+                        canvasContext.lineWidth = touchPoints[touchId].lineWidth;
+
+                        // 如果橡皮擦激活，使用白色绘制
+                        if (isEraserActive) {
+                            canvasContext.strokeStyle = 'white';
+                            canvasContext.globalCompositeOperation = 'destination-out';
+                        } else {
+                            canvasContext.strokeStyle = touchPoints[touchId].color;
+                            canvasContext.globalCompositeOperation = 'source-over';
+                        }
+
+                        canvasContext.lineTo(x, y);
+                        canvasContext.stroke();
+                        canvasContext.beginPath();
+                        canvasContext.moveTo(x, y);
+
+                        // 更新触摸点位置
+                        touchPoints[touchId].x = x;
+                        touchPoints[touchId].y = y;
+                    }
+                }
+            } else {
+                // 处理鼠标事件
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                canvasContext.lineWidth = lineWidth;
+
+                // 如果橡皮擦激活，使用白色绘制
+                if (isEraserActive) {
+                    canvasContext.strokeStyle = 'white';
+                    canvasContext.globalCompositeOperation = 'destination-out';
+                } else {
+                    canvasContext.strokeStyle = currentColor;
+                    canvasContext.globalCompositeOperation = 'source-over';
+                }
+
+                canvasContext.lineTo(x, y);
+                canvasContext.stroke();
+                canvasContext.beginPath();
+                canvasContext.moveTo(x, y);
+            }
+        }
+        
+        // 停止绘制
+        function stopDrawing(e) {
+            if (isDrawing) {
+                // 如果是触摸事件，清理对应的触摸点
+                if (e && e.type.includes('touch')) {
+                    // 清理已结束的触摸点
+                    if (e.changedTouches) {
+                        for (let i = 0; i < e.changedTouches.length; i++) {
+                            const touchId = e.changedTouches[i].identifier;
+                            delete touchPoints[touchId];
+                        }
+                    }
+                    
+                    // 如果还有触摸点在绘制，不结束绘制
+                    if (e.touches && e.touches.length > 0) {
+                        return;
+                    }
+                }
+                
+                isDrawing = false;
+                canvasContext.beginPath();
+                
+                // 保存当前画布状态到历史记录
+                saveToHistory();
+            }
+        }
+        
+        // 处理触摸开始
+        function handleTouchStart(e) {
+            e.preventDefault();
+            
+            // 为每个触摸点分配唯一标识和颜色
+            for (let i = 0; i < e.touches.length; i++) {
+                const touch = e.touches[i];
+                const touchId = touch.identifier;
+                
+                // 如果这是新的触摸点，分配颜色
+                if (!touchPoints[touchId]) {
+                    touchPoints[touchId] = {
+                        x: touch.clientX,
+                        y: touch.clientY,
+                        color: currentColor,
+                        lineWidth: lineWidth
+                    };
+                }
+            }
+            
+            // 对于第一个触摸点，开始绘制
+            if (e.touches.length > 0) {
+                isDrawing = true;
+                draw(e);
+            }
+        }
+        
+        // 处理触摸移动
+        function handleTouchMove(e) {
+            e.preventDefault();
+            
+            // 更新所有触摸点的位置
+            for (let i = 0; i < e.touches.length; i++) {
+                const touch = e.touches[i];
+                const touchId = touch.identifier;
+                
+                if (touchPoints[touchId]) {
+                    touchPoints[touchId].x = touch.clientX;
+                    touchPoints[touchId].y = touch.clientY;
+                }
+            }
+            
+            draw(e);
+        }
+        
+        // 选择颜色
+        function selectColor(color) {
+            currentColor = color;
+            isEraserActive = false;
+            updateEraserButton();
+            
+            colorOptions.forEach(option => {
+                if (option.dataset.color === color) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
+            // 更新自定义颜色显示
+            customColorDisplay.style.backgroundColor = color;
+            customColorInput.value = color;
+        }
+        
+        // 保存画布为图片
+        function saveCanvas() {
+            const canvas = whiteboardCanvas;
+            const link = document.createElement('a');
+            link.download = 'whiteboard-' + new Date().getTime() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            showInstruction("图片已保存");
+        }
+        
+        // 加载图片到画布
+        function loadCanvas() {
+            imageLoader.click();
+        }
+        
+        // 处理图片加载
+        function handleImageLoad(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = whiteboardCanvas;
+                    const ctx = canvasContext;
+                    
+                    // 清空画布
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // 计算图片缩放比例
+                    const maxWidth = canvas.width * 0.8;
+                    const maxHeight = canvas.height * 0.8;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                    
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                    
+                    // 在画布中心绘制图片
+                    const x = (canvas.width - width) / 2;
+                    const y = (canvas.height - height) / 2;
+                    
+                    ctx.drawImage(img, x, y, width, height);
+                    
+                    showInstruction("图片已加载");
+                    
+                    // 保存到历史记录
+                    saveToHistory();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 切换橡皮擦
+        function toggleEraser() {
+            isEraserActive = !isEraserActive;
+            updateEraserButton();
+            
+            if (isEraserActive) {
+                showInstruction("橡皮擦已激活");
+                whiteboardCanvas.classList.add('eraser-active');
+            } else {
+                showInstruction("橡皮擦已关闭");
+                whiteboardCanvas.classList.remove('eraser-active');
+            }
+        }
+        
+        // 更新橡皮擦按钮状态
+        function updateEraserButton() {
+            if (isEraserActive) {
+                eraserBtn.style.background = 'linear-gradient(135deg, #607D8B, #9E9E9E)';
+                eraserBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L20.59,9.11C21.37,8.32 21.37,7.07 20.59,6.28L15.71,1.41C14.93,0.62 13.67,0.62 12.88,1.41L2.28,12C1.5,12.79 1.5,14.04 2.28,14.83L4.22,15.58Z" fill="white"/>
+                    </svg>
+                    橡皮擦(开)
+                `;
+            } else {
+                eraserBtn.style.background = 'linear-gradient(135deg, #FF9800, #FFC107)';
+                eraserBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L20.59,9.11C21.37,8.32 21.37,7.07 20.59,6.28L15.71,1.41C14.93,0.62 13.67,0.62 12.88,1.41L2.28,12C1.5,12.79 1.5,14.04 2.28,14.83L4.22,15.58Z" fill="white"/>
+                    </svg>
+                    橡皮擦
+                `;
+            }
+        }
+        
+        // 切换全屏模式
+        function toggleFullscreen() {
+            const container = document.querySelector('.whiteboard-container');
+            
+            if (!isFullscreen) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+                fullscreenBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14,14H19V16H16V19H14V14M5,14H10V19H8V16H5V14M8,5H10V10H5V8H8V5M19,8V10H14V5H16V8H19Z" fill="white"/>
+                    </svg>
+                    退出全屏
+                `;
+                isFullscreen = true;
+                showInstruction("已进入全屏模式");
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                fullscreenBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7,14H5V19H10V17H7V14M12,14H14V17H17V19H12V14M14,10H17V5H12V7H14V10M10,10H7V7H10V5H5V10H7V12H5V19H10V17H7V14H10V12H12V14H17V19H19V12H17V10H19V5H12V7H14V10H12V12H10V10Z" fill="white"/>
+                    </svg>
+                    全屏
+                `;
+                isFullscreen = false;
+                showInstruction("已退出全屏模式");
+            }
+        }
+        
+        // 保存到历史记录
+        function saveToHistory() {
+            const canvas = whiteboardCanvas;
+            drawingHistory.push(canvas.toDataURL());
+            historyIndex = drawingHistory.length - 1;
+            
+            // 限制历史记录数量
+            if (drawingHistory.length > 50) {
+                drawingHistory.shift();
+                historyIndex--;
+            }
+        }
+        
+        // 显示提示信息
+        function showInstruction(message) {
+            instructions.textContent = message;
+            instructions.style.display = 'block';
+            
+            setTimeout(() => {
+                instructions.style.display = 'none';
+            }, 2000);
+        }
+        
+        // 初始化
+        function init() {
+            // 初始化白板
+            initWhiteboard();
+            
+            // 绑定事件监听器
+            clearCanvasBtn.addEventListener('click', clearCanvas);
+            saveCanvasBtn.addEventListener('click', saveCanvas);
+            loadCanvasBtn.addEventListener('click', loadCanvas);
+            eraserBtn.addEventListener('click', toggleEraser);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            imageLoader.addEventListener('change', handleImageLoad);
+            
+            // 颜色选择事件
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    selectColor(option.dataset.color);
+                });
+            });
+            
+            // 自定义颜色选择事件
+            customColorInput.addEventListener('input', () => {
+                const color = customColorInput.value;
+                customColorDisplay.style.backgroundColor = color;
+                selectColor(color);
+            });
+            
+            // 自定义颜色显示点击事件
+            customColorDisplay.addEventListener('click', () => {
+                customColorInput.click();
+            });
+            
+            // 线条粗细事件
+            lineWidthInput.addEventListener('input', () => {
+                lineWidth = parseInt(lineWidthInput.value);
+                lineWidthValue.textContent = lineWidth;
+            });
+            
+            // 窗口大小改变时调整画布
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 监听ESC键退出全屏
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isFullscreen) {
+                    toggleFullscreen();
+                }
+            });
+            
+            // 初始化自定义颜色显示
+            customColorDisplay.style.backgroundColor = currentColor;
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

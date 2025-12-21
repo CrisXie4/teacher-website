@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算题生成器 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .tool-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .tool-header h1 {
+            color: #182848;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-header p {
+            color: #555;
+            font-size: 1.2rem;
+        }
+        
+        .generator-container {
+            background: white;
+            border-radius: 18px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .control-group input, 
+        .control-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .control-group input:focus, 
+        .control-group select:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+            outline: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.6);
+        }
+        
+        .btn.generate {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+        
+        .btn.print {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+        }
+        
+        .btn.clear {
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+        }
+        
+        .preview-container {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: #f9f9f9;
+            min-height: 300px;
+            margin-top: 1.5rem;
+        }
+        
+        .questions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .question-item {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .question-item .question {
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-item .answer {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            background: rgba(227, 242, 253, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1.2rem;
+            font-size: 1.6rem;
+        }
+        
+        .instructions ul {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .question-item {
+                font-size: 1.5rem;
+                page-break-inside: avoid;
+            }
+            
+            .question-item .answer {
+                display: none;
+            }
+        }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <header class="no-print">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="btn" onclick="window.location.href='../../index.html'" style="z-index: 1000; position: relative;">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">教师工具箱</h1>
+                <p style="margin: 0.5rem 0 0 0;">专为教师设计的实用工具集合</p>
+            </div>
+            <div style="width: 100px;"></div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tool-header">
+            <h1>计算题生成器</h1>
+            <p>支持自定义符号和难度</p>
+        </div>
+        
+        <div class="generator-container no-print">
+            <div class="controls">
+                <div>
+                    <div class="control-group">
+                        <label for="questionCount">题目数量：</label>
+                        <input type="number" id="questionCount" min="1" max="100" value="20">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>运算符号：</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="addition" checked>
+                                <label for="addition">加法 (+)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="subtraction" checked>
+                                <label for="subtraction">减法 (-)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="multiplication">
+                                <label for="multiplication">乘法 (×)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="division">
+                                <label for="division">除法 (÷)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="control-group">
+                        <label for="difficulty">难度等级：</label>
+                        <select id="difficulty">
+                            <option value="1">1级（10以内）</option>
+                            <option value="2" selected>2级（20以内）</option>
+                            <option value="3">3级（50以内）</option>
+                            <option value="4">4级（100以内）</option>
+                            <option value="5">5级（1000以内）</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="resultType">结果类型：</label>
+                        <select id="resultType">
+                            <option value="positive">只生成正数结果</option>
+                            <option value="allowNegative">允许负数结果（仅减法）</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button id="generateBtn" class="btn generate">生成题目</button>
+                <button id="printBtn" class="btn print">打印题目</button>
+                <button id="clearBtn" class="btn clear">清空题目</button>
+            </div>
+        </div>
+        
+        <div class="preview-container">
+            <div id="questionsContainer" class="questions-container">
+                <div class="empty-list">请设置参数后点击"生成题目"按钮</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ul>
+                <li><strong>题目数量</strong> - 设置要生成的计算题数量（1-100题）</li>
+                <li><strong>运算符号</strong> - 选择要包含在题目中的运算符号</li>
+                <li><strong>难度等级</strong> - 选择题目的数值范围，等级越高数值越大</li>
+                <li><strong>结果类型</strong> - 选择是否允许生成负数结果</li>
+                <li><strong>生成题目</strong> - 点击"生成题目"按钮创建计算题</li>
+                <li><strong>打印题目</strong> - 点击"打印题目"按钮打印生成的题目用于练习，答案不会被打印</li>
+                <li><strong>清空题目</strong> - 点击"清空题目"按钮清除所有生成的题目</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer class="no-print">
+        <p>&copy; 2025 教师工具箱 - 专为教师设计</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const questionCount = document.getElementById('questionCount');
+        const addition = document.getElementById('addition');
+        const subtraction = document.getElementById('subtraction');
+        const multiplication = document.getElementById('multiplication');
+        const division = document.getElementById('division');
+        const difficulty = document.getElementById('difficulty');
+        const resultType = document.getElementById('resultType');
+        const generateBtn = document.getElementById('generateBtn');
+        const printBtn = document.getElementById('printBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const questionsContainer = document.getElementById('questionsContainer');
+        
+        // 生成计算题
+        function generateQuestions() {
+            const count = parseInt(questionCount.value) || 20;
+            const difficultyLevel = parseInt(difficulty.value) || 2;
+            const allowNegative = resultType.value === 'allowNegative';
+            
+            // 检查是否选择了至少一个运算符
+            const operators = [];
+            if (addition.checked) operators.push('+');
+            if (subtraction.checked) operators.push('-');
+            if (multiplication.checked) operators.push('×');
+            if (division.checked) operators.push('÷');
+            
+            if (operators.length === 0) {
+                alert('请至少选择一个运算符号');
+                return;
+            }
+            
+            // 根据难度等级设置数值范围
+            let maxNumber;
+            switch (difficultyLevel) {
+                case 1: maxNumber = 10; break;
+                case 2: maxNumber = 20; break;
+                case 3: maxNumber = 50; break;
+                case 4: maxNumber = 100; break;
+                case 5: maxNumber = 1000; break;
+                default: maxNumber = 20;
+            }
+            
+            // 清空容器
+            questionsContainer.innerHTML = '';
+            
+            // 生成题目
+            for (let i = 0; i < count; i++) {
+                const operator = operators[Math.floor(Math.random() * operators.length)];
+                let num1, num2, result, question;
+                
+                switch (operator) {
+                    case '+':
+                        num1 = Math.floor(Math.random() * maxNumber) + 1;
+                        num2 = Math.floor(Math.random() * maxNumber) + 1;
+                        result = num1 + num2;
+                        question = `${num1} + ${num2} =`;
+                        break;
+                        
+                    case '-':
+                        num1 = Math.floor(Math.random() * maxNumber) + 1;
+                        num2 = Math.floor(Math.random() * maxNumber) + 1;
+                        
+                        // 确保结果为正数（如果不允许负数）
+                        if (!allowNegative && num1 < num2) {
+                            [num1, num2] = [num2, num1]; // 交换数值
+                        }
+                        
+                        result = num1 - num2;
+                        question = `${num1} - ${num2} =`;
+                        break;
+                        
+                    case '×':
+                        // 乘法使用较小的数以避免结果过大
+                        const maxMult = Math.min(maxNumber, 20);
+                        num1 = Math.floor(Math.random() * maxMult) + 1;
+                        num2 = Math.floor(Math.random() * maxMult) + 1;
+                        result = num1 * num2;
+                        question = `${num1} × ${num2} =`;
+                        break;
+                        
+                    case '÷':
+                        // 除法确保能整除
+                        num2 = Math.floor(Math.random() * Math.min(maxNumber, 20)) + 1;
+                        result = Math.floor(Math.random() * Math.min(maxNumber, 20)) + 1;
+                        num1 = num2 * result;
+                        question = `${num1} ÷ ${num2} =`;
+                        break;
+                }
+                
+                // 创建题目元素
+                const questionItem = document.createElement('div');
+                questionItem.className = 'question-item';
+                questionItem.innerHTML = `
+                    <div class="question">${question}</div>
+                    <div class="answer">${result}</div>
+                `;
+                
+                questionsContainer.appendChild(questionItem);
+            }
+        }
+        
+        // 打印题目
+        function printQuestions() {
+            if (questionsContainer.children.length === 0 || 
+                questionsContainer.children[0].classList.contains('empty-list')) {
+                alert('请先生成题目');
+                return;
+            }
+            
+            window.print();
+        }
+        
+        // 清空题目
+        function clearQuestions() {
+            questionsContainer.innerHTML = '<div class="empty-list">请设置参数后点击"生成题目"按钮</div>';
+        }
+        
+        // 绑定事件监听器
+        generateBtn.addEventListener('click', generateQuestions);
+        printBtn.addEventListener('click', printQuestions);
+        clearBtn.addEventListener('click', clearQuestions);
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "教师工具箱",
+  "short_name": "教师工具箱",
+  "description": "专为教师设计的实用工具集合",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4b6cb7",
+  "icons": [
+    {
+      "src": "/briefcase-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/briefcase-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

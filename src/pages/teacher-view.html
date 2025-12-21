@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师摄像头查看</title>
+    <style>
+        body { font-family: Arial; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; text-align: center; }
+        #remoteVideo { width: 100%; max-width: 800px; border-radius: 8px; border: 2px solid #3498db; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; background-color: #f8f9fa; }
+        .connected { border-left: 4px solid #28a745; }
+        .disconnected { border-left: 4px solid #dc3545; }
+        .button { background-color: #3498db; color: white; border: none; padding: 10px 20px; 
+                 font-size: 16px; margin: 10px 2px; cursor: pointer; border-radius: 4px; }
+        .button:disabled { background-color: #95a5a6; }
+    </style>
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+</head>
+<body>
+    <div class="container">
+        <h1>教师摄像头查看</h1>
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div id="statusMessage" class="status disconnected">未连接到服务器</div>
+        <div class="controls">
+            <button id="connectButton" class="button">连接到教师摄像头</button>
+            <button id="disconnectButton" class="button" disabled>断开连接</button>
+        </div>
+    </div>
+    <script src="../js/teacher-view.js"></script>
+</body>
+</html>

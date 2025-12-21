@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="声音检测器 - 教师工具箱">
+    <meta name="keywords" content="声音检测,音频检测,教学工具,教师工具">
+    <meta name="author" content="Teacher Toolkit Team">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="教师工具箱">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+    <title>声音检测器 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .visualization-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .log-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        #visualization {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            transition: top 0.1s ease;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        
+        .warning {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            transition: top 0.1s ease;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            z-index: 3;
+        }
+        
+        /* 阈值线 */
+        .threshold-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #ff9800;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .threshold-label {
+            position: absolute;
+            background: #ff9800;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            right: 10px;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(75, 108, 183, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .volume-meter {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .volume-level {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.1s ease;
+            position: relative;
+        }
+        
+        .volume-level.warning {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            animation: pulse 1s infinite;
+        }
+        
+        .volume-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            font-size: 0.9rem;
+        }
+        
+        .threshold-controls {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        
+        .threshold-controls label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .threshold-controls input {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .threshold-value {
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .instructions h3 {
+            color: #182848;
+            margin-bottom: 1rem;
+        }
+        
+        .instructions ol {
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        #status {
+            margin: 1rem 0;
+            font-weight: bold;
+        }
+        
+        .warning-message {
+            color: #ff416c;
+            font-weight: bold;
+            margin: 1rem 0;
+            display: none;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 4px;
+            border-left: 3px solid #ff416c;
+        }
+        
+        /* 日志样式 */
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .log-title {
+            margin: 0;
+        }
+        
+        #clearLogBtn {
+            background: #ff416c;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        #logEntries {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .log-entry {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry.warning {
+            background-color: #ffebee;
+            border-left: 3px solid #ff416c;
+        }
+        
+        .log-time {
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .log-message {
+            margin-left: 0.5rem;
+        }
+        
+        /* 统计信息 */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            min-width: 120px;
+            margin: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #182848;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        /* 超过阈值的视觉效果 */
+        .exceed-animation {
+            animation: exceedPulse 0.5s ease;
+        }
+        
+        @keyframes exceedPulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.2); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">声音检测器</h1>
+                <p style="margin: 0.5rem 0 0 0;">实时检测环境声音强度，声音越高小球越高</p>
+            </div>
+            <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="visualization-container">
+                <h2>声音可视化</h2>
+                <div id="status">请点击"开始检测"按钮启动声音检测</div>
+                
+                <div class="controls">
+                    <button id="startBtn" class="btn">开始检测</button>
+                    <button id="stopBtn" class="btn" disabled>停止检测</button>
+                </div>
+                
+                <div class="threshold-controls">
+                    <label for="threshold">声音阈值设置:</label>
+                    <input type="range" id="threshold" min="0" max="100" value="15">
+                    <div>当前阈值: <span id="thresholdValue" class="threshold-value">15</span>%</div>
+                </div>
+                
+                <div class="warning-message" id="warningMessage">
+                    警告：声音超过设定阈值！
+                </div>
+                
+                <div id="visualization">
+                    <!-- 阈值线将在这里动态生成 -->
+                    <!-- 小球将在这里动态生成 -->
+                </div>
+                
+                <div>当前音量:</div>
+                <div class="volume-meter">
+                    <div class="volume-level" id="volumeLevel">
+                        <div class="volume-text" id="volumeText">0%</div>
+                    </div>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="maxVolume">0%</div>
+                        <div class="stat-label">最大音量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="exceedCount">0</div>
+                        <div class="stat-label">超阈值次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgVolume">0%</div>
+                        <div class="stat-label">平均音量</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="log-container">
+                <div class="log-header">
+                    <h2 class="log-title">检测日志</h2>
+                    <button id="clearLogBtn" class="btn">清空日志</button>
+                </div>
+                <div id="logEntries">
+                    <!-- 日志条目将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li>点击"开始检测"按钮启动声音检测功能</li>
+                <li>浏览器可能会询问是否允许访问麦克风，请点击"允许"</li>
+                <li>对着麦克风说话或发出声音，观察小球随着音量升高而上升</li>
+                <li>使用滑块设置声音阈值，当声音超过阈值时会显示警告</li>
+                <li>在右侧日志面板中查看检测历史和超过阈值的详细记录</li>
+                <li>点击"停止检测"按钮结束声音检测</li>
+            </ol>
+        </div>
+        
+        <a href="../../index.html" class="back-btn">← 返回主页</a>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 教师工具箱 - 声音检测器</p>
+    </footer>
+    
+    <script>
+        // 获取DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const visualization = document.getElementById('visualization');
+        const volumeLevel = document.getElementById('volumeLevel');
+        const volumeText = document.getElementById('volumeText');
+        const statusEl = document.getElementById('status');
+        const thresholdSlider = document.getElementById('threshold');
+        const thresholdValue = document.getElementById('thresholdValue');
+        const warningMessage = document.getElementById('warningMessage');
+        const logEntries = document.getElementById('logEntries');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const maxVolumeEl = document.getElementById('maxVolume');
+        const exceedCountEl = document.getElementById('exceedCount');
+        const avgVolumeEl = document.getElementById('avgVolume');
+        
+        // 音频上下文和相关变量
+        let audioContext;
+        let analyser;
+        let microphone;
+        let javascriptNode;
+        let isDetecting = false;
+        
+        // 阈值相关变量
+        let threshold = 15;
+        let isWarning = false;
+        let lastWarningTime = 0;
+        
+        // 统计数据
+        let maxVolume = 0;
+        let exceedCount = 0;
+        let totalVolume = 0;
+        let volumeCount = 0;
+        let volumes = [];
+        
+        // 创建小球元素
+        function createBall() {
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            ball.style.width = '50px';
+            ball.style.height = '50px';
+            ball.style.top = '250px'; // 初始位置在底部
+            visualization.appendChild(ball);
+            return ball;
+        }
+        
+        // 创建警告元素
+        function createWarning() {
+            const warning = document.createElement('div');
+            warning.className = 'warning';
+            warning.style.width = '50px';
+            warning.style.height = '50px';
+            warning.style.top = '250px';
+            warning.style.display = 'none';
+            visualization.appendChild(warning);
+            return warning;
+        }
+        
+        // 创建阈值线
+        function createThresholdLine() {
+            const thresholdLine = document.createElement('div');
+            thresholdLine.className = 'threshold-line';
+            const position = 300 - (threshold * 3); // 300px高度，每1% = 3px
+            thresholdLine.style.top = `${position}px`;
+            visualization.appendChild(thresholdLine);
+            
+            const thresholdLabel = document.createElement('div');
+            thresholdLabel.className = 'threshold-label';
+            thresholdLabel.textContent = `${threshold}%`;
+            thresholdLabel.style.top = `${position}px`;
+            visualization.appendChild(thresholdLabel);
+            
+            return { line: thresholdLine, label: thresholdLabel };
+        }
+        
+        // 更新阈值线位置
+        function updateThresholdLine() {
+            // 移除旧的阈值线
+            const oldLines = visualization.querySelectorAll('.threshold-line, .threshold-label');
+            oldLines.forEach(line => line.remove());
+            
+            // 创建新的阈值线
+            const position = 300 - (threshold * 3); // 300px高度，每1% = 3px
+            const thresholdLine = document.createElement('div');
+            thresholdLine.className = 'threshold-line';
+            thresholdLine.style.top = `${position}px`;
+            visualization.appendChild(thresholdLine);
+            
+            const thresholdLabel = document.createElement('div');
+            thresholdLabel.className = 'threshold-label';
+            thresholdLabel.textContent = `${threshold}%`;
+            thresholdLabel.style.top = `${position}px`;
+            visualization.appendChild(thresholdLabel);
+        }
+        
+        // 创建小球和警告元素
+        const ball = createBall();
+        const warning = createWarning();
+        let thresholdElements = createThresholdLine();
+        
+        // 更新小球位置
+        function updateBallPosition(volume) {
+            // 将音量值(0-100)映射到位置(250-0)
+            const position = 250 - (volume * 2.5);
+            ball.style.top = `${Math.max(0, position)}px`;
+            
+            // 更新音量条和文字
+            volumeLevel.style.width = `${volume}%`;
+            volumeText.textContent = `${Math.round(volume)}%`;
+            
+            // 更新统计数据
+            if (volume > maxVolume) {
+                maxVolume = volume;
+                maxVolumeEl.textContent = `${Math.round(maxVolume)}%`;
+            }
+            
+            totalVolume += volume;
+            volumeCount++;
+            const avgVolume = totalVolume / volumeCount;
+            avgVolumeEl.textContent = `${Math.round(avgVolume)}%`;
+            
+            volumes.push(volume);
+            if (volumes.length > 100) {
+                volumes.shift(); // 保持最近100个值
+            }
+            
+            // 检查是否超过阈值
+            if (volume > threshold) {
+                // 显示警告
+                warningMessage.style.display = 'block';
+                warning.style.display = 'block';
+                warning.style.top = `${Math.max(0, position)}px`;
+                
+                // 进度条变红并添加脉冲动画
+                volumeLevel.classList.add('warning');
+                
+                // 小球添加动画效果
+                ball.classList.add('exceed-animation');
+                setTimeout(() => {
+                    ball.classList.remove('exceed-animation');
+                }, 500);
+                
+                // 如果之前不是警告状态，则记录事件
+                if (!isWarning) {
+                    isWarning = true;
+                    exceedCount++;
+                    exceedCountEl.textContent = exceedCount;
+                    addLogEntry(`超过阈值（${volume.toFixed(1)}% > ${threshold}%）`, true);
+                }
+            } else {
+                // 隐藏警告
+                warningMessage.style.display = 'none';
+                warning.style.display = 'none';
+                
+                // 进度条恢复绿色
+                volumeLevel.classList.remove('warning');
+                
+                // 如果之前是警告状态，则记录恢复事件
+                if (isWarning) {
+                    isWarning = false;
+                    addLogEntry(`声音恢复到阈值以下（${volume.toFixed(1)}% <= ${threshold}%）`, false);
+                }
+            }
+        }
+        
+        // 添加日志条目
+        function addLogEntry(message, isWarning) {
+            const now = new Date();
+            const timeString = now.toTimeString().split(' ')[0];
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = isWarning ? 'log-entry warning' : 'log-entry';
+            
+            logEntry.innerHTML = `
+                <span class="log-time">${timeString}</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            // 插入到顶部而不是底部
+            if (logEntries.firstChild) {
+                logEntries.insertBefore(logEntry, logEntries.firstChild);
+            } else {
+                logEntries.appendChild(logEntry);
+            }
+            
+            // 限制日志数量
+            if (logEntries.children.length > 100) {
+                logEntries.removeChild(logEntries.lastChild);
+            }
+        }
+        
+        // 清空日志
+        function clearLog() {
+            logEntries.innerHTML = '';
+        }
+        
+        // 开始声音检测
+        async function startDetection() {
+            try {
+                // 更新状态
+                statusEl.textContent = '正在请求麦克风权限...';
+                startBtn.disabled = true;
+                
+                // 创建音频上下文
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 获取用户媒体(麦克风)
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                // 创建分析器
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                
+                // 创建麦克风源
+                microphone = audioContext.createMediaStreamSource(stream);
+                
+                // 连接节点
+                microphone.connect(analyser);
+                
+                // 创建JavaScript节点处理音频数据
+                javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioContext.destination);
+                
+                // 处理音频数据
+                javascriptNode.onaudioprocess = function() {
+                    if (!isDetecting) return;
+                    
+                    const array = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(array);
+                    
+                    // 计算平均音量
+                    let sum = 0;
+                    for (let i = 0; i < array.length; i++) {
+                        sum += array[i];
+                    }
+                    const average = sum / array.length;
+                    
+                    // 将音量转换为0-100范围
+                    const volume = Math.min(100, Math.max(0, average * 100 / 256));
+                    
+                    // 更新小球位置
+                    updateBallPosition(volume);
+                };
+                
+                // 更新状态
+                isDetecting = true;
+                statusEl.textContent = '正在检测声音...';
+                stopBtn.disabled = false;
+                
+                // 添加日志
+                addLogEntry('开始声音检测', false);
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                statusEl.textContent = '无法访问麦克风，请检查权限设置';
+                startBtn.disabled = false;
+                addLogEntry('无法访问麦克风: ' + error.message, true);
+            }
+        }
+        
+        // 停止声音检测
+        function stopDetection() {
+            isDetecting = false;
+            
+            // 断开连接并释放资源
+            if (javascriptNode) {
+                javascriptNode.disconnect();
+                javascriptNode = null;
+            }
+            
+            if (microphone) {
+                microphone.disconnect();
+                microphone = null;
+            }
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            // 更新状态
+            statusEl.textContent = '声音检测已停止';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            // 重置小球位置
+            updateBallPosition(0);
+            
+            // 隐藏警告
+            if (isWarning) {
+                isWarning = false;
+                warningMessage.style.display = 'none';
+                warning.style.display = 'none';
+            }
+            
+            // 添加日志
+            addLogEntry('停止声音检测', false);
+        }
+        
+        // 更新阈值显示
+        function updateThresholdDisplay() {
+            thresholdValue.textContent = threshold;
+            updateThresholdLine();
+        }
+        
+        // 绑定事件监听器
+        startBtn.addEventListener('click', startDetection);
+        stopBtn.addEventListener('click', stopDetection);
+        
+        thresholdSlider.addEventListener('input', function() {
+            threshold = parseInt(this.value);
+            updateThresholdDisplay();
+            addLogEntry(`阈值设置为 ${threshold}%`, false);
+        });
+        
+        clearLogBtn.addEventListener('click', clearLog);
+        
+        // 初始化阈值显示
+        updateThresholdDisplay();
+    </script>
+</body>
+</html>

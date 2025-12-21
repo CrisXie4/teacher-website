@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全屏时钟 - 教师工具箱</title>
+    <script src="../js/performance-optimizer.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            transition: background 0.5s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 颜色主题 */
+        body.theme-blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body.theme-green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        body.theme-orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        body.theme-purple {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body.theme-red {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        body.theme-dark {
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+        }
+
+        body.theme-sunset {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #ee5a6f 100%);
+        }
+
+        body.theme-ocean {
+            background: linear-gradient(135deg, #209cff 0%, #68e0cf 100%);
+        }
+
+        /* 主容器 */
+        .clock-container {
+            text-align: center;
+            color: white;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            padding: 2rem;
+        }
+
+        /* 时间显示 */
+        .time-display {
+            font-size: 20vw;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        /* 日期显示 */
+        .date-display {
+            font-size: 4vw;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        /* 星期显示 */
+        .weekday-display {
+            font-size: 3vw;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .control-panel:hover {
+            opacity: 1;
+        }
+
+        /* 按钮样式 */
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* 颜色选择器 */
+        .color-selector {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            max-width: 200px;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .color-selector:hover {
+            opacity: 1;
+        }
+
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .color-btn.active {
+            border-width: 5px;
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
+        }
+
+        .color-btn.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .color-btn.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .color-btn.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .color-btn.purple { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .color-btn.red { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .color-btn.dark { background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); }
+        .color-btn.sunset { background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #ee5a6f 100%); }
+        .color-btn.ocean { background: linear-gradient(135deg, #209cff 0%, #68e0cf 100%); }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0.3;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+        }
+
+        /* 全屏模式下隐藏某些元素 */
+        body.fullscreen-mode .back-btn,
+        body.fullscreen-mode .control-panel,
+        body.fullscreen-mode .color-selector {
+            display: none;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .time-display {
+                font-size: 18vw;
+            }
+
+            .date-display {
+                font-size: 5vw;
+            }
+
+            .weekday-display {
+                font-size: 4vw;
+            }
+
+            .control-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .color-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .control-panel {
+                bottom: 1rem;
+            }
+
+            .color-selector {
+                top: 1rem;
+                right: 1rem;
+                max-width: 150px;
+            }
+
+            .back-btn {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.6rem 1.2rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-blue">
+    <!-- 返回按钮 -->
+    <a href="../../index.html" class="back-btn">← 返回</a>
+
+    <!-- 颜色选择器 -->
+    <div class="color-selector">
+        <div class="color-btn blue active" onclick="changeTheme('blue')" title="蓝紫渐变"></div>
+        <div class="color-btn green" onclick="changeTheme('green')" title="青绿渐变"></div>
+        <div class="color-btn orange" onclick="changeTheme('orange')" title="粉红渐变"></div>
+        <div class="color-btn purple" onclick="changeTheme('purple')" title="天蓝渐变"></div>
+        <div class="color-btn red" onclick="changeTheme('red')" title="暖色渐变"></div>
+        <div class="color-btn dark" onclick="changeTheme('dark')" title="深色模式"></div>
+        <div class="color-btn sunset" onclick="changeTheme('sunset')" title="日落渐变"></div>
+        <div class="color-btn ocean" onclick="changeTheme('ocean')" title="海洋渐变"></div>
+    </div>
+
+    <!-- 时钟主容器 -->
+    <div class="clock-container">
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+        <div class="date-display" id="dateDisplay">2025年1月1日</div>
+        <div class="weekday-display" id="weekdayDisplay">星期一</div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <button class="control-btn" onclick="toggleFormat()" id="formatBtn">12小时制</button>
+        <button class="control-btn" onclick="toggleSeconds()" id="secondsBtn">隐藏秒</button>
+        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">进入全屏</button>
+    </div>
+
+    <script>
+        // 时钟配置
+        let config = {
+            format24: true,
+            showSeconds: true,
+            theme: 'blue'
+        };
+
+        // 从localStorage加载配置
+        function loadConfig() {
+            const saved = localStorage.getItem('clockConfig');
+            if (saved) {
+                config = { ...config, ...JSON.parse(saved) };
+                document.body.className = `theme-${config.theme}`;
+                updateColorButtons();
+            }
+        }
+
+        // 保存配置到localStorage
+        function saveConfig() {
+            localStorage.setItem('clockConfig', JSON.stringify(config));
+        }
+
+        // 星期转换
+        const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+        const weekdaysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // 处理12小时制
+            let period = '';
+            if (!config.format24) {
+                period = hours >= 12 ? ' PM' : ' AM';
+                hours = hours % 12 || 12;
+            }
+
+            // 格式化时间
+            const timeStr = config.showSeconds
+                ? `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}${period}`
+                : `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}${period}`;
+
+            document.getElementById('timeDisplay').textContent = timeStr;
+
+            // 更新日期
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            const dateStr = `${year}年${month}月${date}日`;
+            document.getElementById('dateDisplay').textContent = dateStr;
+
+            // 更新星期
+            const weekday = weekdays[now.getDay()];
+            document.getElementById('weekdayDisplay').textContent = weekday;
+        }
+
+        // 切换时间格式
+        function toggleFormat() {
+            config.format24 = !config.format24;
+            document.getElementById('formatBtn').textContent = config.format24 ? '12小时制' : '24小时制';
+            saveConfig();
+            updateTime();
+        }
+
+        // 切换秒显示
+        function toggleSeconds() {
+            config.showSeconds = !config.showSeconds;
+            document.getElementById('secondsBtn').textContent = config.showSeconds ? '隐藏秒' : '显示秒';
+            saveConfig();
+            updateTime();
+        }
+
+        // 切换主题
+        function changeTheme(theme) {
+            config.theme = theme;
+            document.body.className = `theme-${theme}`;
+            updateColorButtons();
+            saveConfig();
+        }
+
+        // 更新颜色按钮状态
+        function updateColorButtons() {
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.classList.contains(config.theme)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // 切换全屏
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    document.body.classList.add('fullscreen-mode');
+                    document.getElementById('fullscreenBtn').textContent = '退出全屏';
+                }).catch(err => {
+                    alert('无法进入全屏模式：' + err.message);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    document.body.classList.remove('fullscreen-mode');
+                    document.getElementById('fullscreenBtn').textContent = '进入全屏';
+                });
+            }
+        }
+
+        // 监听全屏变化
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('fullscreen-mode');
+                document.getElementById('fullscreenBtn').textContent = '进入全屏';
+            }
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'f':
+                case 'F':
+                    toggleFullscreen();
+                    break;
+                case 't':
+                case 'T':
+                    toggleFormat();
+                    break;
+                case 's':
+                case 'S':
+                    toggleSeconds();
+                    break;
+                case 'Escape':
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                    break;
+            }
+        });
+
+        // 初始化
+        loadConfig();
+        updateTime();
+
+        // 使用性能优化器，页面隐藏时自动暂停更新
+        if (window.PerformanceOptimizer) {
+            window.PerformanceOptimizer.setOptimizedInterval(updateTime, 200);
+        } else {
+            // 降级方案
+            setInterval(updateTime, 200);
+        }
+
+        // 更新按钮文本
+        document.getElementById('formatBtn').textContent = config.format24 ? '12小时制' : '24小时制';
+        document.getElementById('secondsBtn').textContent = config.showSeconds ? '隐藏秒' : '显示秒';
+
+        // 防止选中文本
+        document.addEventListener('selectstart', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
