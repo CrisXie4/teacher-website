@@ -985,6 +985,13 @@
                 <button onclick="navigateTo('src/pages/periodic-table.html')" data-lang="use_now">立即使用</button>
             </div>
 
+            <div class="tool-card" id="chart-generator-card">
+                <div class="tool-icon">📊</div>
+                <h2 data-lang="chart_generator_title">图表生成器</h2>
+                <p data-lang="chart_generator_desc">自定义数据、颜色和图表类型，生成专业图表</p>
+                <button onclick="navigateTo('src/pages/chart-generator.html')" data-lang="use_now">立即使用</button>
+            </div>
+
             <div class="tool-card" id="teacher-camera-card" style="display: none;">
                 <div class="tool-icon">📷</div>
                 <h2 data-lang="teacher_camera_title">教师摄像头</h2>
@@ -1890,26 +1897,46 @@
             const modal = document.getElementById('donationModal');
             modal.classList.remove('show');
             window.pendingNavigationPage = null;
-            
+
             setTimeout(() => {
-                window.location.href = 'src/pages/donation.html';
+                // 检查是否从linux.do跳转过来
+                const fromLinuxDo = localStorage.getItem('fromLinuxDo') === 'true';
+
+                if (fromLinuxDo) {
+                    // 如果是从linux.do跳转过来，直接打开linux.do的打赏链接
+                    window.open('https://credit.linux.do/paying/online?token=20d0b15ff86a8c20de460fb2cd5cd5208c0f1063571629227f5ddd1fdeae0815', '_blank');
+                } else {
+                    // 否则跳转到原来的打赏页面
+                    window.location.href = 'src/pages/donation.html';
+                }
             }, 300);
         }
         
         // 导航到其他页面
         function navigateTo(page) {
+            // 如果是打赏页面，检查是否从linux.do跳转
+            if (page === 'src/pages/donation.html') {
+                const fromLinuxDo = localStorage.getItem('fromLinuxDo') === 'true';
+
+                if (fromLinuxDo) {
+                    // 如果是从linux.do跳转过来，直接打开linux.do的打赏链接
+                    window.open('https://credit.linux.do/paying/online?token=20d0b15ff86a8c20de460fb2cd5cd5208c0f1063571629227f5ddd1fdeae0815', '_blank');
+                    return;
+                }
+            }
+
             // 检查是否是从课堂表现记录器、随机点名器或小组分组器跳转过来的
             const urlParams = new URLSearchParams(window.location.search);
             const fromTracker = urlParams.get('from') === 'tracker';
             const fromRollCall = urlParams.get('from') === 'rollcall';
             const fromGrouping = urlParams.get('from') === 'grouping';
-            
+
             if (fromTracker || fromRollCall || fromGrouping) {
                 // 如果是从其他工具跳转过来的，需要特殊处理
                 let message = currentLanguage === 'zh' ?
                     '请在下方学生列表中添加或选择学生' :
                     'Please add or select students from the list below';
-                    
+
                 if (fromTracker) {
                     message = currentLanguage === 'zh' ?
                         '请在下方学生列表中选择要记录表现的学生' :
@@ -1923,7 +1950,7 @@
                         '请在下方学生列表中添加学生，然后返回小组分组器' :
                         'Please add students to the list below, then return to the group generator';
                 }
-                
+
                 alert(message);
                 // 显示学生管理区域
                 if (studentManagementContainer.classList.contains('hidden')) {
@@ -1931,13 +1958,13 @@
                 }
                 return;
             }
-            
+
             // 随机检查是否显示捐赠弹窗
             if (shouldShowDonationModal(page)) {
                 showDonationModal(page);
                 return;
             }
-            
+
             window.location.href = page;
         }
 
@@ -2222,22 +2249,32 @@
 
         // 页面加载完成后初始化
         window.onload = function() {
+            // 检测来源：是否从linux.do跳转过来
+            const urlParams = new URLSearchParams(window.location.search);
+            const referrer = document.referrer;
+
+            // 检查URL参数或referrer中是否包含linux.do
+            if (referrer.includes('linux.do') || urlParams.get('from') === 'linux.do') {
+                // 记住用户是从linux.do跳转过来的
+                localStorage.setItem('fromLinuxDo', 'true');
+            }
+
             // 根据浏览器语言设置默认语言
             const browserLanguage = navigator.language || navigator.userLanguage;
             currentLanguage = browserLanguage.startsWith('zh') ? 'zh' : 'en';
-            
+
             // 检查是否保存了语言偏好
             const savedLanguage = localStorage.getItem('preferredLanguage');
             if (savedLanguage) {
                 currentLanguage = savedLanguage;
             }
-            
+
             // 应用语言设置
             applyLanguage();
-            
+
             // 检查是否是教师节
             checkTeachersDay();
-            
+
             // 检查并加载公告
             loadAnnouncement();
             

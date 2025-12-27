@@ -175,11 +175,26 @@
                     <div class="image-title">微信打赏</div>
                     <div class="image-description">使用微信扫描二维码</div>
                 </div>
-                
+
                 <div class="donation-image">
                     <img src="../../assets/images/2.jpg" alt="支付宝打赏码">
                     <div class="image-title">支付宝打赏</div>
                     <div class="image-description">使用支付宝扫描二维码</div>
+                </div>
+            </div>
+
+            <!-- Linux.do 打赏按钮 -->
+            <div id="linuxDoSection" style="margin: 2rem 0; display: none;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 1.5rem; color: white; text-align: center;">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.4rem;">Linux.do 用户专属</h3>
+                    <p style="margin-bottom: 1rem; opacity: 0.9;">感谢您从 Linux.do 社区访问！</p>
+                    <a href="https://credit.linux.do/paying/online?token=20d0b15ff86a8c20de460fb2cd5cd5208c0f1063571629227f5ddd1fdeae0815"
+                       target="_blank"
+                       style="display: inline-block; background: white; color: #667eea; padding: 0.8rem 2rem; border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';">
+                        💝 通过 Linux.do 打赏
+                    </a>
                 </div>
             </div>
             
@@ -202,5 +217,18 @@
     <footer>
         <p>&copy; 2025 教师工具箱 - 用心为教师服务</p>
     </footer>
+
+    <script>
+        // 检查是否从linux.do跳转过来
+        window.onload = function() {
+            const fromLinuxDo = localStorage.getItem('fromLinuxDo') === 'true';
+            const linuxDoSection = document.getElementById('linuxDoSection');
+
+            if (fromLinuxDo && linuxDoSection) {
+                // 显示Linux.do打赏区域
+                linuxDoSection.style.display = 'block';
+            }
+        };
+    </script>
 </body>
 </html>

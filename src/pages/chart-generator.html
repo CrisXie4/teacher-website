@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图表生成器 - 教师工具箱</title>
+    <link rel="icon" href="../../assets/images/briefcase-192x192.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4facfe;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .chart-type-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .chart-type-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .chart-type-btn:hover {
+            border-color: #4facfe;
+            background: #e3f5ff;
+        }
+
+        .chart-type-btn.active {
+            border-color: #4facfe;
+            background: #4facfe;
+            color: white;
+        }
+
+        .color-inputs {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker {
+            width: 50px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .add-color-btn,
+        .remove-color-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .add-color-btn {
+            background: #4facfe;
+            color: white;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .add-color-btn:hover {
+            background: #2d9cfc;
+        }
+
+        .remove-color-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .remove-color-btn:hover {
+            background: #ff5252;
+        }
+
+        .action-buttons {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #chartCanvas {
+            max-width: 100%;
+            max-height: 600px;
+        }
+
+        .data-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .data-row input {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .back-btn {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 20px;
+            }
+        }
+
+        .preset-colors {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .preset-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .preset-color:hover {
+            transform: scale(1.1);
+            border-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="../../index.html" class="back-btn">← 返回主页</a>
+            <h1>📊 图表生成器</h1>
+            <p>自定义数据、颜色和图表类型，轻松创建专业图表</p>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <!-- 图表类型选择 -->
+                <div class="section">
+                    <div class="section-title">图表类型</div>
+                    <div class="chart-type-selector">
+                        <button class="chart-type-btn active" data-type="bar">📊 柱状图</button>
+                        <button class="chart-type-btn" data-type="line">📈 折线图</button>
+                        <button class="chart-type-btn" data-type="pie">🥧 饼图</button>
+                        <button class="chart-type-btn" data-type="doughnut">🍩 环形图</button>
+                        <button class="chart-type-btn" data-type="radar">🎯 雷达图</button>
+                        <button class="chart-type-btn" data-type="polarArea">⭕ 极地图</button>
+                    </div>
+                </div>
+
+                <!-- 图表标题 -->
+                <div class="section">
+                    <div class="section-title">图表信息</div>
+                    <div class="form-group">
+                        <label>图表标题</label>
+                        <input type="text" id="chartTitle" placeholder="请输入图表标题" value="学生成绩统计">
+                    </div>
+                </div>
+
+                <!-- 数据输入 -->
+                <div class="section">
+                    <div class="section-title">数据设置</div>
+                    <div class="form-group">
+                        <label>标签 (用逗号分隔)</label>
+                        <input type="text" id="labels" placeholder="例如: 语文,数学,英语" value="语文,数学,英语,物理,化学">
+                        <div class="help-text">多个标签用逗号分隔</div>
+                    </div>
+                    <div class="form-group">
+                        <label>数据 (用逗号分隔)</label>
+                        <input type="text" id="dataValues" placeholder="例如: 85,90,78" value="85,92,88,76,81">
+                        <div class="help-text">数据数量要与标签数量一致</div>
+                    </div>
+                </div>
+
+                <!-- 颜色设置 -->
+                <div class="section">
+                    <div class="section-title">颜色设置</div>
+                    <div class="form-group">
+                        <label>配色方案</label>
+                        <select id="colorScheme">
+                            <option value="custom">自定义</option>
+                            <option value="vibrant">活力彩虹</option>
+                            <option value="pastel">柔和粉彩</option>
+                            <option value="ocean">海洋蓝调</option>
+                            <option value="sunset">日落橙红</option>
+                            <option value="forest">森林绿意</option>
+                        </select>
+                    </div>
+                    <div id="customColors" class="form-group">
+                        <label>自定义颜色</label>
+                        <div id="colorList"></div>
+                        <button class="add-color-btn" onclick="addColorInput()">+ 添加颜色</button>
+                    </div>
+                    <div class="preset-colors" id="presetColors"></div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="updateChart()">🎨 生成图表</button>
+                    <button class="btn btn-success" onclick="downloadChart()">💾 下载图表</button>
+                    <button class="btn btn-secondary" onclick="resetChart()">🔄 重置</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let myChart = null;
+        let currentChartType = 'bar';
+        const colorSchemes = {
+            vibrant: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'],
+            pastel: ['#FFB3BA', '#BAFFC9', '#BAE1FF', '#FFFFBA', '#FFD8B3', '#E0BBE4', '#FFDFD3', '#C7CEEA'],
+            ocean: ['#006494', '#0582CA', '#13A8FE', '#00B4D8', '#48CAE4', '#90E0EF', '#ADE8F4', '#CAF0F8'],
+            sunset: ['#FF6B35', '#F7931E', '#FDC830', '#F37335', '#E94B3C', '#C73E1D', '#A4243B', '#6A1B4D'],
+            forest: ['#2D6A4F', '#40916C', '#52B788', '#74C69D', '#95D5B2', '#B7E4C7', '#D8F3DC', '#A7C957']
+        };
+
+        // 初始化
+        window.onload = function() {
+            initColorInputs();
+            updateChart();
+            setupEventListeners();
+        };
+
+        function setupEventListeners() {
+            // 图表类型切换
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentChartType = this.dataset.type;
+                    updateChart();
+                });
+            });
+
+            // 配色方案切换
+            document.getElementById('colorScheme').addEventListener('change', function() {
+                if (this.value !== 'custom') {
+                    document.getElementById('customColors').style.display = 'none';
+                } else {
+                    document.getElementById('customColors').style.display = 'block';
+                }
+                updateChart();
+            });
+
+            // 实时更新
+            ['chartTitle', 'labels', 'dataValues'].forEach(id => {
+                document.getElementById(id).addEventListener('input', debounce(updateChart, 500));
+            });
+        }
+
+        function initColorInputs() {
+            const colorList = document.getElementById('colorList');
+            const defaultColors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+
+            defaultColors.forEach(color => {
+                addColorInput(color);
+            });
+        }
+
+        function addColorInput(color = '#667eea') {
+            const colorList = document.getElementById('colorList');
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-inputs';
+            colorDiv.innerHTML = `
+                <div class="color-input">
+                    <input type="color" class="color-picker" value="${color}">
+                    <input type="text" value="${color}" placeholder="#667eea">
+                </div>
+                <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
+            `;
+
+            const colorPicker = colorDiv.querySelector('.color-picker');
+            const colorText = colorDiv.querySelector('input[type="text"]');
+
+            colorPicker.addEventListener('input', function() {
+                colorText.value = this.value;
+            });
+
+            colorText.addEventListener('input', function() {
+                if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                    colorPicker.value = this.value;
+                }
+            });
+
+            colorList.appendChild(colorDiv);
+        }
+
+        function removeColorInput(btn) {
+            btn.parentElement.remove();
+        }
+
+        function getColors() {
+            const scheme = document.getElementById('colorScheme').value;
+
+            if (scheme !== 'custom') {
+                return colorSchemes[scheme];
+            }
+
+            const colorInputs = document.querySelectorAll('.color-picker');
+            return Array.from(colorInputs).map(input => input.value);
+        }
+
+        function updateChart() {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // 销毁旧图表
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // 获取数据
+            const title = document.getElementById('chartTitle').value || '图表标题';
+            const labels = document.getElementById('labels').value.split(',').map(s => s.trim()).filter(s => s);
+            const dataValues = document.getElementById('dataValues').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+            const colors = getColors();
+
+            // 验证数据
+            if (labels.length === 0 || dataValues.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '20px Arial';
+                ctx.fillStyle = '#999';
+                ctx.textAlign = 'center';
+                ctx.fillText('请输入有效的标签和数据', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // 创建图表配置
+            const config = {
+                type: currentChartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderColor: colors.map(c => c),
+                        borderWidth: 2,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: ['pie', 'doughnut', 'polarArea'].includes(currentChartType),
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                padding: 15
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: title,
+                            font: {
+                                size: 24,
+                                weight: 'bold'
+                            },
+                            padding: 20
+                        }
+                    },
+                    scales: ['pie', 'doughnut', 'polarArea', 'radar'].includes(currentChartType) ? {} : {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            // 创建新图表
+            myChart = new Chart(ctx, config);
+        }
+
+        function downloadChart() {
+            if (!myChart) {
+                alert('请先生成图表！');
+                return;
+            }
+
+            const canvas = document.getElementById('chartCanvas');
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `图表_${new Date().getTime()}.png`;
+            link.href = url;
+            link.click();
+        }
+
+        function resetChart() {
+            document.getElementById('chartTitle').value = '学生成绩统计';
+            document.getElementById('labels').value = '语文,数学,英语,物理,化学';
+            document.getElementById('dataValues').value = '85,92,88,76,81';
+            document.getElementById('colorScheme').value = 'custom';
+
+            // 重置颜色输入
+            document.getElementById('colorList').innerHTML = '';
+            initColorInputs();
+
+            // 重置图表类型
+            document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.chart-type-btn[data-type="bar"]').classList.add('active');
+            currentChartType = 'bar';
+
+            updateChart();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>
