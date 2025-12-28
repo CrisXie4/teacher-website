@@ -159,6 +159,10 @@
             padding: 2rem;
             margin-top: 2rem;
         }
+
+        .btn.download {
+            background: linear-gradient(135deg, #9C27B0, #E91E63);
+        }
         
         .instructions h3 {
             color: #182848;
@@ -271,6 +275,7 @@
             
             <div class="btn-group">
                 <button id="generateBtn" class="btn generate">生成题目</button>
+                <button id="downloadBtn" class="btn download">下载文档</button>
                 <button id="printBtn" class="btn print">打印题目</button>
                 <button id="clearBtn" class="btn clear">清空题目</button>
             </div>
@@ -282,7 +287,7 @@
             </div>
         </div>
         
-        <div class="instructions">
+        <div class="instructions no-print">
             <h3>使用说明</h3>
             <ul>
                 <li><strong>题目数量</strong> - 设置要生成的计算题数量（1-100题）</li>
@@ -290,6 +295,7 @@
                 <li><strong>难度等级</strong> - 选择题目的数值范围，等级越高数值越大</li>
                 <li><strong>结果类型</strong> - 选择是否允许生成负数结果</li>
                 <li><strong>生成题目</strong> - 点击"生成题目"按钮创建计算题</li>
+                <li><strong>下载文档</strong> - 点击"下载文档"按钮将题目下载为HTML文件，可用于保存和分发</li>
                 <li><strong>打印题目</strong> - 点击"打印题目"按钮打印生成的题目用于练习，答案不会被打印</li>
                 <li><strong>清空题目</strong> - 点击"清空题目"按钮清除所有生成的题目</li>
             </ul>
@@ -310,6 +316,7 @@
         const difficulty = document.getElementById('difficulty');
         const resultType = document.getElementById('resultType');
         const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
         const printBtn = document.getElementById('printBtn');
         const clearBtn = document.getElementById('clearBtn');
         const questionsContainer = document.getElementById('questionsContainer');
@@ -404,13 +411,124 @@
         
         // 打印题目
         function printQuestions() {
-            if (questionsContainer.children.length === 0 || 
+            if (questionsContainer.children.length === 0 ||
                 questionsContainer.children[0].classList.contains('empty-list')) {
                 alert('请先生成题目');
                 return;
             }
-            
+
             window.print();
+        }
+
+        // 下载题目为HTML文档
+        function downloadQuestions() {
+            if (questionsContainer.children.length === 0 ||
+                questionsContainer.children[0].classList.contains('empty-list')) {
+                alert('请先生成题目');
+                return;
+            }
+
+            // 获取题目HTML
+            const questionsHTML = questionsContainer.innerHTML;
+            const timestamp = new Date().toLocaleString('zh-CN');
+
+            // 创建完整的HTML文档
+            const htmlContent = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算题 - ${new Date().toLocaleDateString('zh-CN')}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #182848;
+            margin-bottom: 10px;
+        }
+        .info {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .questions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .question-item {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        .question-item .question {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .question-item .answer {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .question-item {
+                font-size: 1.5rem;
+                page-break-inside: avoid;
+            }
+            .answer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>计算题练习</h1>
+        <div class="info">生成时间: ${timestamp}</div>
+        <div class="questions-container">
+            ${questionsHTML}
+        </div>
+    </div>
+</body>
+</html>`;
+
+            // 创建Blob并下载
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `计算题_${new Date().getTime()}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
         
         // 清空题目
@@ -420,6 +538,7 @@
         
         // 绑定事件监听器
         generateBtn.addEventListener('click', generateQuestions);
+        downloadBtn.addEventListener('click', downloadQuestions);
         printBtn.addEventListener('click', printQuestions);
         clearBtn.addEventListener('click', clearQuestions);
     </script>

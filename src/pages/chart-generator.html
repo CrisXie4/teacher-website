@@ -362,14 +362,30 @@
                 <div class="section">
                     <div class="section-title">数据设置</div>
                     <div class="form-group">
-                        <label>标签 (用逗号分隔)</label>
-                        <input type="text" id="labels" placeholder="例如: 语文,数学,英语" value="语文,数学,英语,物理,化学">
-                        <div class="help-text">多个标签用逗号分隔</div>
+                        <label>数据输入方式</label>
+                        <select id="inputMethod" onchange="toggleInputMethod()">
+                            <option value="manual">手动输入</option>
+                            <option value="upload">上传文件</option>
+                        </select>
                     </div>
-                    <div class="form-group">
-                        <label>数据 (用逗号分隔)</label>
-                        <input type="text" id="dataValues" placeholder="例如: 85,90,78" value="85,92,88,76,81">
-                        <div class="help-text">数据数量要与标签数量一致</div>
+                    <div id="manualInput">
+                        <div class="form-group">
+                            <label>标签 (用逗号分隔)</label>
+                            <input type="text" id="labels" placeholder="例如: 语文,数学,英语" value="语文,数学,英语,物理,化学">
+                            <div class="help-text">多个标签用逗号分隔</div>
+                        </div>
+                        <div class="form-group">
+                            <label>数据 (用逗号分隔)</label>
+                            <input type="text" id="dataValues" placeholder="例如: 85,90,78" value="85,92,88,76,81">
+                            <div class="help-text">数据数量要与标签数量一致</div>
+                        </div>
+                    </div>
+                    <div id="uploadInput" style="display: none;">
+                        <div class="form-group">
+                            <label>上传数据文件 (CSV/JSON)</label>
+                            <input type="file" id="fileUpload" accept=".csv,.json" onchange="handleFileUpload(event)">
+                            <div class="help-text">支持CSV格式 (标签,数值) 或JSON格式 {"labels": [...], "data": [...]}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -600,11 +616,89 @@
             }
 
             const canvas = document.getElementById('chartCanvas');
-            const url = canvas.toDataURL('image/png');
+
+            // 创建临时canvas添加白色背景
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            // 填充白色背景
+            tempCtx.fillStyle = '#FFFFFF';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            // 绘制原始图表
+            tempCtx.drawImage(canvas, 0, 0);
+
+            const url = tempCanvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.download = `图表_${new Date().getTime()}.png`;
             link.href = url;
             link.click();
+        }
+
+        function toggleInputMethod() {
+            const method = document.getElementById('inputMethod').value;
+            const manualInput = document.getElementById('manualInput');
+            const uploadInput = document.getElementById('uploadInput');
+
+            if (method === 'manual') {
+                manualInput.style.display = 'block';
+                uploadInput.style.display = 'none';
+            } else {
+                manualInput.style.display = 'none';
+                uploadInput.style.display = 'block';
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const fileName = file.name.toLowerCase();
+
+                try {
+                    if (fileName.endsWith('.json')) {
+                        // 处理JSON文件
+                        const jsonData = JSON.parse(content);
+                        if (jsonData.labels && jsonData.data) {
+                            document.getElementById('labels').value = jsonData.labels.join(',');
+                            document.getElementById('dataValues').value = jsonData.data.join(',');
+                            updateChart();
+                        } else {
+                            alert('JSON格式错误！请确保包含 labels 和 data 字段');
+                        }
+                    } else if (fileName.endsWith('.csv')) {
+                        // 处理CSV文件
+                        const lines = content.trim().split('\n');
+                        const labels = [];
+                        const data = [];
+
+                        lines.forEach(line => {
+                            const parts = line.split(',').map(s => s.trim());
+                            if (parts.length >= 2) {
+                                labels.push(parts[0]);
+                                data.push(parts[1]);
+                            }
+                        });
+
+                        if (labels.length > 0 && data.length > 0) {
+                            document.getElementById('labels').value = labels.join(',');
+                            document.getElementById('dataValues').value = data.join(',');
+                            updateChart();
+                        } else {
+                            alert('CSV文件格式错误！请确保每行格式为: 标签,数值');
+                        }
+                    }
+                } catch (error) {
+                    alert('文件解析失败: ' + error.message);
+                }
+            };
+
+            reader.readAsText(file);
         }
 
         function resetChart() {
