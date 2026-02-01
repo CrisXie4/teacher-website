@@ -126,15 +126,21 @@ function updateStatus(message, isConnected = false) {
 
 // 连接到WebSocket服务器
 function connectToServer() {
-    // 动态检测协议和主机
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    let wsUrl;
+    const urlParams = new URLSearchParams(window.location.search);
+    const override = urlParams.get('ws') || urlParams.get('wsUrl') || urlParams.get('server') || localStorage.getItem('teacher_toolkit_ws');
 
-    // 如果是本地开发环境
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        wsUrl = `${protocol}//${window.location.host}`;
+    let wsUrl;
+    if (override && typeof override === 'string') {
+        wsUrl = override.trim();
+        if (wsUrl.startsWith('http://')) wsUrl = 'ws://' + wsUrl.slice('http://'.length);
+        if (wsUrl.startsWith('https://')) wsUrl = 'wss://' + wsUrl.slice('https://'.length);
+        if (wsUrl.startsWith('//')) wsUrl = protocol + wsUrl;
+        if (!wsUrl.startsWith('ws://') && !wsUrl.startsWith('wss://')) {
+            wsUrl = `${protocol}//${wsUrl}`;
+        }
+        localStorage.setItem('teacher_toolkit_ws', wsUrl);
     } else {
-        // 生产环境，使用当前域名
         wsUrl = `${protocol}//${window.location.host}`;
     }
 

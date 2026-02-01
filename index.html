@@ -16,8 +16,11 @@
     <link rel="apple-touch-icon" href="assets/images/briefcase-192x192.png">
     <title>教师工具箱</title>
     <link rel="stylesheet" href="src/css/styles.css">
-    <script src="src/js/student-manager.js"></script>
+    <link rel="stylesheet" href="src/css/index.css">
+    <script defer src="src/js/student-manager.js"></script>
+    <script defer src="src/js/index.js"></script>
     <style>
+        @media not all {
         /* 捐赠提示弹窗样式 */
         .donation-modal-overlay {
             position: fixed;
@@ -882,12 +885,13 @@
             color: #4b6cb7;
             font-weight: 600;
         }
+        }
     </style>
 </head>
 <body>
     <header>
-        <div style="position: relative; width: 100%;">
-            <div style="position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; z-index: 10;">
+        <div class="header-content">
+            <div class="header-actions">
                 <button class="announcement-center-btn" id="announcementCenterBtn" onclick="openAnnouncementCenter()" title="公告中心" style="display: none;">
                     📢 <span data-lang="announcement_center">公告</span>
                     <span class="badge hidden" id="announcementBadge">1</span>
@@ -999,6 +1003,13 @@
                 <button onclick="navigateTo('src/pages/teacher-camera-vercel.html')" data-lang="use_now">立即使用</button>
             </div>
 
+            <div class="tool-card" id="analytics-card">
+                <div class="tool-icon">📊</div>
+                <h2 data-lang="analytics_title">流量统计</h2>
+                <p data-lang="analytics_desc">查看网站访问趋势与关键指标</p>
+                <button onclick="navigateTo('src/pages/analytics.html')" data-lang="analytics_open">打开面板</button>
+            </div>
+
             <div class="tool-card" id="donation-card">
                 <div class="tool-icon">❤️</div>
                 <h2 data-lang="donation_title">打赏支持</h2>
@@ -1060,13 +1071,7 @@
         </div>
         </div>
         
-        <!-- PWA安装按钮 -->
-        <button id="installPwaBtn" class="btn install-pwa" style="display: none; background: linear-gradient(135deg, #4CAF50, #8BC34A); margin: 1.5rem auto; padding: 1rem 2rem; font-size: 1.1rem;" title="安装应用到桌面">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 0.5rem;">
-                <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z" fill="white"/>
-            </svg>
-            安装应用到桌面
-        </button>
+        
         
         <!-- 反馈建议按钮 -->
         <button id="feedbackBtn" class="btn feedback" data-lang="feedback">反馈建议</button>
@@ -1129,6 +1134,7 @@
     </div>
     
     <script>
+        if (false) {
         // PWA安装相关变量
         let deferredPrompt;
         const installPwaBtn = document.getElementById('installPwaBtn');
@@ -1258,6 +1264,9 @@
                 "3d_viewer_desc": "创建、编辑和观察3D物体，支持多角度查看",
                 periodic_table_title: "元素周期表",
                 periodic_table_desc: "交互式元素周期表，点击查看元素详情",
+                analytics_title: "流量统计",
+                analytics_desc: "查看网站访问趋势与关键指标",
+                analytics_open: "打开面板",
                 "teacher_camera_title": "Teacher Camera",
                 "teacher_camera_desc": "Stream teacher's mobile camera feed to computer screen",
                 teacher_camera_title: "教师摄像头",
@@ -1328,6 +1337,9 @@
                 "3d_viewer_desc": "Create, edit and view 3D objects, support multi-angle viewing",
                 "periodic_table_title": "Periodic Table",
                 "periodic_table_desc": "Interactive periodic table, click to view element details",
+                analytics_title: "Analytics",
+                analytics_desc: "View traffic trends and key metrics",
+                analytics_open: "Open Dashboard",
                 donation_title: "Support Donation",
                 donation_desc: "If you like these tools, please consider supporting us",
                 use_now: "Use Now",
@@ -1480,16 +1492,14 @@
             }
         }
 
-        // 简化版自定义弹窗函数，使用系统alert替代
         function showCustomModal(title, message, callback) {
-            // 根据当前语言显示相应的消息
-            const alertTitle = currentLanguage === 'zh' ? title : title;
-            const alertMessage = currentLanguage === 'zh' ? message : message;
-            
-            alert(`${alertTitle}\n\n${alertMessage}`);
-            if (callback && typeof callback === 'function') {
-                callback();
-            }
+            alert(`${title}\n\n${message}`);
+            if (callback && typeof callback === 'function') callback();
+        }
+
+        function showConfirmModal(title, message, onConfirm) {
+            const ok = confirm(`${title}\n\n${message}`);
+            if (ok && typeof onConfirm === 'function') onConfirm();
         }
 
         // 添加学生
@@ -1672,14 +1682,14 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"]/g, function(m) { return map[m]; });
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
         // 删除学生
         function removeStudent(index) {
             const title = currentLanguage === 'zh' ? '确认删除' : 'Confirm Delete';
             const message = currentLanguage === 'zh' ? '确定要删除这个学生吗？' : 'Are you sure you want to delete this student?';
-            showCustomModal(title, message, function() {
+            showConfirmModal(title, message, function() {
                 StudentManager.removeStudent(index);
                 renderStudentList();
                 updateSummary();
@@ -1690,7 +1700,7 @@
         function clearStudents() {
             const title = currentLanguage === 'zh' ? '确认清空' : 'Confirm Clear';
             const message = currentLanguage === 'zh' ? '确定要清空所有学生吗？' : 'Are you sure you want to clear all students?';
-            showCustomModal(title, message, function() {
+            showConfirmModal(title, message, function() {
                 StudentManager.clearStudents();
                 renderStudentList();
                 updateSummary();
@@ -2670,6 +2680,7 @@
                     }
                 });
             }
+        }
         }
     </script>
 </body>

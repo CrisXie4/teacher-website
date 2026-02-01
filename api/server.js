@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
-const { RoomDatabase } = require('./supabase-config');
+const { LocalStorage } = require('./local-storage');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,10 +11,10 @@ const wss = new WebSocket.Server({ server });
 // 存储连接的客户端和房间
 const clients = new Map();
 const rooms = new Map(); // 房间存储：房间码 -> {teacher: clientId, viewers: [clientId]}
-const roomDB = new RoomDatabase(); // Supabase 数据库实例
+const localStorage = new LocalStorage(); // 本地存储实例
 
 // 提供静态文件
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, '..')));
 
 // 生成6位数字房间码
 function generateRoomCode() {
@@ -22,7 +22,7 @@ function generateRoomCode() {
 }
 
 // 创建房间
-async function createRoom(teacherId) {
+function createRoom(teacherId) {
     let roomCode;
     do {
         roomCode = generateRoomCode();
@@ -36,62 +36,48 @@ async function createRoom(teacherId) {
 
     rooms.set(roomCode, roomData);
 
-    // 保存到数据库
-    try {
-        await roomDB.createRoom(roomCode, teacherId);
-    } catch (error) {
-        console.error('保存房间到数据库失败:', error);
-    }
+    // 保存到本地存储
+    localStorage.createRoom(roomCode, teacherId);
 
     return roomCode;
 }
 
 // 加入房间
-async function joinRoom(roomCode, viewerId) {
+function joinRoom(roomCode, viewerId) {
     if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
         if (!room.viewers.includes(viewerId)) {
             room.viewers.push(viewerId);
-
-            // 更新数据库观看者数量
-            try {
-                await roomDB.updateViewerCount(roomCode, room.viewers.length);
-            } catch (error) {
-                console.error('更新观看者数量失败:', error);
-            }
+            localStorage.updateViewerCount(roomCode, room.viewers.length);
         }
         return true;
     }
 
-    // 尝试从数据库加载房间信息
-    try {
-        const dbRoom = await roomDB.getRoom(roomCode);
-        if (dbRoom && dbRoom.status === 'active') {
-            // 从数据库恢复房间，但教师必须在线
-            const teacherOnline = Array.from(clients.values()).some(client =>
-                client.id === dbRoom.teacher_id && client.role === 'teacher'
-            );
+    // 尝试从本地存储加载房间信息
+    const dbRoom = localStorage.getRoom(roomCode);
+    if (dbRoom && dbRoom.status === 'active') {
+        // 从存储恢复房间，但教师必须在线
+        const teacherOnline = Array.from(clients.values()).some(client =>
+            client.id === dbRoom.teacher_id && client.role === 'teacher'
+        );
 
-            if (teacherOnline) {
-                rooms.set(roomCode, {
-                    teacher: dbRoom.teacher_id,
-                    viewers: [viewerId],
-                    created: new Date(dbRoom.created_at).getTime()
-                });
+        if (teacherOnline) {
+            rooms.set(roomCode, {
+                teacher: dbRoom.teacher_id,
+                viewers: [viewerId],
+                created: new Date(dbRoom.created_at).getTime()
+            });
 
-                await roomDB.updateViewerCount(roomCode, 1);
-                return true;
-            }
+            localStorage.updateViewerCount(roomCode, 1);
+            return true;
         }
-    } catch (error) {
-        console.error('从数据库获取房间信息失败:', error);
     }
 
     return false;
 }
 
 // 离开房间
-async function leaveRoom(roomCode, clientId) {
+function leaveRoom(roomCode, clientId) {
     if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
         if (room.teacher === clientId) {
@@ -105,26 +91,15 @@ async function leaveRoom(roomCode, clientId) {
                 }
             });
 
-            // 关闭数据库房间记录
-            try {
-                await roomDB.closeRoom(roomCode);
-            } catch (error) {
-                console.error('关闭数据库房间失败:', error);
-            }
-
+            // 关闭本地存储房间记录
+            localStorage.closeRoom(roomCode);
             rooms.delete(roomCode);
         } else {
             // 观看者离开
             const index = room.viewers.indexOf(clientId);
             if (index > -1) {
                 room.viewers.splice(index, 1);
-
-                // 更新数据库观看者数量
-                try {
-                    await roomDB.updateViewerCount(roomCode, room.viewers.length);
-                } catch (error) {
-                    console.error('更新观看者数量失败:', error);
-                }
+                localStorage.updateViewerCount(roomCode, room.viewers.length);
             }
         }
     }
@@ -145,7 +120,7 @@ wss.on('connection', (ws) => {
     }));
 
     // 处理消息
-    ws.on('message', async (message) => {
+    ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
             console.log(`收到消息类型: ${data.type} 来自客户端: ${clientId}`);
@@ -154,7 +129,7 @@ wss.on('connection', (ws) => {
             switch (data.type) {
                 case 'create-room':
                     // 创建房间（教师端）
-                    const roomCode = await createRoom(clientId);
+                    const roomCode = createRoom(clientId);
                     clients.get(clientId).roomCode = roomCode;
                     clients.get(clientId).role = 'teacher';
 
@@ -167,7 +142,7 @@ wss.on('connection', (ws) => {
                 case 'join-room':
                     // 加入房间（观看者）
                     const { roomCode: joinRoomCode } = data;
-                    if (await joinRoom(joinRoomCode, clientId)) {
+                    if (joinRoom(joinRoomCode, clientId)) {
                         clients.get(clientId).roomCode = joinRoomCode;
                         clients.get(clientId).role = 'viewer';
 
@@ -235,15 +210,11 @@ wss.on('connection', (ws) => {
 
                 case 'get-room-stats':
                     // 获取房间统计信息
-                    try {
-                        const stats = await roomDB.getRoomStats();
-                        ws.send(JSON.stringify({
-                            type: 'room-stats',
-                            stats: stats
-                        }));
-                    } catch (error) {
-                        console.error('获取房间统计失败:', error);
-                    }
+                    const stats = localStorage.getRoomStats();
+                    ws.send(JSON.stringify({
+                        type: 'room-stats',
+                        stats: stats
+                    }));
                     break;
             }
         } catch (error) {
@@ -256,12 +227,12 @@ wss.on('connection', (ws) => {
     });
 
     // 处理连接关闭
-    ws.on('close', async () => {
+    ws.on('close', () => {
         console.log(`客户端 ${clientId} 已断开连接`);
 
         const client = clients.get(clientId);
         if (client && client.roomCode) {
-            await leaveRoom(client.roomCode, clientId);
+            leaveRoom(client.roomCode, clientId);
         }
 
         // 如果是教师端断开，通知所有观看者（保持兼容性）
@@ -319,39 +290,35 @@ function sendAvailableTeachers(ws) {
 }
 
 // 清理过期房间
-async function cleanupExpiredRooms() {
-    try {
-        await roomDB.cleanupExpiredRooms();
+function cleanupExpiredRooms() {
+    localStorage.cleanupExpiredRooms();
 
-        // 清理内存中的过期房间
-        const maxDuration = parseInt(process.env.MAX_ROOM_DURATION_HOURS || '2') * 60 * 60 * 1000;
-        const now = Date.now();
+    // 清理内存中的过期房间
+    const maxDuration = parseInt(process.env.MAX_ROOM_DURATION_HOURS || '2') * 60 * 60 * 1000;
+    const now = Date.now();
 
-        for (const [roomCode, room] of rooms.entries()) {
-            if (now - room.created > maxDuration) {
-                // 通知房间内的用户
-                room.viewers.forEach(viewerId => {
-                    if (clients.has(viewerId)) {
-                        clients.get(viewerId).ws.send(JSON.stringify({
-                            type: 'room-expired',
-                            roomCode: roomCode
-                        }));
-                    }
-                });
-
-                if (clients.has(room.teacher)) {
-                    clients.get(room.teacher).ws.send(JSON.stringify({
+    for (const [roomCode, room] of rooms.entries()) {
+        if (now - room.created > maxDuration) {
+            // 通知房间内的用户
+            room.viewers.forEach(viewerId => {
+                if (clients.has(viewerId)) {
+                    clients.get(viewerId).ws.send(JSON.stringify({
                         type: 'room-expired',
                         roomCode: roomCode
                     }));
                 }
+            });
 
-                rooms.delete(roomCode);
-                console.log(`清理过期房间: ${roomCode}`);
+            if (clients.has(room.teacher)) {
+                clients.get(room.teacher).ws.send(JSON.stringify({
+                    type: 'room-expired',
+                    roomCode: roomCode
+                }));
             }
+
+            rooms.delete(roomCode);
+            console.log(`清理过期房间: ${roomCode}`);
         }
-    } catch (error) {
-        console.error('清理过期房间失败:', error);
     }
 }
 
@@ -360,30 +327,22 @@ const cleanupInterval = parseInt(process.env.ROOM_CLEANUP_INTERVAL_MINUTES || '3
 setInterval(cleanupExpiredRooms, cleanupInterval);
 
 // 提供API端点获取服务器状态
-app.get('/api/status', async (req, res) => {
-    try {
-        const stats = await roomDB.getRoomStats();
-        const connectedClients = clients.size;
+app.get('/api/status', (req, res) => {
+    const stats = localStorage.getRoomStats();
+    const connectedClients = clients.size;
 
-        res.json({
-            status: 'running',
-            timestamp: new Date().toISOString(),
-            connectedClients: connectedClients,
-            activeRooms: stats.activeRooms,
-            totalViewers: stats.totalViewers,
-            environment: {
-                supabaseConfigured: !!process.env.SUPABASE_URL,
-                maxRoomDuration: process.env.MAX_ROOM_DURATION_HOURS || '2',
-                cleanupInterval: process.env.ROOM_CLEANUP_INTERVAL_MINUTES || '30'
-            }
-        });
-    } catch (error) {
-        console.error('获取服务器状态失败:', error);
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        });
-    }
+    res.json({
+        status: 'running',
+        timestamp: new Date().toISOString(),
+        connectedClients: connectedClients,
+        activeRooms: stats.activeRooms,
+        totalViewers: stats.totalViewers,
+        environment: {
+            localStorageEnabled: true,
+            maxRoomDuration: process.env.MAX_ROOM_DURATION_HOURS || '2',
+            cleanupInterval: process.env.ROOM_CLEANUP_INTERVAL_MINUTES || '30'
+        }
+    });
 });
 
 // 启动服务器
@@ -396,7 +355,7 @@ server.listen(PORT, () => {
 
     // 输出环境变量配置状态
     console.log('环境配置:');
-    console.log('- Supabase URL:', process.env.SUPABASE_URL ? '已配置' : '未配置（使用内存存储）');
+    console.log('- 数据存储: 本地文件存储');
     console.log('- 最大房间持续时间:', process.env.MAX_ROOM_DURATION_HOURS || '2', '小时');
     console.log('- 清理间隔:', process.env.ROOM_CLEANUP_INTERVAL_MINUTES || '30', '分钟');
 });

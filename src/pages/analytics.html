@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="教师工具箱流量统计">
+    <title>流量统计 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0 1.25rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 22px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(75, 108, 183, 0.35);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.35);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(75, 108, 183, 0.5);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .hint {
+            color: #555;
+            line-height: 1.7;
+            margin: 0 0 1rem;
+        }
+
+        .iframe-wrap {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #f8f9fb;
+        }
+
+        iframe {
+            width: 100%;
+            height: min(78vh, 900px);
+            border: 0;
+            display: block;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">流量统计</h1>
+                <p style="margin: 0.5rem 0 0 0;">查看网站访问趋势与关键指标</p>
+            </div>
+            <div style="width: 100px;"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="panel">
+            <p class="hint">如果下方看不到统计面板，可能是浏览器阻止了嵌入显示；可点击“打开统计页面”在新窗口查看。</p>
+            <div class="actions">
+                <button class="btn secondary" id="openAnalytics">打开统计页面</button>
+                <button class="btn" id="reloadIframe">刷新面板</button>
+            </div>
+
+            <div class="iframe-wrap">
+                <iframe id="analyticsFrame" title="Umami Analytics" loading="lazy" referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const analyticsUrl = 'https://cloud.umami.is/share/r6vgpLn34ukRcpSw';
+        const analyticsFrame = document.getElementById('analyticsFrame');
+        const openAnalytics = document.getElementById('openAnalytics');
+        const reloadIframe = document.getElementById('reloadIframe');
+
+        function setFrameSrc() {
+            if (!analyticsFrame) return;
+            analyticsFrame.src = analyticsUrl;
+        }
+
+        if (openAnalytics) {
+            openAnalytics.addEventListener('click', () => {
+                window.open(analyticsUrl, '_blank', 'noopener,noreferrer');
+            });
+        }
+
+        if (reloadIframe) {
+            reloadIframe.addEventListener('click', () => {
+                setFrameSrc();
+            });
+        }
+
+        setFrameSrc();
+    </script>
+</body>
+</html>
+

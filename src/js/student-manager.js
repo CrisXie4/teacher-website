@@ -31,28 +31,33 @@ const StudentManager = {
             const testKey = '__storage_test__';
             const testValue = 'x'.repeat(1024); // 1KB测试数据
             let quotaExceeded = false;
-            
-            // 尝试存储数据直到达到限制
-            let i = 0;
-            while (i < 10000) { // 限制测试次数
+
+            // 使用二分查找法更高效地检测存储限制
+            let low = 0;
+            let high = 5000; // 最大5MB测试
+            let maxSize = 0;
+
+            while (low <= high) {
+                const mid = Math.floor((low + high) / 2);
                 try {
-                    localStorage.setItem(testKey, testValue.repeat(i));
-                    i++;
+                    const testData = testValue.repeat(mid);
+                    localStorage.setItem(testKey, testData);
+                    localStorage.removeItem(testKey); // 立即清理
+                    maxSize = mid;
+                    low = mid + 1;
                 } catch (e) {
-                    if (e instanceof DOMException && 
+                    if (e instanceof DOMException &&
                         (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+                        high = mid - 1;
                         quotaExceeded = true;
-                        break;
                     } else {
                         throw e;
                     }
                 }
             }
-            
-            // 清理测试数据
-            localStorage.removeItem(testKey);
-            
-            return quotaExceeded;
+
+            // 如果可用空间小于100KB，认为接近限制
+            return maxSize < 100;
         } catch (e) {
             console.error('检查存储配额时出错:', e);
             return false;
@@ -78,6 +83,10 @@ const StudentManager = {
     
     // 解析学生输入，支持"学号，姓名"或"学号,姓名"格式
     parseStudentInput: function(id, name) {
+        // 确保输入参数不为null或undefined
+        id = id || '';
+        name = name || '';
+
         // 如果姓名包含学号信息（如"15，李四"），则自动分离
         if (!id && name.includes('，')) {
             const parts = name.split('，');
@@ -92,7 +101,7 @@ const StudentManager = {
                 name = parts[1].trim();
             }
         }
-        
+
         return { id: id.trim(), name: name.trim() };
     },
     
@@ -217,38 +226,263 @@ const StudentManager = {
     // 从JSON文本解析学生数据
     parseJSON: function(jsonText) {
         try {
-            const data = JSON.parse(jsonText);
+            // 输入验证
+            if (!jsonText || typeof jsonText !== 'string') {
+                throw new Error('输入的JSON文本无效');
+            }
+
+            // 清理输入文本
+            const cleanedText = jsonText.trim();
+            if (!cleanedText) {
+                throw new Error('JSON文本不能为空');
+            }
+
+            const data = JSON.parse(cleanedText);
             const students = [];
-            
+
             // 支持两种JSON格式：
             // 1. 数组格式：[{id: "001", name: "张三"}, {id: "002", name: "李四"}]
             // 2. 对象格式：{"001": "张三", "002": "李四"}
-            
+
             if (Array.isArray(data)) {
                 // 数组格式
-                data.forEach(item => {
-                    if (typeof item === 'object' && item.name) {
+                data.forEach((item, index) => {
+                    if (typeof item === 'object' && item !== null && item.name) {
+                        const id = item.id ? String(item.id).trim() : '';
+                        const name = String(item.name).trim();
+
+                        if (name) {
+                            students.push({
+                                id: this.escapeHtml(id),
+                                name: this.escapeHtml(name)
+                            });
+                        }
+                    } else if (typeof item === 'string' && item.trim()) {
+                        // 支持纯字符串数组
                         students.push({
-                            id: item.id ? this.escapeHtml(item.id.toString().trim()) : '',
-                            name: this.escapeHtml(item.name.toString().trim())
+                            id: '',
+                            name: this.escapeHtml(item.trim())
                         });
                     }
                 });
             } else if (typeof data === 'object' && data !== null) {
                 // 对象格式
                 Object.keys(data).forEach(key => {
-                    if (data[key]) {
+                    const value = data[key];
+                    if (value && (typeof value === 'string' || typeof value === 'number')) {
                         students.push({
-                            id: this.escapeHtml(key.toString().trim()),
-                            name: this.escapeHtml(data[key].toString().trim())
+                            id: this.escapeHtml(String(key).trim()),
+                            name: this.escapeHtml(String(value).trim())
                         });
                     }
                 });
+            } else {
+                throw new Error('不支持的JSON格式，请使用数组或对象格式');
             }
-            
+
             return students;
         } catch (e) {
-            throw new Error('JSON格式错误：' + e.message);
+            if (e instanceof SyntaxError) {
+                throw new Error('JSON格式错误：' + e.message);
+            }
+        }
+    },
+
+    // 导出学生数据为CSV格式
+    exportToCSV: function() {
+        if (this.students.length === 0) {
+            throw new Error('没有学生数据可导出');
+        }
+
+        const headers = ['学号', '姓名'];
+        const csvContent = [
+            headers.join(','),
+            ...this.students.map(student =>
+                `"${student.id || ''}","${student.name || ''}"`
+            )
+        ].join('\n');
+
+        return csvContent;
+    },
+
+    // 导出学生数据为JSON格式
+    exportToJSON: function() {
+        if (this.students.length === 0) {
+            throw new Error('没有学生数据可导出');
+        }
+
+        return JSON.stringify(this.students, null, 2);
+    },
+
+    // 创建并下载文件
+    downloadFile: function(content, filename, mimeType = 'text/plain') {
+        try {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 清理URL对象
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+
+            return true;
+        } catch (e) {
+            console.error('下载文件失败:', e);
+            return false;
+        }
+    },
+
+    // 导出为Excel格式（CSV兼容）
+    exportToExcel: function() {
+        try {
+            const csvContent = this.exportToCSV();
+            const filename = `学生名单_${new Date().toISOString().split('T')[0]}.csv`;
+            return this.downloadFile(csvContent, filename, 'text/csv;charset=utf-8');
+        } catch (e) {
+            console.error('导出Excel失败:', e);
+            return false;
+        }
+    },
+
+    // 备份所有数据
+    backupData: function() {
+        try {
+            const backupData = {
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+                students: this.students,
+                totalCount: this.students.length
+            };
+
+            const jsonContent = JSON.stringify(backupData, null, 2);
+            const filename = `学生数据备份_${new Date().toISOString().split('T')[0]}.json`;
+
+            return this.downloadFile(jsonContent, filename, 'application/json');
+        } catch (e) {
+            console.error('备份数据失败:', e);
+            return false;
+        }
+    },
+
+    // 从备份文件恢复数据
+    restoreFromBackup: function(backupText) {
+        try {
+            if (!backupText || typeof backupText !== 'string') {
+                throw new Error('备份数据无效');
+            }
+
+            const backupData = JSON.parse(backupText.trim());
+
+            // 验证备份数据格式
+            if (!backupData.students || !Array.isArray(backupData.students)) {
+                throw new Error('备份文件格式不正确');
+            }
+
+            // 验证学生数据格式
+            const validStudents = [];
+            backupData.students.forEach((student, index) => {
+                if (typeof student === 'object' && student !== null && student.name) {
+                    validStudents.push({
+                        id: student.id ? this.escapeHtml(String(student.id).trim()) : '',
+                        name: this.escapeHtml(String(student.name).trim())
+                    });
+                }
+            });
+
+            if (validStudents.length === 0) {
+                throw new Error('备份文件中没有有效的学生数据');
+            }
+
+            // 询问用户是否要覆盖现有数据
+            const shouldOverwrite = this.students.length === 0 ||
+                confirm(`当前有${this.students.length}个学生，备份文件包含${validStudents.length}个学生。\n是否要覆盖现有数据？`);
+
+            if (shouldOverwrite) {
+                this.students = validStudents;
+                this.saveStudents();
+                return {
+                    success: true,
+                    message: `成功恢复${validStudents.length}个学生数据`,
+                    count: validStudents.length
+                };
+            } else {
+                return {
+                    success: false,
+                    message: '用户取消了数据恢复操作',
+                    count: 0
+                };
+            }
+
+        } catch (e) {
+            return {
+                success: false,
+                message: '恢复数据失败：' + e.message,
+                count: 0
+            };
+        }
+    },
+
+    // 批量操作：删除选中的学生
+    batchRemoveStudents: function(indices) {
+        if (!Array.isArray(indices) || indices.length === 0) {
+            return { success: false, message: '没有选择要删除的学生' };
+        }
+
+        try {
+            // 按索引降序排列，避免删除时索引变化
+            const sortedIndices = [...indices].sort((a, b) => b - a);
+            let removedCount = 0;
+
+            sortedIndices.forEach(index => {
+                if (index >= 0 && index < this.students.length) {
+                    this.students.splice(index, 1);
+                    removedCount++;
+                }
+            });
+
+            if (removedCount > 0) {
+                this.saveStudents();
+                return {
+                    success: true,
+                    message: `成功删除${removedCount}个学生`,
+                    count: removedCount
+                };
+            } else {
+                return { success: false, message: '没有有效的学生被删除' };
+            }
+
+        } catch (e) {
+            console.error('批量删除学生失败:', e);
+            return { success: false, message: '批量删除失败：' + e.message };
+        }
+    },
+
+    // 获取存储使用情况统计
+    getStorageStats: function() {
+        try {
+            const dataSize = JSON.stringify(this.students).length;
+            const totalStudents = this.students.length;
+            const studentsWithId = this.students.filter(s => s.id).length;
+            const studentsWithoutId = totalStudents - studentsWithId;
+
+            return {
+                totalStudents,
+                studentsWithId,
+                studentsWithoutId,
+                dataSize,
+                dataSizeKB: Math.round(dataSize / 1024 * 100) / 100,
+                isNearQuota: this.checkStorageQuota()
+            };
+        } catch (e) {
+            console.error('获取存储统计失败:', e);
+            return null;
         }
     }
 };

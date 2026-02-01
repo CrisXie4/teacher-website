@@ -80,7 +80,13 @@ self.addEventListener('fetch', event => {
       .catch(() => {
         // 网络请求失败时，从缓存获取
         console.log('[SW] Network failed, trying cache for:', requestUrl);
-        return caches.match(event.request);
+        return caches.match(event.request).then(cached => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
+          return cached;
+        });
       })
   );
 });

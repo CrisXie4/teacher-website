@@ -1,13 +1,9 @@
 {
-  "functions": {
-    "api/server.js": {
-      "maxDuration": 10
-    }
-  },
+  "version": 2,
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "/$1"
     }
   ]
 }
