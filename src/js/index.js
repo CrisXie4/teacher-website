@@ -64,6 +64,9 @@ function checkTeachersDay() {
 function checkSpringFestival() {
     if (!YEAR_TIME) return;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTest = urlParams.get('test_spring') === 'true';
+
     const [month, day] = YEAR_TIME.split('-').map(Number);
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -80,16 +83,25 @@ function checkSpringFestival() {
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
 
-    if (now >= startDate && now <= endDate) {
-        // Check if already shown in this session
-        if (sessionStorage.getItem('springFestivalShown')) return;
+    console.log('[SpringFestival] Checking date:', now.toLocaleDateString());
+    console.log('[SpringFestival] Range:', startDate.toLocaleDateString(), '-', endDate.toLocaleDateString());
+
+    if (isTest || (now >= startDate && now <= endDate)) {
+        // Check if already shown in this session (ignore if testing)
+        if (!isTest && sessionStorage.getItem('springFestivalShown')) {
+            console.log('[SpringFestival] Already shown in this session');
+            return;
+        }
         
+        console.log('[SpringFestival] Showing greeting!');
         // Short delay to ensure page is loaded
         setTimeout(() => {
             showSpringFestivalModal();
             launchFireworks();
-            sessionStorage.setItem('springFestivalShown', 'true');
+            if (!isTest) sessionStorage.setItem('springFestivalShown', 'true');
         }, 1000);
+    } else {
+        console.log('[SpringFestival] Not in date range');
     }
 }
 
@@ -939,29 +951,30 @@ function registerServiceWorker() {
     if (window.location.protocol === 'file:') return;
 
     navigator.serviceWorker.register('sw.js').then(registration => {
+        // 自动更新检查
+        setInterval(() => {
+            registration.update();
+        }, 60 * 60 * 1000); // 每小时检查一次
+
         registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (!newWorker) return;
 
             newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    const currentLang = window.i18n ? window.i18n.currentLanguage() : 'zh';
-                    const ask = currentLang === 'zh'
-                        ? '发现新版本！是否立即刷新页面以获取最新内容？'
-                        : 'New version available! Refresh the page to get the latest content?';
-                    if (confirm(ask)) {
-                        newWorker.postMessage({ type: 'SKIP_WAITING' });
-                        window.location.reload();
-                    }
+                    console.log('[SW] New version available.');
+                    // 不再自动弹窗刷新，避免无限循环。
+                    // 可以在这里添加一个 UI 提示，让用户手动点击刷新。
+                    // 目前仅记录日志，由用户下次访问时自动生效（如果 sw.js skipWaiting 被移除）
+                    // 或者如果 sw.js 保留 skipWaiting，用户下次刷新即可。
+                    
+                    // 如果需要强制更新，可以使用非阻塞的 Toast 提示
+                    // showToast('发现新版本，请刷新页面', () => window.location.reload());
                 }
             });
         });
-
-        setInterval(() => {
-            registration.update();
-        }, 5 * 60 * 1000);
-    }).catch(() => {
-        return;
+    }).catch(err => {
+        console.log('[SW] Registration failed:', err);
     });
 }
 
