@@ -1098,5 +1098,6 @@ window.permanentlyCloseAnnouncement = permanentlyCloseAnnouncement;
 window.removeStudent = removeStudent;
 window.clearStudents = clearStudents;
 window.selectStudentForTracker = selectStudentForTracker;
+window.checkSpringFestival = checkSpringFestival;
 
 window.addEventListener('load', init);
