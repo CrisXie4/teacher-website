@@ -356,7 +356,7 @@ function showDonationModal(targetPage) {
     const modalLater = $('donationModalLater');
     const modalTip = $('donationModalTip');
 
-    if (currentLanguage === 'zh') {
+    if (window.i18n && window.i18n.currentLanguage() === 'zh') {
         if (modalTitle) modalTitle.textContent = '喜欢这个工具吗？';
         if (modalMessage) modalMessage.textContent = '如果这些工具对您的教学有帮助，欢迎打赏支持作者继续开发更多实用功能！';
         if (modalBtn) modalBtn.textContent = '去支持一下';
@@ -647,7 +647,8 @@ function triggerEasterEgg() {
 
     launchFireworks();
     setTimeout(() => {
-        const list = messages[currentLanguage] || messages.zh;
+        const currentLang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+        const list = messages[currentLang] || messages.zh;
         const message = list[Math.floor(Math.random() * list.length)];
         alert(message);
     }, 1500);
@@ -699,7 +700,7 @@ function showAnnouncementModal() {
     const modalTitle = $('announcementModalTitle');
     const closeBtn = $('announcementCloseBtn');
     const permanentBtn = $('announcementPermanentBtn');
-    if (currentLanguage === 'zh') {
+    if (window.i18n && window.i18n.currentLanguage() === 'zh') {
         if (modalTitle) modalTitle.textContent = '📢 公告';
         if (closeBtn) closeBtn.textContent = '我知道了';
         if (permanentBtn) permanentBtn.textContent = '不再显示此公告';
@@ -769,7 +770,7 @@ function openAnnouncementCenter() {
     }
     loadAnnouncement().then(() => {
         if (currentAnnouncementContent) showAnnouncementModal();
-        else alert(currentLanguage === 'zh' ? '暂无公告' : 'No announcements');
+        else alert(window.i18n && window.i18n.currentLanguage() === 'zh' ? '暂无公告' : 'No announcements');
     });
 }
 
@@ -812,7 +813,8 @@ function registerServiceWorker() {
 
             newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    const ask = currentLanguage === 'zh'
+                    const currentLang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+                    const ask = currentLang === 'zh'
                         ? '发现新版本！是否立即刷新页面以获取最新内容？'
                         : 'New version available! Refresh the page to get the latest content?';
                     if (confirm(ask)) {
@@ -871,10 +873,11 @@ function bindEventListeners() {
         fileInput.addEventListener('change', function() {
             if (this.files && this.files.length > 0) {
                 const file = this.files[0];
-                const fileNameLabel = currentLanguage === 'zh' ? '文件名' : 'File name';
-                const fileSizeLabel = currentLanguage === 'zh' ? '大小' : 'Size';
-                const fileTypeLabel = currentLanguage === 'zh' ? '类型' : 'Type';
-                const unknown = currentLanguage === 'zh' ? '未知' : 'Unknown';
+                const currentLang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+                const fileNameLabel = currentLang === 'zh' ? '文件名' : 'File name';
+                const fileSizeLabel = currentLang === 'zh' ? '大小' : 'Size';
+                const fileTypeLabel = currentLang === 'zh' ? '类型' : 'Type';
+                const unknown = currentLang === 'zh' ? '未知' : 'Unknown';
                 fileInfo.textContent = `${fileNameLabel}: ${file.name} | ${fileSizeLabel}: ${(file.size / 1024).toFixed(1)} KB | ${fileTypeLabel}: ${file.type || unknown}`;
             } else {
                 fileInfo.textContent = '';
@@ -896,7 +899,8 @@ function setupEasterEgg() {
         if (clickCount >= 5) {
             localStorage.setItem('eggClickCount', String(clickCount));
             eggButton.style.display = 'block';
-            const message = currentLanguage === 'zh'
+            const currentLang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+            const message = currentLang === 'zh'
                 ? '恭喜你解锁了彩蛋功能！点击顶部的"彩蛋"按钮查看惊喜。'
                 : 'Congratulations on unlocking the easter egg! Click the "Easter Egg" button at the top to see the surprise.';
             alert(message);
@@ -911,10 +915,6 @@ function init() {
         localStorage.setItem('fromLinuxDo', 'true');
     }
 
-    const browserLanguage = navigator.language || navigator.userLanguage;
-    currentLanguage = browserLanguage && browserLanguage.startsWith('zh') ? 'zh' : 'en';
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage === 'zh' || savedLanguage === 'en') currentLanguage = savedLanguage;
     applyLanguage();
 
     const savedTheme = localStorage.getItem('theme');
@@ -923,9 +923,10 @@ function init() {
     }
     const themeSwitcher = $('themeSwitcher');
     if (themeSwitcher) {
+        const currentLang = window.i18n ? window.i18n.currentLanguage() : 'zh';
         themeSwitcher.textContent = document.body.classList.contains('dark-mode')
-            ? (currentLanguage === 'zh' ? '日间模式' : 'Light Mode')
-            : (currentLanguage === 'zh' ? '黑夜模式' : 'Dark Mode');
+            ? (currentLang === 'zh' ? '日间模式' : 'Light Mode')
+            : (currentLang === 'zh' ? '黑夜模式' : 'Dark Mode');
     }
 
     if (StudentManager && typeof StudentManager.init === 'function') {
