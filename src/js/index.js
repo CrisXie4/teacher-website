@@ -61,6 +61,138 @@ function checkTeachersDay() {
     }
 }
 
+function checkSpringFestival() {
+    if (!YEAR_TIME) return;
+
+    const [month, day] = YEAR_TIME.split('-').map(Number);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    
+    // Create start date for the festival in current year
+    const startDate = new Date(currentYear, month - 1, day);
+    
+    // End date is 3 weeks (21 days) after start date
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 21);
+    
+    // Set hours to ignore time of day for range check
+    now.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    if (now >= startDate && now <= endDate) {
+        // Check if already shown in this session
+        if (sessionStorage.getItem('springFestivalShown')) return;
+        
+        // Short delay to ensure page is loaded
+        setTimeout(() => {
+            showSpringFestivalModal();
+            launchFireworks();
+            sessionStorage.setItem('springFestivalShown', 'true');
+        }, 1000);
+    }
+}
+
+function showSpringFestivalModal() {
+    // Inject styles
+    if (!document.getElementById('spring-festival-style')) {
+        const style = document.createElement('style');
+        style.id = 'spring-festival-style';
+        style.innerHTML = `
+            .spring-festival-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.5s ease;
+            }
+            .spring-festival-modal {
+                background: linear-gradient(135deg, #d32f2f, #b71c1c);
+                color: #ffd700;
+                padding: 2.5rem 2rem;
+                border-radius: 20px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                max-width: 90%;
+                width: 450px;
+                border: 3px solid #ffd700;
+                position: relative;
+                animation: slideUp 0.5s ease;
+            }
+            .spring-festival-modal h2 {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                font-family: "Microsoft YaHei", sans-serif;
+            }
+            .spring-festival-modal p {
+                font-size: 1.3rem;
+                color: #fff;
+                margin-bottom: 2rem;
+                line-height: 1.6;
+            }
+            .spring-festival-btn {
+                background: linear-gradient(135deg, #ffd700, #ffb300);
+                color: #d32f2f;
+                border: none;
+                padding: 0.8rem 2.5rem;
+                font-size: 1.2rem;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: transform 0.2s;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+            .spring-festival-btn:hover {
+                transform: scale(1.05);
+            }
+            .lantern {
+                position: absolute;
+                font-size: 3.5rem;
+                top: -25px;
+                filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+            }
+            .lantern-left { left: 15px; transform: rotate(-15deg); }
+            .lantern-right { right: 15px; transform: rotate(15deg); }
+            
+            @keyframes slideUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Create Modal HTML
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'spring-festival-modal-overlay';
+    
+    modalOverlay.innerHTML = `
+        <div class="spring-festival-modal">
+            <div class="lantern lantern-left">🏮</div>
+            <div class="lantern lantern-right">🏮</div>
+            <h2>春节快乐！！</h2>
+            <p>祝您新春大吉，阖家欢乐！<br>愿新的一年桃李满天下！</p>
+            <button class="spring-festival-btn" onclick="closeSpringFestivalModal(this)">收下祝福</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modalOverlay);
+    
+    window.closeSpringFestivalModal = function(btn) {
+        const overlay = btn.closest('.spring-festival-modal-overlay');
+        overlay.style.transition = 'opacity 0.5s ease';
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 500);
+    };
+}
+
 function showCustomModal(title, message, callback) {
     alert(`${title}\n\n${message}`);
     if (callback && typeof callback === 'function') callback();
