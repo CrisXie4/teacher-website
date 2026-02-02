@@ -435,59 +435,88 @@
                 return;
             }
 
+            const btn = document.getElementById('downloadPdfBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '生成中...';
+            btn.disabled = true;
+
             try {
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
-
-                // 添加中文字体支持 (使用默认字体)
-                pdf.setFont('helvetica');
-
-                // 标题
-                pdf.setFontSize(20);
-                pdf.text('计算题练习', 105, 20, { align: 'center' });
-
-                // 生成时间
-                pdf.setFontSize(10);
                 const timestamp = new Date().toLocaleString('zh-CN');
-                pdf.text('生成时间: ' + timestamp, 105, 30, { align: 'center' });
-
+                
                 // 获取所有题目
-                const questions = questionsContainer.querySelectorAll('.question-item');
-                let yPosition = 45;
-                let questionNum = 1;
-                const questionsPerRow = 2;
-                let currentRow = [];
+                const questions = Array.from(questionsContainer.querySelectorAll('.question-item'));
+                const itemsPerPage = 30; // 每页题目数量
+                const totalPages = Math.ceil(questions.length / itemsPerPage);
 
-                questions.forEach((item, index) => {
-                    const questionText = item.querySelector('.question').textContent;
-                    currentRow.push(questionText);
+                for (let i = 0; i < totalPages; i++) {
+                    const start = i * itemsPerPage;
+                    const end = Math.min(start + itemsPerPage, questions.length);
+                    const chunk = questions.slice(start, end);
 
-                    // 每两题一行，或者是最后一题
-                    if (currentRow.length === questionsPerRow || index === questions.length - 1) {
-                        pdf.setFontSize(14);
+                    // 创建临时容器用于渲染当前页
+                    const tempContainer = document.createElement('div');
+                    tempContainer.style.cssText = `
+                        position: fixed;
+                        left: -9999px;
+                        top: 0;
+                        background: white;
+                        width: 210mm; /* A4宽度 */
+                        padding: 20mm;
+                        box-sizing: border-box;
+                        color: #000;
+                        font-family: "Microsoft YaHei", sans-serif;
+                    `;
 
-                        // 绘制当前行的题目
-                        currentRow.forEach((q, i) => {
-                            const xPosition = 30 + (i * 90);
-                            pdf.text(`${questionNum + i}. ${q}`, xPosition, yPosition);
-                        });
-
-                        questionNum += currentRow.length;
-                        yPosition += 15;
-                        currentRow = [];
-
-                        // 换页
-                        if (yPosition > 270 && index < questions.length - 1) {
-                            pdf.addPage();
-                            yPosition = 20;
-                        }
+                    let htmlContent = '';
+                    // 仅第一页显示标题
+                    if (i === 0) {
+                         htmlContent += `
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <h1 style="color: #182848; font-size: 24pt; margin-bottom: 10px;">计算题练习</h1>
+                                <p style="color: #666; font-size: 12pt;">生成时间: ${timestamp}</p>
+                            </div>`;
+                    } else {
+                        htmlContent += `<div style="height: 20px;"></div>`;
                     }
-                });
+
+                    htmlContent += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">`;
+                    chunk.forEach((item, idx) => {
+                         const q = item.querySelector('.question').textContent;
+                         const globalIndex = start + idx + 1;
+                         htmlContent += `<div style="padding: 10px; border-bottom: 1px dashed #ccc; font-size: 16pt;">${globalIndex}. ${q}</div>`;
+                    });
+                    htmlContent += `</div>`;
+                    
+                    tempContainer.innerHTML = htmlContent;
+                    document.body.appendChild(tempContainer);
+                    
+                    // 渲染为Canvas
+                    const canvas = await html2canvas(tempContainer, { 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false 
+                    });
+                    
+                    document.body.removeChild(tempContainer);
+                    
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    const imgWidth = 210;
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                }
 
                 // 保存PDF
                 pdf.save(`计算题_${new Date().getTime()}.pdf`);
             } catch (error) {
+                console.error(error);
                 alert('PDF生成失败: ' + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         }
 
