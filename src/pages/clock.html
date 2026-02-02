@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全屏时钟 - 教师工具箱</title>
+    <title data-lang="clock_title">全屏时钟 - 教师工具箱</title>
     <script src="../js/performance-optimizer.js"></script>
+    <script src="../js/i18n.js"></script>
     <style>
         * {
             margin: 0;
@@ -261,7 +262,7 @@
 </head>
 <body class="theme-blue">
     <!-- 返回按钮 -->
-    <a href="../../index.html" class="back-btn">← 返回</a>
+    <a href="../../index.html" class="back-btn" data-lang="back_to_home">← 返回主页</a>
 
     <!-- 颜色选择器 -->
     <div class="color-selector">
@@ -280,13 +281,14 @@
         <div class="time-display" id="timeDisplay">00:00:00</div>
         <div class="date-display" id="dateDisplay">2025年1月1日</div>
         <div class="weekday-display" id="weekdayDisplay">星期一</div>
+        <div class="signature-badge" style="font-size: 1.2rem; margin-top: -1rem; opacity: 0.8;">⭐️ Made By CrisXie & Zhang Monday ⭐️</div>
     </div>
 
     <!-- 控制面板 -->
     <div class="control-panel">
-        <button class="control-btn" onclick="toggleFormat()" id="formatBtn">12小时制</button>
-        <button class="control-btn" onclick="toggleSeconds()" id="secondsBtn">隐藏秒</button>
-        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">进入全屏</button>
+        <button class="control-btn" onclick="toggleFormat()" id="formatBtn" data-lang="clock_format_12">12小时制</button>
+        <button class="control-btn" onclick="toggleSeconds()" id="secondsBtn" data-lang="clock_hide_seconds">隐藏秒</button>
+        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn" data-lang="clock_enter_fullscreen">进入全屏</button>
     </div>
 
     <script>
@@ -312,9 +314,20 @@
             localStorage.setItem('clockConfig', JSON.stringify(config));
         }
 
-        // 星期转换
-        const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const weekdaysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        function getWeekdayName(dayIndex) {
+            const list = window.i18n && Array.isArray(window.i18n.getTranslation('weekdays'))
+                ? window.i18n.getTranslation('weekdays')
+                : ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            return list[dayIndex] || '';
+        }
+
+        function formatDate(year, month, date) {
+            const pattern = window.i18n ? window.i18n.getTranslation('clock_date_format') : '{year}年{month}月{date}日';
+            return String(pattern)
+                .replace('{year}', String(year))
+                .replace('{month}', String(month))
+                .replace('{date}', String(date));
+        }
 
         // 更新时间
         function updateTime() {
@@ -341,18 +354,18 @@
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
             const date = now.getDate();
-            const dateStr = `${year}年${month}月${date}日`;
-            document.getElementById('dateDisplay').textContent = dateStr;
+            document.getElementById('dateDisplay').textContent = formatDate(year, month, date);
 
             // 更新星期
-            const weekday = weekdays[now.getDay()];
-            document.getElementById('weekdayDisplay').textContent = weekday;
+            document.getElementById('weekdayDisplay').textContent = getWeekdayName(now.getDay());
         }
 
         // 切换时间格式
         function toggleFormat() {
             config.format24 = !config.format24;
-            document.getElementById('formatBtn').textContent = config.format24 ? '12小时制' : '24小时制';
+            document.getElementById('formatBtn').textContent = config.format24
+                ? window.i18n.getTranslation('clock_format_12')
+                : window.i18n.getTranslation('clock_format_24');
             saveConfig();
             updateTime();
         }
@@ -360,7 +373,9 @@
         // 切换秒显示
         function toggleSeconds() {
             config.showSeconds = !config.showSeconds;
-            document.getElementById('secondsBtn').textContent = config.showSeconds ? '隐藏秒' : '显示秒';
+            document.getElementById('secondsBtn').textContent = config.showSeconds
+                ? window.i18n.getTranslation('clock_hide_seconds')
+                : window.i18n.getTranslation('clock_show_seconds');
             saveConfig();
             updateTime();
         }
@@ -388,14 +403,14 @@
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().then(() => {
                     document.body.classList.add('fullscreen-mode');
-                    document.getElementById('fullscreenBtn').textContent = '退出全屏';
+                    document.getElementById('fullscreenBtn').textContent = window.i18n.getTranslation('clock_exit_fullscreen');
                 }).catch(err => {
-                    alert('无法进入全屏模式：' + err.message);
+                    alert(window.i18n.getTranslation('error') + ': ' + err.message);
                 });
             } else {
                 document.exitFullscreen().then(() => {
                     document.body.classList.remove('fullscreen-mode');
-                    document.getElementById('fullscreenBtn').textContent = '进入全屏';
+                    document.getElementById('fullscreenBtn').textContent = window.i18n.getTranslation('clock_enter_fullscreen');
                 });
             }
         }
@@ -404,7 +419,7 @@
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.body.classList.remove('fullscreen-mode');
-                document.getElementById('fullscreenBtn').textContent = '进入全屏';
+                document.getElementById('fullscreenBtn').textContent = window.i18n.getTranslation('clock_enter_fullscreen');
             }
         });
 
@@ -444,8 +459,28 @@
         }
 
         // 更新按钮文本
-        document.getElementById('formatBtn').textContent = config.format24 ? '12小时制' : '24小时制';
-        document.getElementById('secondsBtn').textContent = config.showSeconds ? '隐藏秒' : '显示秒';
+        document.getElementById('formatBtn').textContent = config.format24
+            ? window.i18n.getTranslation('clock_format_12')
+            : window.i18n.getTranslation('clock_format_24');
+        document.getElementById('secondsBtn').textContent = config.showSeconds
+            ? window.i18n.getTranslation('clock_hide_seconds')
+            : window.i18n.getTranslation('clock_show_seconds');
+        document.getElementById('fullscreenBtn').textContent = document.fullscreenElement
+            ? window.i18n.getTranslation('clock_exit_fullscreen')
+            : window.i18n.getTranslation('clock_enter_fullscreen');
+
+        window.addEventListener('languageChanged', () => {
+            updateTime();
+            document.getElementById('formatBtn').textContent = config.format24
+                ? window.i18n.getTranslation('clock_format_12')
+                : window.i18n.getTranslation('clock_format_24');
+            document.getElementById('secondsBtn').textContent = config.showSeconds
+                ? window.i18n.getTranslation('clock_hide_seconds')
+                : window.i18n.getTranslation('clock_show_seconds');
+            document.getElementById('fullscreenBtn').textContent = document.fullscreenElement
+                ? window.i18n.getTranslation('clock_exit_fullscreen')
+                : window.i18n.getTranslation('clock_enter_fullscreen');
+        });
 
         // 防止选中文本
         document.addEventListener('selectstart', (e) => {

@@ -344,11 +344,11 @@
     <header>
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div>
-                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页">← 返回主页</button>
+                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页" data-lang="back_to_home">← 返回主页</button>
             </div>
             <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
-                <h1 style="margin: 0;">声音检测器</h1>
-                <p style="margin: 0.5rem 0 0 0;">实时检测环境声音强度，声音越高小球越高</p>
+                <h1 style="margin: 0;" data-lang="sound_detector_title">声音检测器</h1>
+                <p style="margin: 0.5rem 0 0 0;" data-lang="sound_detector_desc">实时检测环境声音强度，声音越高小球越高</p>
             </div>
             <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
         </div>
@@ -357,21 +357,21 @@
     <div class="container">
         <div class="main-content">
             <div class="visualization-container">
-                <h2>声音可视化</h2>
-                <div id="status">请点击"开始检测"按钮启动声音检测</div>
+                <h2 data-lang="sound_detector_viz">声音可视化</h2>
+                <div id="status" data-lang="sound_detector_status_init">请点击"开始检测"按钮启动声音检测</div>
                 
                 <div class="controls">
-                    <button id="startBtn" class="btn">开始检测</button>
-                    <button id="stopBtn" class="btn" disabled>停止检测</button>
+                    <button id="startBtn" class="btn" data-lang="sound_detector_start">开始检测</button>
+                    <button id="stopBtn" class="btn" disabled data-lang="sound_detector_stop">停止检测</button>
                 </div>
                 
                 <div class="threshold-controls">
-                    <label for="threshold">声音阈值设置:</label>
+                    <label for="threshold" data-lang="sound_detector_threshold_setting">声音阈值设置:</label>
                     <input type="range" id="threshold" min="0" max="100" value="15">
-                    <div>当前阈值: <span id="thresholdValue" class="threshold-value">15</span>%</div>
+                    <div><span data-lang="sound_detector_current_threshold">当前阈值:</span> <span id="thresholdValue" class="threshold-value">15</span>%</div>
                 </div>
                 
-                <div class="warning-message" id="warningMessage">
+                <div class="warning-message" id="warningMessage" data-lang="sound_detector_warning">
                     警告：声音超过设定阈值！
                 </div>
                 
@@ -380,7 +380,7 @@
                     <!-- 小球将在这里动态生成 -->
                 </div>
                 
-                <div>当前音量:</div>
+                <div data-lang="sound_detector_current_volume">当前音量:</div>
                 <div class="volume-meter">
                     <div class="volume-level" id="volumeLevel">
                         <div class="volume-text" id="volumeText">0%</div>
@@ -390,23 +390,23 @@
                 <div class="stats-container">
                     <div class="stat-card">
                         <div class="stat-value" id="maxVolume">0%</div>
-                        <div class="stat-label">最大音量</div>
+                        <div class="stat-label" data-lang="sound_detector_max_volume">最大音量</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="exceedCount">0</div>
-                        <div class="stat-label">超阈值次数</div>
+                        <div class="stat-label" data-lang="sound_detector_exceed_count">超阈值次数</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="avgVolume">0%</div>
-                        <div class="stat-label">平均音量</div>
+                        <div class="stat-label" data-lang="sound_detector_avg_volume">平均音量</div>
                     </div>
                 </div>
             </div>
             
             <div class="log-container">
                 <div class="log-header">
-                    <h2 class="log-title">检测日志</h2>
-                    <button id="clearLogBtn" class="btn">清空日志</button>
+                    <h2 class="log-title" data-lang="sound_detector_log">检测日志</h2>
+                    <button id="clearLogBtn" class="btn" data-lang="sound_detector_clear_log">清空日志</button>
                 </div>
                 <div id="logEntries">
                     <!-- 日志条目将在这里动态生成 -->
@@ -415,22 +415,23 @@
         </div>
         
         <div class="instructions">
-            <h3>使用说明</h3>
+            <h3 data-lang="instructions">使用说明</h3>
             <ol>
-                <li>点击"开始检测"按钮启动声音检测功能</li>
-                <li>浏览器可能会询问是否允许访问麦克风，请点击"允许"</li>
-                <li>对着麦克风说话或发出声音，观察小球随着音量升高而上升</li>
-                <li>使用滑块设置声音阈值，当声音超过阈值时会显示警告</li>
-                <li>在右侧日志面板中查看检测历史和超过阈值的详细记录</li>
-                <li>点击"停止检测"按钮结束声音检测</li>
+                <li data-lang="sound_detector_instruction_1">点击"开始检测"按钮启动声音检测功能</li>
+                <li data-lang="sound_detector_instruction_2">浏览器可能会询问是否允许访问麦克风，请点击"允许"</li>
+                <li data-lang="sound_detector_instruction_3">对着麦克风说话或发出声音，观察小球随着音量升高而上升</li>
+                <li data-lang="sound_detector_instruction_4">使用滑块设置声音阈值，当声音超过阈值时会显示警告</li>
+                <li data-lang="sound_detector_instruction_5">在右侧日志面板中查看检测历史和超过阈值的详细记录</li>
+                <li data-lang="sound_detector_instruction_6">点击"停止检测"按钮结束声音检测</li>
             </ol>
         </div>
         
-        <a href="../../index.html" class="back-btn">← 返回主页</a>
+        <a href="../../index.html" class="back-btn" data-lang="back_to_home">← 返回主页</a>
     </div>
     
     <footer>
-        <p>&copy; 2025 教师工具箱 - 声音检测器</p>
+        <p data-lang="footer_text">&copy; 2025 教师工具箱 - 声音检测器</p>
+        <p class="signature-badge">⭐️ Made By CrisXie & Zhang Monday ⭐️</p>
     </footer>
     
     <script>
@@ -746,7 +747,9 @@
         thresholdSlider.addEventListener('input', function() {
             threshold = parseInt(this.value);
             updateThresholdDisplay();
-            addLogEntry(`阈值设置为 ${threshold}%`, false);
+            const msg = window.i18n.getTranslation('sound_detector_log_threshold')
+                .replace('{threshold}', threshold);
+            addLogEntry(msg, false);
         });
         
         clearLogBtn.addEventListener('click', clearLog);

@@ -2,7 +2,6 @@
 
 let deferredPrompt = null;
 
-let currentLanguage = 'zh';
 let donationShowCount = 0;
 
 let currentAnnouncementContent = '';
@@ -15,183 +14,29 @@ const donationConfig = {
     excludePages: ['src/pages/donation.html']
 };
 
-const languages = {
-    zh: {
-        sound_detector_title: '声音检测器',
-        sound_detector_desc: '实时检测环境声音强度，声音越高小球越高',
-        roll_call_title: '随机点名器',
-        roll_call_desc: '随机选择学生回答问题，增加课堂互动',
-        timer_title: '课堂计时器',
-        timer_desc: '管理课堂活动时间，提高教学效率',
-        clock_title: '全屏时钟',
-        clock_desc: '超大显示时钟，支持多种颜色和格式，一键全屏',
-        grouping_title: '小组分组器',
-        grouping_desc: '随机分组学生，便于小组活动',
-        whiteboard_title: '电子白板',
-        whiteboard_desc: '在线绘制和演示，支持多点触控',
-        tracker_title: '课堂表现记录器',
-        tracker_desc: '记录学生课堂表现，提升教学效果',
-        copybook_title: '临摹本生成器',
-        copybook_desc: '生成中英文临摹本，支持自定义字体',
-        math_title: '计算题生成器',
-        math_desc: '生成自定义计算题，支持多种运算符',
-        '3d_viewer_title': '3D观察物体',
-        '3d_viewer_desc': '创建、编辑和观察3D物体，支持多角度查看',
-        periodic_table_title: '元素周期表',
-        periodic_table_desc: '交互式元素周期表，点击查看元素详情',
-        chart_generator_title: '图表生成器',
-        chart_generator_desc: '自定义数据、颜色和图表类型，生成专业图表',
-        teacher_camera_title: '教师摄像头',
-        teacher_camera_desc: '将教师手机摄像头画面投屏到电脑上',
-        use_now: '立即使用',
-        support_now: '前往支持',
-        student_management: '学生管理',
-        student_id_placeholder: '学号（可选）',
-        student_name_placeholder: '学生姓名',
-        add_student: '添加学生',
-        batch_import_title: '批量导入（CSV格式：学号,姓名）',
-        csv_example: '例如：\n2021001,张三\n2021002,李四\n2021003,王五',
-        import_csv: '导入CSV',
-        file_import_title: '文件导入（支持CSV、TXT、JSON格式）',
-        import_file: '导入文件',
-        clear_students: '清空学生列表',
-        no_students: '暂无学生，请添加学生',
-        total_students: '总学生数',
-        suggested_groups: '建议分组数',
-        manage_students: '管理学生信息',
-        feedback: '反馈建议',
-        instructions: '使用说明',
-        student_management_guide: '学生管理',
-        student_management_desc: '点击"管理学生信息"按钮显示学生管理界面，支持单个添加、批量导入和文件导入',
-        sound_detector_guide: '声音检测器',
-        sound_detector_desc2: '实时检测环境声音强度，声音越高小球越高，可用于课堂活跃度监测',
-        roll_call_guide: '随机点名器',
-        roll_call_desc2: '随机选择学生回答问题，增加课堂互动，支持导入学生名单',
-        timer_guide: '课堂计时器',
-        timer_desc2: '管理课堂活动时间，提高教学效率，支持全屏模式和预设时间',
-        clock_guide: '全屏时钟',
-        clock_desc2: '超大显示时钟，支持8种颜色主题、12/24小时制切换、一键全屏显示',
-        grouping_guide: '小组分组器',
-        grouping_desc2: '随机分组学生，便于小组活动，支持自定义分组人数',
-        whiteboard_guide: '电子白板',
-        whiteboard_desc2: '在线绘制和演示，支持多点触控、多种颜色和线条粗细调节',
-        tracker_guide: '课堂表现记录器',
-        tracker_desc2: '记录学生课堂表现，帮助教师了解学生参与度',
-        feedback_guide: '反馈建议',
-        feedback_desc: '点击"反馈建议"按钮提交您的宝贵意见',
-        footer_text: '© 2025 教师工具箱 - 专为教师设计',
-        teachers_day_title: '教师节快乐！',
-        teachers_day_message: '祝您教师节快乐！感谢您对教育事业的无私奉献和辛勤付出。',
-        announcement_center: '公告'
-    },
-    en: {
-        sound_detector_title: 'Sound Detector',
-        sound_detector_desc: 'Real-time detection of ambient sound intensity, the higher the sound, the higher the ball',
-        roll_call_title: 'Random Roll Call',
-        roll_call_desc: 'Randomly select students to answer questions, increase classroom interaction',
-        timer_title: 'Classroom Timer',
-        timer_desc: 'Manage classroom activity time, improve teaching efficiency',
-        clock_title: 'Fullscreen Clock',
-        clock_desc: 'Large display clock with multiple colors and formats, one-click fullscreen',
-        grouping_title: 'Group Generator',
-        grouping_desc: 'Randomly group students for group activities',
-        whiteboard_title: 'Digital Whiteboard',
-        whiteboard_desc: 'Online drawing and presentation, supports multi-touch',
-        tracker_title: 'Classroom Performance Tracker',
-        tracker_desc: 'Record student classroom performance, improve teaching effectiveness',
-        copybook_title: 'Copybook Generator',
-        copybook_desc: 'Generate Chinese and English copybooks, support custom fonts',
-        math_title: 'Math Problem Generator',
-        math_desc: 'Generate customizable math problems, supports multiple operators',
-        '3d_viewer_title': '3D Object Viewer',
-        '3d_viewer_desc': 'Create, edit and view 3D objects, support multi-angle viewing',
-        periodic_table_title: 'Periodic Table',
-        periodic_table_desc: 'Interactive periodic table, click to view element details',
-        chart_generator_title: 'Chart Generator',
-        chart_generator_desc: 'Customize data, colors and chart type to generate professional charts',
-        teacher_camera_title: 'Teacher Camera',
-        teacher_camera_desc: "Stream teacher's mobile camera feed to computer screen",
-        donation_title: 'Support Donation',
-        donation_desc: 'If you like these tools, please consider supporting us',
-        use_now: 'Use Now',
-        support_now: 'Go to Support',
-        student_management: 'Student Management',
-        student_id_placeholder: 'Student ID (optional)',
-        student_name_placeholder: 'Student Name',
-        add_student: 'Add Student',
-        batch_import_title: 'Batch Import (CSV format: ID,Name)',
-        csv_example: 'Example:\n2021001,John\n2021002,Jane\n2021003,Bob',
-        import_csv: 'Import CSV',
-        file_import_title: 'File Import (supports CSV, TXT, JSON formats)',
-        import_file: 'Import File',
-        clear_students: 'Clear Student List',
-        no_students: 'No students, please add students',
-        total_students: 'Total Students',
-        suggested_groups: 'Suggested Groups',
-        manage_students: 'Manage Students',
-        feedback: 'Feedback',
-        instructions: 'Instructions',
-        student_management_guide: 'Student Management',
-        student_management_desc: 'Click the "Manage Students" button to show the student management interface, supports single add, batch import and file import',
-        sound_detector_guide: 'Sound Detector',
-        sound_detector_desc2: 'Real-time detection of ambient sound intensity, the higher the sound, the higher the ball, can be used for classroom activity monitoring',
-        roll_call_guide: 'Random Roll Call',
-        roll_call_desc2: 'Randomly select students to answer questions, increase classroom interaction, supports importing student list',
-        timer_guide: 'Classroom Timer',
-        timer_desc2: 'Manage classroom activity time, improve teaching efficiency, supports fullscreen mode and preset time',
-        clock_guide: 'Fullscreen Clock',
-        clock_desc2: 'Large display clock with 8 color themes, 12/24 hour format switching, one-click fullscreen',
-        grouping_guide: 'Group Generator',
-        grouping_desc2: 'Randomly group students for group activities, supports custom group size',
-        whiteboard_guide: 'Digital Whiteboard',
-        whiteboard_desc2: 'Online drawing and presentation, supports multi-touch, multiple colors and line thickness adjustment',
-        tracker_guide: 'Classroom Performance Tracker',
-        tracker_desc2: 'Record student classroom performance, help teachers understand student participation',
-        feedback_guide: 'Feedback',
-        feedback_desc: 'Click the "Feedback" button to submit your valuable opinions',
-        footer_text: '© 2025 Teacher Toolkit - Designed for Teachers',
-        teachers_day_title: "Happy Teacher's Day!",
-        teachers_day_message: "Happy Teacher's Day! Thank you for your selfless dedication and hard work in education.",
-        announcement_center: 'Announcement'
-    }
-};
-
 function $(id) {
     return document.getElementById(id);
 }
 
 function applyLanguage() {
-    const languageSwitcher = $('languageSwitcher');
-    if (languageSwitcher) {
-        languageSwitcher.textContent = currentLanguage === 'zh' ? 'English' : '中文';
+    if (window.i18n && typeof window.i18n.applyLanguage === 'function') {
+        window.i18n.applyLanguage();
     }
-
-    document.querySelectorAll('[data-lang]').forEach(el => {
-        const key = el.getAttribute('data-lang');
-        const val = languages[currentLanguage] && languages[currentLanguage][key];
-        if (val) el.textContent = val;
-    });
-
-    document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-lang-placeholder');
-        const val = languages[currentLanguage] && languages[currentLanguage][key];
-        if (val) el.placeholder = val;
-    });
 }
 
 function switchLanguage() {
-    currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
-    localStorage.setItem('preferredLanguage', currentLanguage);
-    applyLanguage();
+    if (window.i18n && typeof window.i18n.switchLanguage === 'function') {
+        window.i18n.switchLanguage();
+    }
 }
 
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     const themeSwitcher = $('themeSwitcher');
     if (themeSwitcher) {
-        themeSwitcher.textContent = document.body.classList.contains('dark-mode')
-            ? (currentLanguage === 'zh' ? '日间模式' : 'Light Mode')
-            : (currentLanguage === 'zh' ? '黑夜模式' : 'Dark Mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        const key = isDark ? 'theme_light' : 'theme_dark';
+        themeSwitcher.textContent = window.i18n ? window.i18n.getTranslation(key) : (isDark ? '日间模式' : '黑夜模式');
     }
 
     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
@@ -205,7 +50,10 @@ function checkTeachersDay() {
     if (month === 9 && day === 10) {
         const hasShown = localStorage.getItem('hasShownTeachersDay');
         if (!hasShown) {
-            alert(`${languages[currentLanguage].teachers_day_title}\n\n${languages[currentLanguage].teachers_day_message}`);
+            const currentLanguage = window.i18n ? window.i18n.currentLanguage() : 'zh';
+            const title = window.i18n ? window.i18n.getTranslation('teachers_day_title') : '教师节快乐！';
+            const message = window.i18n ? window.i18n.getTranslation('teachers_day_message') : '祝您教师节快乐！感谢您对教育事业的无私奉献和辛勤付出。';
+            alert(`${title}\n\n${message}`);
             localStorage.setItem('hasShownTeachersDay', 'true');
         }
     } else {
@@ -245,7 +93,7 @@ function renderStudentList() {
     const fromOtherTool = fromTracker || fromRollCall || fromGrouping;
 
     if (students.length === 0) {
-        const noStudentsText = currentLanguage === 'zh' ? '暂无学生，请添加学生' : 'No students, please add students';
+        const noStudentsText = window.i18n ? window.i18n.getTranslation('no_students') : '暂无学生，请添加学生';
         studentList.innerHTML = `<div class="empty-list">${noStudentsText}</div>`;
         return;
     }
@@ -261,15 +109,19 @@ function renderStudentList() {
             ? `<span class="student-info"><span class="student-id">${escapedId}</span> - ${escapedName}</span>`
             : `<span class="student-info">${escapedName}</span>`;
 
-        const deleteText = currentLanguage === 'zh' ? '删除' : 'Delete';
+        const deleteText = window.i18n ? window.i18n.getTranslation('error').replace('error', '删除').replace('Error', 'Delete') : '删除'; // Fallback to delete
+        // Actually I should have a 'delete' key. Let's add it.
+        const delKey = 'confirm_delete_student'; // We'll use this for the button text too for now or add a 'delete' key.
+        const delBtnText = window.i18n ? (window.i18n.currentLanguage() === 'zh' ? '删除' : 'Delete') : '删除';
+
         if (fromOtherTool && fromTracker) {
-            const selectText = currentLanguage === 'zh' ? '选择' : 'Select';
+            const selectText = window.i18n ? (window.i18n.currentLanguage() === 'zh' ? '选择' : 'Select') : '选择';
             studentItem.innerHTML = `${studentInfo}
                 <button class="btn" onclick="selectStudentForTracker(${index})" style="padding: 0.5rem 1rem; font-size: 0.9rem;">${selectText}</button>
-                <button class="remove-student" onclick="removeStudent(${index})">${deleteText}</button>`;
+                <button class="remove-student" onclick="removeStudent(${index})">${delBtnText}</button>`;
         } else {
             studentItem.innerHTML = `${studentInfo}
-                <button class="remove-student" onclick="removeStudent(${index})">${deleteText}</button>`;
+                <button class="remove-student" onclick="removeStudent(${index})">${delBtnText}</button>`;
         }
         studentList.appendChild(studentItem);
     });
@@ -285,12 +137,15 @@ function addStudent() {
     const name = studentName.value.trim();
 
     if (!name) {
-        showCustomModal(currentLanguage === 'zh' ? '提示' : 'Notice', currentLanguage === 'zh' ? '请输入学生姓名' : 'Please enter student name');
+        const title = window.i18n ? window.i18n.getTranslation('notice') : '提示';
+        const msg = window.i18n ? window.i18n.getTranslation('please_input_student_name') : '请输入学生姓名';
+        showCustomModal(title, msg);
         return;
     }
 
     addStudentBtn.disabled = true;
-    addStudentBtn.textContent = currentLanguage === 'zh' ? '添加中...' : 'Adding...';
+    const addingText = window.i18n ? (window.i18n.currentLanguage() === 'zh' ? '添加中...' : 'Adding...') : '添加中...';
+    addStudentBtn.textContent = addingText;
 
     const ok = StudentManager.addStudent({ id, name });
     if (ok) {
@@ -300,11 +155,13 @@ function addStudent() {
         studentName.value = '';
         studentName.focus();
         addStudentBtn.disabled = false;
-        addStudentBtn.textContent = currentLanguage === 'zh' ? '添加学生' : 'Add Student';
+        addStudentBtn.textContent = window.i18n ? window.i18n.getTranslation('add_student') : '添加学生';
     } else {
-        showCustomModal(currentLanguage === 'zh' ? '提示' : 'Notice', currentLanguage === 'zh' ? '学生已存在（学号或姓名重复）' : 'Student already exists (duplicate ID or name)');
+        const title = window.i18n ? window.i18n.getTranslation('notice') : '提示';
+        const msg = window.i18n ? window.i18n.getTranslation('student_exists') : '学生已存在（学号或姓名重复）';
+        showCustomModal(title, msg);
         addStudentBtn.disabled = false;
-        addStudentBtn.textContent = currentLanguage === 'zh' ? '添加学生' : 'Add Student';
+        addStudentBtn.textContent = window.i18n ? window.i18n.getTranslation('add_student') : '添加学生';
     }
 }
 
@@ -315,29 +172,38 @@ function importStudents() {
 
     const csvText = csvInput.value.trim();
     if (!csvText) {
-        showCustomModal(currentLanguage === 'zh' ? '提示' : 'Notice', currentLanguage === 'zh' ? '请输入CSV数据' : 'Please enter CSV data');
+        const title = window.i18n ? window.i18n.getTranslation('notice') : '提示';
+        const msg = window.i18n ? (window.i18n.currentLanguage() === 'zh' ? '请输入CSV数据' : 'Please enter CSV data') : '请输入CSV数据';
+        showCustomModal(title, msg);
         return;
     }
 
     importBtn.disabled = true;
-    importBtn.textContent = currentLanguage === 'zh' ? '导入中...' : 'Importing...';
+    const importingText = window.i18n ? (window.i18n.currentLanguage() === 'zh' ? '导入中...' : 'Importing...') : '导入中...';
+    importBtn.textContent = importingText;
 
     try {
         const students = StudentManager.parseCSV(csvText);
         if (!students.length) {
-            showCustomModal(currentLanguage === 'zh' ? '提示' : 'Notice', currentLanguage === 'zh' ? '未解析到有效学生数据' : 'No valid student data parsed');
+            const title = window.i18n ? window.i18n.getTranslation('notice') : '提示';
+            const msg = window.i18n ? window.i18n.getTranslation('no_valid_data') : '未解析到有效学生数据';
+            showCustomModal(title, msg);
             return;
         }
         const addedCount = StudentManager.addStudents(students);
         renderStudentList();
         updateSummary();
         csvInput.value = '';
-        showCustomModal(currentLanguage === 'zh' ? '成功' : 'Success', currentLanguage === 'zh' ? `成功导入 ${addedCount} 名学生` : `Successfully imported ${addedCount} students`);
+        const title = window.i18n ? window.i18n.getTranslation('success') : '成功';
+        const msg = window.i18n ? window.i18n.getTranslation('import_success').replace('{count}', addedCount) : `成功导入 ${addedCount} 名学生`;
+        showCustomModal(title, msg);
     } catch (e) {
-        showCustomModal(currentLanguage === 'zh' ? '错误' : 'Error', currentLanguage === 'zh' ? `导入失败：${e.message}` : `Import failed: ${e.message}`);
+        const title = window.i18n ? window.i18n.getTranslation('error') : '错误';
+        const msg = window.i18n ? window.i18n.getTranslation('import_failed').replace('{error}', e.message) : `导入失败：${e.message}`;
+        showCustomModal(title, msg);
     } finally {
         importBtn.disabled = false;
-        importBtn.textContent = currentLanguage === 'zh' ? '导入CSV' : 'Import CSV';
+        importBtn.textContent = window.i18n ? window.i18n.getTranslation('import_csv') : '导入CSV';
     }
 }
 
@@ -349,28 +215,34 @@ function importFromFile() {
 
     const file = fileInput.files && fileInput.files[0];
     if (!file) {
-        showCustomModal(currentLanguage === 'zh' ? '提示' : 'Notice', currentLanguage === 'zh' ? '请选择一个文件' : 'Please select a file');
+        const title = window.i18n ? window.i18n.getTranslation('notice') : '提示';
+        const msg = window.i18n ? window.i18n.getTranslation('select_file') : '请选择一个文件';
+        showCustomModal(title, msg);
         return;
     }
 
     const lowerName = file.name.toLowerCase();
     if (!lowerName.endsWith('.csv') && !lowerName.endsWith('.txt') && !lowerName.endsWith('.json')) {
-        showCustomModal(currentLanguage === 'zh' ? '错误' : 'Error', currentLanguage === 'zh' ? '文件格式不支持，请使用CSV、TXT或JSON格式的文件' : 'File format not supported, please use CSV, TXT or JSON format files');
+        const title = window.i18n ? window.i18n.getTranslation('error') : '错误';
+        const msg = window.i18n ? window.i18n.getTranslation('file_format_not_supported') : '文件格式不支持，请使用CSV、TXT或JSON格式的文件';
+        showCustomModal(title, msg);
         fileInput.value = '';
         if (fileInfo) fileInfo.textContent = '';
         return;
     }
 
-    const fileNameLabel = currentLanguage === 'zh' ? '文件名' : 'File name';
-    const fileSizeLabel = currentLanguage === 'zh' ? '大小' : 'Size';
-    const fileTypeLabel = currentLanguage === 'zh' ? '类型' : 'Type';
-    const unknown = currentLanguage === 'zh' ? '未知' : 'Unknown';
+    const lang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+    const fileNameLabel = lang === 'zh' ? '文件名' : 'File name';
+    const fileSizeLabel = lang === 'zh' ? '大小' : 'Size';
+    const fileTypeLabel = lang === 'zh' ? '类型' : 'Type';
+    const unknown = lang === 'zh' ? '未知' : 'Unknown';
     if (fileInfo) {
         fileInfo.textContent = `${fileNameLabel}: ${file.name} | ${fileSizeLabel}: ${(file.size / 1024).toFixed(1)} KB | ${fileTypeLabel}: ${file.type || unknown}`;
     }
 
     importFileBtn.disabled = true;
-    importFileBtn.textContent = currentLanguage === 'zh' ? '导入中...' : 'Importing...';
+    const importingText = window.i18n ? (window.i18n.currentLanguage() === 'zh' ? '导入中...' : 'Importing...') : '导入中...';
+    importFileBtn.textContent = importingText;
 
     const reader = new FileReader();
     reader.onload = e => {
@@ -378,7 +250,9 @@ function importFromFile() {
             const content = String(e.target.result || '');
             const students = lowerName.endsWith('.json') ? StudentManager.parseJSON(content) : StudentManager.parseCSV(content);
             if (!students.length) {
-                showCustomModal(currentLanguage === 'zh' ? '提示' : 'Notice', currentLanguage === 'zh' ? '未解析到有效学生数据' : 'No valid student data parsed');
+                const title = window.i18n ? window.i18n.getTranslation('notice') : '提示';
+                const msg = window.i18n ? window.i18n.getTranslation('no_valid_data') : '未解析到有效学生数据';
+                showCustomModal(title, msg);
                 return;
             }
             const addedCount = StudentManager.addStudents(students);
@@ -386,19 +260,25 @@ function importFromFile() {
             updateSummary();
             fileInput.value = '';
             if (fileInfo) fileInfo.textContent = '';
-            showCustomModal(currentLanguage === 'zh' ? '成功' : 'Success', currentLanguage === 'zh' ? `成功导入 ${addedCount} 名学生` : `Successfully imported ${addedCount} students`);
+            const title = window.i18n ? window.i18n.getTranslation('success') : '成功';
+            const msg = window.i18n ? window.i18n.getTranslation('import_success').replace('{count}', addedCount) : `成功导入 ${addedCount} 名学生`;
+            showCustomModal(title, msg);
         } catch (err) {
-            showCustomModal(currentLanguage === 'zh' ? '错误' : 'Error', currentLanguage === 'zh' ? `导入失败：${err.message}` : `Import failed: ${err.message}`);
+            const title = window.i18n ? window.i18n.getTranslation('error') : '错误';
+            const msg = window.i18n ? window.i18n.getTranslation('import_failed').replace('{error}', err.message) : `导入失败：${err.message}`;
+            showCustomModal(title, msg);
         } finally {
             importFileBtn.disabled = false;
-            importFileBtn.textContent = currentLanguage === 'zh' ? '导入文件' : 'Import File';
+            importFileBtn.textContent = window.i18n ? window.i18n.getTranslation('import_file') : '导入文件';
         }
     };
     reader.readAsText(file, 'UTF-8');
 }
 
 function removeStudent(index) {
-    showConfirmModal(currentLanguage === 'zh' ? '确认删除' : 'Confirm Delete', currentLanguage === 'zh' ? '确定要删除这个学生吗？' : 'Are you sure you want to delete this student?', () => {
+    const title = window.i18n ? window.i18n.getTranslation('confirm') : '确认删除';
+    const msg = window.i18n ? window.i18n.getTranslation('confirm_delete_student') : '确定要删除这个学生吗？';
+    showConfirmModal(title, msg, () => {
         StudentManager.removeStudent(index);
         renderStudentList();
         updateSummary();
@@ -406,7 +286,9 @@ function removeStudent(index) {
 }
 
 function clearStudents() {
-    showConfirmModal(currentLanguage === 'zh' ? '确认清空' : 'Confirm Clear', currentLanguage === 'zh' ? '确定要清空所有学生吗？' : 'Are you sure you want to clear all students?', () => {
+    const title = window.i18n ? window.i18n.getTranslation('confirm') : '确认清空';
+    const msg = window.i18n ? window.i18n.getTranslation('confirm_clear_students') : '确定要清空所有学生吗？';
+    showConfirmModal(title, msg, () => {
         StudentManager.clearStudents();
         renderStudentList();
         updateSummary();
@@ -421,7 +303,9 @@ function selectStudentForTracker(index) {
         localStorage.setItem('classroom_tracker_current_student', JSON.stringify(student));
         window.location.href = 'src/pages/classroom-tracker.html';
     } catch (e) {
-        showCustomModal(currentLanguage === 'zh' ? '错误' : 'Error', currentLanguage === 'zh' ? '选择学生失败，请重试' : 'Failed to select student, please retry');
+        const title = window.i18n ? window.i18n.getTranslation('error') : '错误';
+        const msg = window.i18n ? window.i18n.getTranslation('select_student_failed') : '选择学生失败，请重试';
+        showCustomModal(title, msg);
     }
 }
 
@@ -433,11 +317,11 @@ function toggleStudentManagement(event) {
     const isHidden = container.classList.contains('hidden');
     if (isHidden) {
         container.classList.remove('hidden');
-        toggleBtn.textContent = currentLanguage === 'zh' ? '隐藏学生管理' : 'Hide Student Management';
+        toggleBtn.textContent = window.i18n ? window.i18n.getTranslation('hide_student_management') : '隐藏学生管理';
         renderStudentList();
     } else {
         container.classList.add('hidden');
-        toggleBtn.textContent = currentLanguage === 'zh' ? '管理学生信息' : 'Manage Students';
+        toggleBtn.textContent = window.i18n ? window.i18n.getTranslation('manage_students') : '管理学生信息';
     }
 
     if (event && event.stopPropagation) event.stopPropagation();
@@ -445,8 +329,9 @@ function toggleStudentManagement(event) {
 
 function showEmailPrompt() {
     const email = 'crisweiming@hotmail.com';
-    const message1 = currentLanguage === 'zh' ? '请发送邮件至：' : 'Please send email to: ';
-    const message2 = currentLanguage === 'zh' ? '我们非常期待您的宝贵意见！' : 'We look forward to your valuable feedback!';
+    const lang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+    const message1 = lang === 'zh' ? '请发送邮件至：' : 'Please send email to: ';
+    const message2 = lang === 'zh' ? '我们非常期待您的宝贵意见！' : 'We look forward to your valuable feedback!';
     alert(`${message1}${email}\n\n${message2}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -534,19 +419,20 @@ function navigateTo(page) {
     const fromRollCall = urlParams.get('from') === 'rollcall';
     const fromGrouping = urlParams.get('from') === 'grouping';
     if (fromTracker || fromRollCall || fromGrouping) {
-        let message = currentLanguage === 'zh'
+        const lang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+        let message = lang === 'zh'
             ? '请在下方学生列表中添加或选择学生'
             : 'Please add or select students from the list below';
         if (fromTracker) {
-            message = currentLanguage === 'zh'
+            message = lang === 'zh'
                 ? '请在下方学生列表中选择要记录表现的学生'
                 : 'Please select a student to track performance from the list below';
         } else if (fromRollCall) {
-            message = currentLanguage === 'zh'
+            message = lang === 'zh'
                 ? '请在下方学生列表中添加学生，然后返回随机点名器'
                 : 'Please add students to the list below, then return to the roll call tool';
         } else if (fromGrouping) {
-            message = currentLanguage === 'zh'
+            message = lang === 'zh'
                 ? '请在下方学生列表中添加学生，然后返回小组分组器'
                 : 'Please add students to the list below, then return to the group generator';
         }

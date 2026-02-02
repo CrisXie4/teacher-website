@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>课堂计时器 - 教师工具箱</title>
+    <title data-lang="timer_title">课堂计时器 - 教师工具箱</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <script defer src="../js/i18n.js"></script>
     <style>
         .container {
             max-width: 850px;
@@ -334,11 +335,11 @@
     <header>
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div>
-                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页">← 返回主页</button>
+                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; box-shadow: 0 4px 15px rgba(75, 108, 183, 0.4); margin-right: 1rem; z-index: 1000; position: relative;" title="返回主页" data-lang="back_to_home">← 返回主页</button>
             </div>
             <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
-                <h1 style="margin: 0;">课堂计时器</h1>
-                <p style="margin: 0.5rem 0 0 0;">管理课堂活动时间，提高教学效率</p>
+                <h1 style="margin: 0;" data-lang="timer_title">课堂计时器</h1>
+                <p style="margin: 0.5rem 0 0 0;" data-lang="timer_desc">管理课堂活动时间，提高教学效率</p>
             </div>
             <div style="width: 100px;"></div> <!-- 占位元素保持居中 -->
         </div>
@@ -346,25 +347,25 @@
     
     <div class="container">
         <div class="timer-container" id="timerContainer">
-            <h2>倒计时器</h2>
+            <h2 data-lang="timer_countdown">倒计时器</h2>
             
             <div class="time-input">
                 <div class="time-label">
                     <input type="number" id="minutes" min="0" max="59" value="5">
-                    <span>分钟</span>
+                    <span data-lang="minutes">分钟</span>
                 </div>
                 <div class="time-label">
                     <input type="number" id="seconds" min="0" max="59" value="0">
-                    <span>秒钟</span>
+                    <span data-lang="seconds">秒钟</span>
                 </div>
             </div>
             
             <div class="preset-timers">
-                <button class="preset-btn" data-minutes="1">1分钟</button>
-                <button class="preset-btn" data-minutes="3">3分钟</button>
-                <button class="preset-btn" data-minutes="5">5分钟</button>
-                <button class="preset-btn" data-minutes="10">10分钟</button>
-                <button class="preset-btn" data-minutes="15">15分钟</button>
+                <button class="preset-btn" data-minutes="1">1 <span data-lang="minutes">分钟</span></button>
+                <button class="preset-btn" data-minutes="3">3 <span data-lang="minutes">分钟</span></button>
+                <button class="preset-btn" data-minutes="5">5 <span data-lang="minutes">分钟</span></button>
+                <button class="preset-btn" data-minutes="10">10 <span data-lang="minutes">分钟</span></button>
+                <button class="preset-btn" data-minutes="15">15 <span data-lang="minutes">分钟</span></button>
             </div>
             
             <div id="timerDisplay" class="timer-display">
@@ -372,25 +373,25 @@
             </div>
             
             <div class="timer-controls">
-                <button id="startBtn" class="btn start">
+                <button id="startBtn" class="btn start" data-lang="timer_start">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 5V19L19 12L8 5Z" fill="white"/>
                     </svg>
                     开始
                 </button>
-                <button id="stopBtn" class="btn stop" disabled>
+                <button id="stopBtn" class="btn stop" disabled data-lang="timer_pause">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 6H18V18H6V6Z" fill="white"/>
                     </svg>
                     暂停
                 </button>
-                <button id="resetBtn" class="btn reset">
+                <button id="resetBtn" class="btn reset" data-lang="timer_reset">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z" fill="white"/>
                     </svg>
                     重置
                 </button>
-                <button id="fullscreenBtn" class="btn fullscreen">
+                <button id="fullscreenBtn" class="btn fullscreen" data-lang="timer_fullscreen">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7 14H5V19H10V17H7V14M12 14H14V17H17V19H12V14M14 10H17V5H12V7H14V10M10 10H7V7H10V5H5V10H7V12H5V19H10V17H7V14H10V12H12V14H17V19H19V12H17V10H19V5H12V7H14V10H12V12H10V10Z" fill="white"/>
                     </svg>
@@ -400,15 +401,15 @@
         </div>
         
         <div class="instructions">
-            <h3>使用说明</h3>
+            <h3 data-lang="instructions">使用说明</h3>
             <ol>
-                <li><strong>设置时间</strong> - 使用输入框设置倒计时时间（分钟和秒钟）</li>
-                <li><strong>快速设置</strong> - 点击预设时间按钮快速设置常见时间</li>
-                <li><strong>开始计时</strong> - 点击"开始"按钮启动计时器</li>
-                <li><strong>暂停计时</strong> - 点击"暂停"按钮暂停计时器</li>
-                <li><strong>重置计时</strong> - 点击"重置"按钮重置计时器到初始设置时间</li>
-                <li><strong>全屏模式</strong> - 点击"全屏"按钮进入全屏模式，ESC键退出</li>
-                <li><strong>时间提醒</strong> - 倒计时结束时会有强烈的视觉提醒效果</li>
+                <li data-lang="timer_instruction_1"><strong>设置时间</strong> - 使用输入框设置倒计时时间（分钟和秒钟）</li>
+                <li data-lang="timer_instruction_2"><strong>快速设置</strong> - 点击预设时间按钮快速设置常见时间</li>
+                <li data-lang="timer_instruction_3"><strong>开始计时</strong> - 点击"开始"按钮启动计时器</li>
+                <li data-lang="timer_instruction_4"><strong>暂停计时</strong> - 点击"暂停"按钮暂停计时器</li>
+                <li data-lang="timer_instruction_5"><strong>重置计时</strong> - 点击"重置"按钮重置计时器到初始设置时间</li>
+                <li data-lang="timer_instruction_6"><strong>全屏模式</strong> - 点击"全屏"按钮进入全屏模式，ESC键退出</li>
+                <li data-lang="timer_instruction_7"><strong>时间提醒</strong> - 倒计时结束时会有强烈的视觉提醒效果</li>
             </ol>
         </div>
         
@@ -416,7 +417,8 @@
     </div>
     
     <footer>
-        <p>&copy; 2025 教师工具箱 - 课堂计时器</p>
+        <p data-lang="footer_text">&copy; 2025 教师工具箱 - 课堂计时器</p>
+        <p class="signature-badge">⭐️ Made By CrisXie & Zhang Monday ⭐️</p>
     </footer>
     
     <script>
@@ -541,7 +543,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M14 14H19V16H16V19H14V14M5 14H10V19H8V16H5V14M8 5H10V10H5V8H8V5M19 8V10H14V5H16V8H19Z" fill="white"/>
                     </svg>
-                    退出全屏
+                    ${window.i18n.getTranslation('timer_exit_fullscreen')}
                 `;
                 isFullscreen = true;
             } else {
@@ -552,7 +554,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7 14H5V19H10V17H7V14M12 14H14V17H17V19H12V14M14 10H17V5H12V7H14V10M10 10H7V7H10V5H5V10H7V12H5V19H10V17H7V14H10V12H12V14H17V19H19V12H17V10H19V5H12V7H14V10H12V12H10V10Z" fill="white"/>
                     </svg>
-                    全屏
+                    ${window.i18n.getTranslation('timer_fullscreen')}
                 `;
                 isFullscreen = false;
             }
