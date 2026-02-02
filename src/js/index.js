@@ -1074,10 +1074,11 @@ function init() {
             : (currentLang === 'zh' ? '黑夜模式' : 'Dark Mode');
     }
 
-    if (StudentManager && typeof StudentManager.init === 'function') {
+   if (StudentManager && typeof StudentManager.init === 'function') {
         StudentManager.init();
     }
 
+    checkSpringFestival(); // 自动检查
     checkTeachersDay();
     loadAnnouncement();
     setupPWAInstall();
