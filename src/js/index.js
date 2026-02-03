@@ -73,7 +73,73 @@ const SPRING_FESTIVAL_DATES = {
     2032: '02-11'
 };
 
+const SPRING_FESTIVAL_THEME_PRE_DAYS = 21;
+const SPRING_FESTIVAL_THEME_POST_DAYS = 21;
+const SPRING_FESTIVAL_GREETING_POST_DAYS = 21;
+
+function applySpringFestivalTheme() {
+    document.body.classList.add('spring-festival-theme');
+
+    if (document.getElementById('spring-festival-decor')) return;
+
+    const decor = document.createElement('div');
+    decor.id = 'spring-festival-decor';
+    decor.className = 'spring-festival-decor';
+
+    const lanternLeft = document.createElement('div');
+    lanternLeft.className = 'spring-festival-lantern left';
+    lanternLeft.textContent = '🏮';
+
+    const lanternRight = document.createElement('div');
+    lanternRight.className = 'spring-festival-lantern right';
+    lanternRight.textContent = '🏮';
+
+    const coupletLeft = document.createElement('div');
+    coupletLeft.className = 'spring-festival-couplet left';
+    coupletLeft.textContent = '新春快乐';
+
+    const coupletRight = document.createElement('div');
+    coupletRight.className = 'spring-festival-couplet right';
+    coupletRight.textContent = '阖家安康';
+
+    decor.appendChild(lanternLeft);
+    decor.appendChild(lanternRight);
+    decor.appendChild(coupletLeft);
+    decor.appendChild(coupletRight);
+
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduceMotion) {
+        const colors = ['#ffd700', '#ff5252', '#ffffff', '#ffb300'];
+        for (let i = 0; i < 18; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'spring-festival-confetti';
+            const left = Math.random() * 100;
+            const size = 6 + Math.random() * 7;
+            const rot = Math.floor(Math.random() * 180) - 90;
+            const delay = Math.random() * 3.5;
+            const duration = 5.5 + Math.random() * 4;
+            const color = colors[i % colors.length];
+            piece.style.setProperty('--sf-left', `${left}%`);
+            piece.style.setProperty('--sf-size', `${size}px`);
+            piece.style.setProperty('--sf-rot', `${rot}deg`);
+            piece.style.setProperty('--sf-delay', `${delay}s`);
+            piece.style.setProperty('--sf-duration', `${duration}s`);
+            piece.style.setProperty('--sf-color', color);
+            decor.appendChild(piece);
+        }
+    }
+
+    document.body.appendChild(decor);
+}
+
+function clearSpringFestivalTheme() {
+    document.body.classList.remove('spring-festival-theme');
+    const decor = document.getElementById('spring-festival-decor');
+    if (decor) decor.remove();
+}
+
 function triggerSpringFestival() {
+    applySpringFestivalTheme();
     setTimeout(() => {
         showSpringFestivalModal();
         launchFireworks();
@@ -104,15 +170,17 @@ function setupSpringFestivalButton() {
 
     const now = new Date();
     const currentYear = now.getFullYear();
-    const startDate = new Date(currentYear, month - 1, day);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 21);
+    const festivalDate = new Date(currentYear, month - 1, day);
+    const themeStartDate = new Date(festivalDate);
+    themeStartDate.setDate(festivalDate.getDate() - SPRING_FESTIVAL_THEME_PRE_DAYS);
+    const themeEndDate = new Date(festivalDate);
+    themeEndDate.setDate(festivalDate.getDate() + SPRING_FESTIVAL_THEME_POST_DAYS);
 
     now.setHours(0, 0, 0, 0);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(0, 0, 0, 0);
+    themeStartDate.setHours(0, 0, 0, 0);
+    themeEndDate.setHours(0, 0, 0, 0);
 
-    btn.style.display = (isTest || (now >= startDate && now <= endDate)) ? 'inline-flex' : 'none';
+    btn.style.display = (isTest || (now >= themeStartDate && now <= themeEndDate)) ? 'inline-flex' : 'none';
 }
 
 function checkSpringFestival() {
@@ -135,23 +203,35 @@ function checkSpringFestival() {
     }
     const now = new Date();
     const currentYear = now.getFullYear();
-    
-    // Create start date for the festival in current year
-    const startDate = new Date(currentYear, month - 1, day);
-    
-    // End date is 3 weeks (21 days) after start date
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 21);
+
+    const festivalDate = new Date(currentYear, month - 1, day);
+    const themeStartDate = new Date(festivalDate);
+    themeStartDate.setDate(festivalDate.getDate() - SPRING_FESTIVAL_THEME_PRE_DAYS);
+    const themeEndDate = new Date(festivalDate);
+    themeEndDate.setDate(festivalDate.getDate() + SPRING_FESTIVAL_THEME_POST_DAYS);
+
+    const greetingEndDate = new Date(festivalDate);
+    greetingEndDate.setDate(festivalDate.getDate() + SPRING_FESTIVAL_GREETING_POST_DAYS);
     
     // Set hours to ignore time of day for range check
     now.setHours(0, 0, 0, 0);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(0, 0, 0, 0);
+    festivalDate.setHours(0, 0, 0, 0);
+    themeStartDate.setHours(0, 0, 0, 0);
+    themeEndDate.setHours(0, 0, 0, 0);
+    greetingEndDate.setHours(0, 0, 0, 0);
 
     console.log('[SpringFestival] Checking date:', now.toLocaleDateString());
-    console.log('[SpringFestival] Range:', startDate.toLocaleDateString(), '-', endDate.toLocaleDateString());
+    console.log('[SpringFestival] Festival:', festivalDate.toLocaleDateString());
+    console.log('[SpringFestival] Theme Range:', themeStartDate.toLocaleDateString(), '-', themeEndDate.toLocaleDateString());
+    console.log('[SpringFestival] Greeting Range:', festivalDate.toLocaleDateString(), '-', greetingEndDate.toLocaleDateString());
 
-    if (isTest || (now >= startDate && now <= endDate)) {
+    if (isTest || (now >= themeStartDate && now <= themeEndDate)) {
+        applySpringFestivalTheme();
+    } else {
+        clearSpringFestivalTheme();
+    }
+
+    if (isTest || (now >= festivalDate && now <= greetingEndDate)) {
         // Check if already shown in this session (ignore if testing)
         if (!isTest && sessionStorage.getItem('springFestivalShown')) {
             console.log('[SpringFestival] Already shown in this session');
@@ -165,7 +245,7 @@ function checkSpringFestival() {
             if (!isTest) sessionStorage.setItem('springFestivalShown', 'true');
         }, 1000);
     } else {
-        console.log('[SpringFestival] Not in date range');
+        console.log('[SpringFestival] Not in greeting range');
     }
 }
 
