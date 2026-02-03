@@ -61,13 +61,78 @@ function checkTeachersDay() {
     }
 }
 
-function checkSpringFestival() {
-    if (!YEAR_TIME) return;
+const SPRING_FESTIVAL_DATES = {
+    2024: '02-10',
+    2025: '01-29',
+    2026: '02-17',
+    2027: '02-06',
+    2028: '01-26',
+    2029: '02-13',
+    2030: '02-03',
+    2031: '01-23',
+    2032: '02-11'
+};
+
+function triggerSpringFestival() {
+    setTimeout(() => {
+        showSpringFestivalModal();
+        launchFireworks();
+    }, 300);
+}
+
+function setupSpringFestivalButton() {
+    const btn = $('springFestivalBtn');
+    if (!btn) return;
 
     const urlParams = new URLSearchParams(window.location.search);
     const isTest = urlParams.get('test_spring') === 'true';
 
-    const [month, day] = YEAR_TIME.split('-').map(Number);
+    const yearTime = (typeof YEAR_TIME !== 'undefined' && YEAR_TIME)
+        ? YEAR_TIME
+        : (SPRING_FESTIVAL_DATES[new Date().getFullYear()] || '');
+
+    if (!yearTime) {
+        btn.style.display = isTest ? 'inline-flex' : 'none';
+        return;
+    }
+
+    const [month, day] = String(yearTime).split('-').map(Number);
+    if (!month || !day) {
+        btn.style.display = isTest ? 'inline-flex' : 'none';
+        return;
+    }
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const startDate = new Date(currentYear, month - 1, day);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 21);
+
+    now.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    btn.style.display = (isTest || (now >= startDate && now <= endDate)) ? 'inline-flex' : 'none';
+}
+
+function checkSpringFestival() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTest = urlParams.get('test_spring') === 'true';
+
+    const yearTime = (typeof YEAR_TIME !== 'undefined' && YEAR_TIME)
+        ? YEAR_TIME
+        : (SPRING_FESTIVAL_DATES[new Date().getFullYear()] || '');
+
+    if (!yearTime) {
+        if (isTest) triggerSpringFestival();
+        return;
+    }
+
+    const [month, day] = String(yearTime).split('-').map(Number);
+    if (!month || !day) {
+        if (isTest) triggerSpringFestival();
+        return;
+    }
     const now = new Date();
     const currentYear = now.getFullYear();
     
@@ -96,8 +161,7 @@ function checkSpringFestival() {
         console.log('[SpringFestival] Showing greeting!');
         // Short delay to ensure page is loaded
         setTimeout(() => {
-            showSpringFestivalModal();
-            launchFireworks();
+            triggerSpringFestival();
             if (!isTest) sessionStorage.setItem('springFestivalShown', 'true');
         }, 1000);
     } else {
@@ -106,6 +170,8 @@ function checkSpringFestival() {
 }
 
 function showSpringFestivalModal() {
+    if (document.getElementById('spring-festival-modal-overlay')) return;
+
     // Inject styles
     if (!document.getElementById('spring-festival-style')) {
         const style = document.createElement('style');
@@ -183,6 +249,7 @@ function showSpringFestivalModal() {
 
     // Create Modal HTML
     const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'spring-festival-modal-overlay';
     modalOverlay.className = 'spring-festival-modal-overlay';
     
     modalOverlay.innerHTML = `
@@ -1062,6 +1129,8 @@ function init() {
 
     applyLanguage();
 
+    setupSpringFestivalButton();
+
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -1100,5 +1169,7 @@ window.removeStudent = removeStudent;
 window.clearStudents = clearStudents;
 window.selectStudentForTracker = selectStudentForTracker;
 window.checkSpringFestival = checkSpringFestival;
+window.triggerSpringFestival = triggerSpringFestival;
+window.showSpringFestivalModal = showSpringFestivalModal;
 
 window.addEventListener('load', init);
