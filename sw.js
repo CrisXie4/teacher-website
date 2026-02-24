@@ -1,5 +1,5 @@
 // 缓存版本号 - 每次部署时手动更新此版本号
-const CACHE_VERSION = '2.0.7';
+const CACHE_VERSION = '2.0.8';
 const CACHE_NAME = 'teacher-toolkit-v' + CACHE_VERSION;
 
 // 需要缓存的核心资源
@@ -28,8 +28,7 @@ function shouldSkipCache(url) {
 // 安装服务工作者
 self.addEventListener('install', event => {
   console.log('[SW] Installing new version:', CACHE_VERSION);
-  // 移除自动 skipWaiting，防止自动接管导致的前端逻辑混乱
-  // self.skipWaiting(); 
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {

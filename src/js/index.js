@@ -16,7 +16,7 @@ const donationConfig = {
 
 const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
-const APP_VERSION = '2.0.7';
+const APP_VERSION = '2.0.8';
 
 function $(id) {
     return document.getElementById(id);
@@ -1228,6 +1228,13 @@ function enforceClientVersion() {
     if (current === APP_VERSION) return;
     localStorage.setItem(versionKey, APP_VERSION);
     clearToolkitCaches();
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            return Promise.all(registrations.map(reg => reg.unregister()));
+        }).finally(() => {
+            window.location.reload();
+        });
+    }
 }
 
 function registerServiceWorker() {

@@ -1,6 +1,13 @@
 'use strict';
 
-const STATUS_APIS = ['/api/status-teachertool', '/api/status'];
+const STATUS_APIS = [
+    '/api/status-teachertool',
+    '/api/status-teachertool/',
+    '/api/status-teachertool.js',
+    '/functions/api/status-teachertool',
+    '/.netlify/functions/status-teachertool',
+    '/api/status'
+];
 const STATUS_TIMEOUT_MS = 7000;
 const STATUS_REFRESH_MS = 30000;
 
