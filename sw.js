@@ -1,5 +1,5 @@
 // 缓存版本号 - 每次部署时手动更新此版本号
-const CACHE_VERSION = '2.0.6';
+const CACHE_VERSION = '2.0.7';
 const CACHE_NAME = 'teacher-toolkit-v' + CACHE_VERSION;
 
 // 需要缓存的核心资源

@@ -16,6 +16,7 @@ const donationConfig = {
 
 const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
+const APP_VERSION = '2.0.7';
 
 function $(id) {
     return document.getElementById(id);
@@ -1213,15 +1214,42 @@ function setupPWAInstall() {
     });
 }
 
+function clearToolkitCaches() {
+    if (!('caches' in window)) return;
+    caches.keys().then(keys => {
+        const targets = keys.filter(key => key.startsWith('teacher-toolkit-'));
+        return Promise.all(targets.map(key => caches.delete(key)));
+    }).catch(() => {});
+}
+
+function enforceClientVersion() {
+    const versionKey = 'teacher_toolkit_app_version';
+    const current = localStorage.getItem(versionKey);
+    if (current === APP_VERSION) return;
+    localStorage.setItem(versionKey, APP_VERSION);
+    clearToolkitCaches();
+}
+
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
     if (window.location.protocol === 'file:') return;
 
-    navigator.serviceWorker.register('sw.js?v=2.0.6').then(registration => {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+    });
+
+    navigator.serviceWorker.register(`sw.js?v=${APP_VERSION}`).then(registration => {
+        if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+
         // 自动更新检查
         setInterval(() => {
             registration.update();
-        }, 60 * 60 * 1000); // 每小时检查一次
+        }, 5 * 60 * 1000); // 每5分钟检查一次
 
         registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
@@ -1229,14 +1257,7 @@ function registerServiceWorker() {
 
             newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('[SW] New version available.');
-                    // 不再自动弹窗刷新，避免无限循环。
-                    // 可以在这里添加一个 UI 提示，让用户手动点击刷新。
-                    // 目前仅记录日志，由用户下次访问时自动生效（如果 sw.js skipWaiting 被移除）
-                    // 或者如果 sw.js 保留 skipWaiting，用户下次刷新即可。
-                    
-                    // 如果需要强制更新，可以使用非阻塞的 Toast 提示
-                    // showToast('发现新版本，请刷新页面', () => window.location.reload());
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
             });
         });
@@ -1330,6 +1351,7 @@ function init() {
     }
 
     applyLanguage();
+    enforceClientVersion();
 
     setupSpringFestivalButton();
 
