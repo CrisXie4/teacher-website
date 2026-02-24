@@ -16,7 +16,7 @@ const donationConfig = {
 
 const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
-const APP_VERSION = '2.0.8';
+const APP_VERSION = '2.0.9';
 
 function $(id) {
     return document.getElementById(id);

@@ -1,6 +1,6 @@
 const STATUS_SOURCE_URL = (globalThis.process && process.env && process.env.TEACHER_TOOL_STATUS_URL)
     ? process.env.TEACHER_TOOL_STATUS_URL
-    : 'http://23.147.56.192:3001/status/teachertool';
+    : 'https://status.crisxie.top/status/teachertool';
 
 const REQUEST_TIMEOUT_MS = 7000;
 

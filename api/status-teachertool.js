@@ -1,4 +1,4 @@
-const STATUS_SOURCE_URL = process.env.TEACHER_TOOL_STATUS_URL || 'http://23.147.56.192:3001/status/teachertool';
+const STATUS_SOURCE_URL = process.env.TEACHER_TOOL_STATUS_URL || 'https://status.crisxie.top/status/teachertool';
 const REQUEST_TIMEOUT_MS = 7000;
 
 module.exports = async (req, res) => {

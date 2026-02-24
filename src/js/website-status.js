@@ -6,6 +6,9 @@ const STATUS_APIS = [
     '/api/status-teachertool.js',
     '/functions/api/status-teachertool',
     '/.netlify/functions/status-teachertool',
+    'https://status.crisxie.top/status/teachertool',
+    'https://status.crisxie.top/api/status/teachertool',
+    'https://status.crisxie.top/api/status',
     '/api/status'
 ];
 const STATUS_TIMEOUT_MS = 7000;
