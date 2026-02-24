@@ -14,7 +14,7 @@ const donationConfig = {
     excludePages: ['src/pages/donation.html']
 };
 
-const WEBSITE_STATUS_URL = 'http://23.147.56.192:3001/status/teachertool';
+const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
 
 function $(id) {
@@ -706,13 +706,11 @@ function formatStatusPayload(payload) {
 }
 
 async function checkWebsiteStatus() {
-    const lang = window.i18n ? window.i18n.currentLanguage() : 'zh';
     const title = window.i18n ? window.i18n.getTranslation('website_status_title') : '网站状态';
     const healthy = window.i18n ? window.i18n.getTranslation('website_status_online') : '网站状态正常';
     const unavailable = window.i18n ? window.i18n.getTranslation('website_status_unavailable') : '暂时无法获取网站状态';
     const httpError = window.i18n ? window.i18n.getTranslation('website_status_http_error') : '状态接口返回错误';
     const timeoutMsg = window.i18n ? window.i18n.getTranslation('website_status_timeout') : '请求超时，请稍后重试';
-    const openPageAsk = window.i18n ? window.i18n.getTranslation('website_status_open_page') : '是否在新窗口打开状态页面？';
     const emptyMsg = window.i18n ? window.i18n.getTranslation('website_status_empty') : '接口已响应，但没有返回详细内容。';
 
     const controller = new AbortController();
@@ -734,7 +732,7 @@ async function checkWebsiteStatus() {
         let details = '';
         if (contentType.includes('application/json')) {
             const json = await response.json();
-            details = formatStatusPayload(json);
+            details = formatStatusPayload(json && Object.prototype.hasOwnProperty.call(json, 'payload') ? json.payload : json);
         } else {
             details = (await response.text()).trim();
         }
@@ -743,9 +741,9 @@ async function checkWebsiteStatus() {
         showCustomModal(title, `${healthy}\n\n${details.slice(0, 1200)}`);
     } catch (error) {
         clearTimeout(timer);
-        const reason = error && error.name === 'AbortError' ? timeoutMsg : (error && error.message ? error.message : String(error));
-        const message = `${unavailable}\n${reason}\n\n${openPageAsk}\n${WEBSITE_STATUS_URL}`;
-        showConfirmModal(title, message, () => window.open(WEBSITE_STATUS_URL, '_blank'));
+        const reason = error && error.name === 'AbortError' ? timeoutMsg : '';
+        const message = reason ? `${unavailable}\n${reason}` : unavailable;
+        showCustomModal(title, message);
     }
 }
 
@@ -1219,7 +1217,7 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
     if (window.location.protocol === 'file:') return;
 
-    navigator.serviceWorker.register('sw.js?v=2.0.4').then(registration => {
+    navigator.serviceWorker.register('sw.js?v=2.0.5').then(registration => {
         // 自动更新检查
         setInterval(() => {
             registration.update();
