@@ -14,6 +14,9 @@ const donationConfig = {
     excludePages: ['src/pages/donation.html']
 };
 
+const WEBSITE_STATUS_URL = 'http://23.147.56.192:3001/status/teachertool';
+const WEBSITE_STATUS_TIMEOUT = 7000;
+
 function $(id) {
     return document.getElementById(id);
 }
@@ -688,6 +691,64 @@ function showEmailPrompt() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function formatStatusPayload(payload) {
+    if (!payload) return '';
+    if (typeof payload === 'string') return payload.trim();
+    if (typeof payload !== 'object') return String(payload);
+
+    const entries = Object.entries(payload).slice(0, 10);
+    return entries.map(([key, value]) => {
+        if (value && typeof value === 'object') {
+            return `${key}: ${JSON.stringify(value)}`;
+        }
+        return `${key}: ${String(value)}`;
+    }).join('\n');
+}
+
+async function checkWebsiteStatus() {
+    const lang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+    const title = window.i18n ? window.i18n.getTranslation('website_status_title') : '网站状态';
+    const healthy = window.i18n ? window.i18n.getTranslation('website_status_online') : '网站状态正常';
+    const unavailable = window.i18n ? window.i18n.getTranslation('website_status_unavailable') : '暂时无法获取网站状态';
+    const httpError = window.i18n ? window.i18n.getTranslation('website_status_http_error') : '状态接口返回错误';
+    const timeoutMsg = window.i18n ? window.i18n.getTranslation('website_status_timeout') : '请求超时，请稍后重试';
+    const openPageAsk = window.i18n ? window.i18n.getTranslation('website_status_open_page') : '是否在新窗口打开状态页面？';
+    const emptyMsg = window.i18n ? window.i18n.getTranslation('website_status_empty') : '接口已响应，但没有返回详细内容。';
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), WEBSITE_STATUS_TIMEOUT);
+
+    try {
+        const response = await fetch(WEBSITE_STATUS_URL, {
+            method: 'GET',
+            cache: 'no-store',
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+
+        if (!response.ok) {
+            throw new Error(`${httpError}: HTTP ${response.status}`);
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+        let details = '';
+        if (contentType.includes('application/json')) {
+            const json = await response.json();
+            details = formatStatusPayload(json);
+        } else {
+            details = (await response.text()).trim();
+        }
+
+        if (!details) details = emptyMsg;
+        showCustomModal(title, `${healthy}\n\n${details.slice(0, 1200)}`);
+    } catch (error) {
+        clearTimeout(timer);
+        const reason = error && error.name === 'AbortError' ? timeoutMsg : (error && error.message ? error.message : String(error));
+        const message = `${unavailable}\n${reason}\n\n${openPageAsk}\n${WEBSITE_STATUS_URL}`;
+        showConfirmModal(title, message, () => window.open(WEBSITE_STATUS_URL, '_blank'));
+    }
+}
+
 function shouldShowDonationModal(targetPage) {
     if (donationConfig.excludePages.some(page => targetPage.includes(page))) return false;
     if (donationShowCount >= donationConfig.maxShowPerSession) return false;
@@ -1314,5 +1375,6 @@ window.selectStudentForTracker = selectStudentForTracker;
 window.checkSpringFestival = checkSpringFestival;
 window.triggerSpringFestival = triggerSpringFestival;
 window.showSpringFestivalModal = showSpringFestivalModal;
+window.checkWebsiteStatus = checkWebsiteStatus;
 
 window.addEventListener('load', init);
