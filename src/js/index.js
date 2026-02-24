@@ -1219,7 +1219,7 @@ function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
     if (window.location.protocol === 'file:') return;
 
-    navigator.serviceWorker.register('sw.js').then(registration => {
+    navigator.serviceWorker.register('sw.js?v=2.0.4').then(registration => {
         // 自动更新检查
         setInterval(() => {
             registration.update();
