@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4b6cb7">
+    <meta name="description" content="教师工具箱网站状态">
+    <title>网站状态 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css?v=2.0.6">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="icon" href="../../briefcase-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .status-badge.loading {
+            background: #64748b;
+        }
+
+        .status-badge.online {
+            background: #16a34a;
+        }
+
+        .status-badge.offline {
+            background: #dc2626;
+        }
+
+        .status-meta {
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        .status-message {
+            color: #0f172a;
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.72rem 1.2rem;
+            font-size: 0.98rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .status-detail {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #1e293b;
+            font-family: Consolas, "Courier New", monospace;
+            line-height: 1.5;
+            min-height: 130px;
+        }
+
+        body.dark-mode .panel {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body.dark-mode .status-meta {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .status-message {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .status-detail {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+                <button class="back-btn-top" onclick="window.location.href='../../index.html'" style="background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: white; border: none; padding: 0.6rem 1.2rem; font-size: 1rem; border-radius: 20px; cursor: pointer; font-weight: 600; margin-right: 1rem; z-index: 1000; position: relative;">← 返回主页</button>
+            </div>
+            <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h1 style="margin: 0;">网站状态</h1>
+                <p style="margin: 0.5rem 0 0 0;">进入页面后自动检测，支持手动刷新</p>
+            </div>
+            <div style="width: 100px;"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="panel">
+            <div class="status-row">
+                <span id="statusBadge" class="status-badge loading">检测中</span>
+                <span id="lastChecked" class="status-meta">最后检测：--</span>
+            </div>
+
+            <div id="statusMessage" class="status-message">正在获取网站状态...</div>
+
+            <div class="actions">
+                <button id="refreshBtn" class="btn" type="button">立即刷新</button>
+            </div>
+
+            <div id="statusDetail" class="status-detail">等待状态数据...</div>
+        </div>
+    </div>
+
+    <script defer src="../js/website-status.js?v=2.0.6"></script>
+</body>
+</html>
