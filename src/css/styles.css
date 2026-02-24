@@ -162,6 +162,65 @@ main {
     padding: 0 1.5rem;
 }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.tool-search-wrapper {
+    margin-bottom: 1.2rem;
+}
+
+.tool-search-input-group {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.tool-search-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #c9d4ea;
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tool-search-input:focus {
+    border-color: #4b6cb7;
+    box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.15);
+}
+
+.tool-search-clear {
+    border: none;
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tool-search-clear.hidden,
+.tool-search-empty.hidden {
+    display: none;
+}
+
+.tool-search-empty {
+    margin-top: 0.8rem;
+    color: #666;
+    font-size: 0.95rem;
+}
+
 /* 工具卡片容器 */
 .tools-container {
     display: grid;
@@ -288,6 +347,24 @@ main {
 
 .dark-mode .tool-card.coming-soon::before {
     background: linear-gradient(90deg, #63b3ed 0%, #3182ce 100%);
+}
+
+.dark-mode .tool-search-input {
+    background: rgba(30, 30, 46, 0.95);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #f0f0f0;
+}
+
+.dark-mode .tool-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.dark-mode .tool-search-empty {
+    color: #cbd5e1;
+}
+
+.dark-mode .tool-search-clear {
+    background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%);
 }
 
 /* 使用说明 */
@@ -435,6 +512,16 @@ footer {
     .tools-container {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+
+    .tool-search-input-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+    }
+
+    .tool-search-clear {
+        width: 100%;
     }
     
     main {

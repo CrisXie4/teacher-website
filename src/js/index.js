@@ -27,7 +27,68 @@ function applyLanguage() {
 function switchLanguage() {
     if (window.i18n && typeof window.i18n.switchLanguage === 'function') {
         window.i18n.switchLanguage();
+        filterToolCards();
     }
+}
+
+function normalizeSearchText(text) {
+    return String(text || '').toLowerCase().trim();
+}
+
+function filterToolCards() {
+    const searchInput = $('toolSearchInput');
+    if (!searchInput) return;
+
+    const clearBtn = $('toolSearchClearBtn');
+    const emptyState = $('toolSearchEmptyState');
+    const keyword = normalizeSearchText(searchInput.value);
+    const cards = Array.from(document.querySelectorAll('.tools-container .tool-card'));
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        if (card.dataset.searchExcluded === 'true') {
+            card.style.display = 'none';
+            return;
+        }
+
+        const title = card.querySelector('h2');
+        const desc = card.querySelector('p');
+        const content = normalizeSearchText(`${title ? title.textContent : ''} ${desc ? desc.textContent : ''}`);
+        const matched = !keyword || content.includes(keyword);
+        card.style.display = matched ? '' : 'none';
+        if (matched) visibleCount++;
+    });
+
+    if (clearBtn) {
+        clearBtn.classList.toggle('hidden', keyword.length === 0);
+    }
+    if (emptyState) {
+        emptyState.classList.toggle('hidden', keyword.length === 0 || visibleCount > 0);
+    }
+}
+
+function setupToolSearch() {
+    const searchInput = $('toolSearchInput');
+    const clearBtn = $('toolSearchClearBtn');
+    if (!searchInput) return;
+
+    const cards = document.querySelectorAll('.tools-container .tool-card');
+    cards.forEach(card => {
+        if (card.dataset.searchExcluded) return;
+        const hiddenByDefault = card.style.display === 'none';
+        card.dataset.searchExcluded = hiddenByDefault ? 'true' : 'false';
+    });
+
+    searchInput.addEventListener('input', filterToolCards);
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            filterToolCards();
+            searchInput.focus();
+        });
+    }
+
+    filterToolCards();
 }
 
 function toggleTheme() {
@@ -1158,6 +1219,8 @@ function bindEventListeners() {
 
     const feedbackBtn = $('feedbackBtn');
     if (feedbackBtn) feedbackBtn.addEventListener('click', e => { e.stopPropagation(); showEmailPrompt(); });
+
+    setupToolSearch();
 
     const fileInput = $('fileInput');
     const fileInfo = $('fileInfo');

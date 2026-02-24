@@ -44,6 +44,15 @@
     <div id="easterEggTrigger" style="position: fixed; bottom: 10px; right: 10px; width: 50px; height: 50px; cursor: pointer; z-index: 9999;"></div>
     
     <div class="container">
+        <div class="tool-search-wrapper">
+            <label class="tool-search-label sr-only" for="toolSearchInput" data-lang="tool_search_label">搜索工具</label>
+            <div class="tool-search-input-group">
+                <input type="search" id="toolSearchInput" class="tool-search-input" data-lang-placeholder="tool_search_placeholder" placeholder="搜索工具（如：计时、点名、白板）" autocomplete="off">
+                <button type="button" id="toolSearchClearBtn" class="tool-search-clear hidden" data-lang="tool_search_clear">清除</button>
+            </div>
+            <div id="toolSearchEmptyState" class="tool-search-empty hidden" data-lang="tool_search_no_result">未找到匹配工具，请换个关键词</div>
+        </div>
+
         <!-- 工具卡片 -->
         <div class="tools-container">
             <div class="tool-card" id="sound-detector-card">
