@@ -18,7 +18,7 @@
             chart_type_polar: '⭕ Polar Area',
             chart_type_hbar: '↔️ Horizontal Bar',
             chart_type_scatter: '🔹 Scatter',
-            chart_type_bubble: '🫧 Bubble',
+            chart_type_bubble: '🔵 Bubble',
             section_chart_info: 'Chart Info',
             chart_title_label: 'Chart Title',
             chart_title_placeholder: 'Enter chart title',
@@ -68,7 +68,7 @@
             chart_type_polar: '⭕ Polar',
             chart_type_hbar: '↔️ Barras horizontales',
             chart_type_scatter: '🔹 Dispersión',
-            chart_type_bubble: '🫧 Burbujas',
+            chart_type_bubble: '🔵 Burbujas',
             section_chart_info: 'Información del gráfico',
             chart_title_label: 'Título del gráfico',
             chart_title_placeholder: 'Introduce el título',
@@ -118,7 +118,7 @@
             chart_type_polar: '⭕ Polaire',
             chart_type_hbar: '↔️ Histogramme horizontal',
             chart_type_scatter: '🔹 Nuage de points',
-            chart_type_bubble: '🫧 Bulles',
+            chart_type_bubble: '🔵 Bulles',
             section_chart_info: 'Informations du graphique',
             chart_title_label: 'Titre du graphique',
             chart_title_placeholder: 'Saisir le titre',
@@ -169,18 +169,38 @@
         forest: ['#2D6A4F', '#40916C', '#52B788', '#74C69D', '#95D5B2', '#B7E4C7', '#D8F3DC', '#A7C957']
     };
 
+    const LANG_ORDER = ['zh', 'en', 'es', 'fr'];
+    const NEXT_LANG_BUTTON_TEXT = {
+        zh: 'English',
+        en: 'Español',
+        es: 'Français',
+        fr: '中文'
+    };
+
     const state = { chart: null, type: 'bar', lang: detectLanguage() };
 
     function el(id) { return document.getElementById(id); }
     function t(key) { return (I18N[state.lang] && I18N[state.lang][key]) || null; }
     function detectLanguage() {
         const saved = localStorage.getItem('chartGeneratorLanguage');
-        if (saved && ['zh', 'en', 'es', 'fr'].includes(saved)) return saved;
+        if (saved && LANG_ORDER.includes(saved)) return saved;
         const nav = (navigator.language || 'en').toLowerCase();
         if (nav.startsWith('zh')) return 'zh';
         if (nav.startsWith('es')) return 'es';
         if (nav.startsWith('fr')) return 'fr';
         return 'en';
+    }
+
+    function getNextLanguage(lang) {
+        const index = LANG_ORDER.indexOf(lang);
+        if (index < 0) return 'zh';
+        return LANG_ORDER[(index + 1) % LANG_ORDER.length];
+    }
+
+    function updateLanguageSwitcherText() {
+        const switcher = el('languageSwitcher');
+        if (!switcher) return;
+        switcher.textContent = NEXT_LANG_BUTTON_TEXT[state.lang] || 'English';
     }
 
     function setFeedback(text, type) {
@@ -214,7 +234,7 @@
             const key = node.getAttribute('data-i18n-placeholder');
             node.placeholder = t(key) || node.dataset.zhPlaceholder || node.placeholder;
         });
-        if (el('languageSelector')) el('languageSelector').value = state.lang;
+        updateLanguageSwitcherText();
     }
 
     function matchesAnyDefault(field, value) {
@@ -556,13 +576,16 @@
         ['chartTitle', 'labels', 'dataValues'].forEach(id => el(id).addEventListener('input', debounce(updateChart, 350)));
         el('inputMethod').addEventListener('change', toggleInputMethod);
         el('fileUpload').addEventListener('change', handleFileUpload);
-        el('languageSelector').addEventListener('change', () => {
-            state.lang = el('languageSelector').value;
-            localStorage.setItem('chartGeneratorLanguage', state.lang);
-            applyLanguage();
-            applyDefaultInputs(false);
-            updateChart();
-        });
+        const languageSwitcher = el('languageSwitcher');
+        if (languageSwitcher) {
+            languageSwitcher.addEventListener('click', () => {
+                state.lang = getNextLanguage(state.lang);
+                localStorage.setItem('chartGeneratorLanguage', state.lang);
+                applyLanguage();
+                applyDefaultInputs(false);
+                updateChart();
+            });
+        }
     }
 
     function init() {

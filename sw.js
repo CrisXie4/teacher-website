@@ -11,7 +11,7 @@ const CORE_ASSETS = [
   '/src/js/index.js',
   '/assets/images/briefcase-192x192.png',
   '/assets/images/briefcase-512x512.png',
-  '/config/manifest.json'
+  '/manifest.json'
 ];
 
 const SKIP_CACHE_PATTERNS = [
