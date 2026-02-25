@@ -17,6 +17,52 @@ const donationConfig = {
 const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
 const APP_VERSION = '2.0.9';
+const SW_UPDATE_INTERVAL = 30 * 60 * 1000;
+const UMAMI_WEBSITE_ID = '4a56b2a6-010f-412d-b1ae-59417d30a68d';
+const UMAMI_SCRIPT_URL = 'https://cloud.umami.is/script.js';
+
+let studentManagerReady = false;
+let analyticsLoaded = false;
+
+function runWhenIdle(task, timeout = 2000) {
+    if (typeof task !== 'function') return;
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            task();
+        }, { timeout });
+        return;
+    }
+    setTimeout(task, 0);
+}
+
+function ensureStudentManagerReady() {
+    if (studentManagerReady) return;
+    if (typeof StudentManager !== 'undefined' && StudentManager && typeof StudentManager.init === 'function') {
+        StudentManager.init();
+    }
+    studentManagerReady = true;
+}
+
+function loadAnalyticsScript() {
+    if (analyticsLoaded || window.location.protocol === 'file:') return;
+
+    const existing = document.querySelector(`script[src="${UMAMI_SCRIPT_URL}"]`);
+    if (existing) {
+        analyticsLoaded = true;
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.defer = true;
+    script.src = UMAMI_SCRIPT_URL;
+    script.setAttribute('data-website-id', UMAMI_WEBSITE_ID);
+    script.onerror = () => {
+        analyticsLoaded = false;
+    };
+
+    analyticsLoaded = true;
+    document.head.appendChild(script);
+}
 
 function $(id) {
     return document.getElementById(id);
@@ -37,6 +83,14 @@ function switchLanguage() {
 
 function normalizeSearchText(text) {
     return String(text || '').toLowerCase().trim();
+}
+
+function debounce(fn, delay = 100) {
+    let timer = null;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
 }
 
 function filterToolCards() {
@@ -83,7 +137,8 @@ function setupToolSearch() {
         card.dataset.searchExcluded = hiddenByDefault ? 'true' : 'false';
     });
 
-    searchInput.addEventListener('input', filterToolCards);
+    const debouncedFilter = debounce(filterToolCards, 80);
+    searchInput.addEventListener('input', debouncedFilter);
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
@@ -285,11 +340,6 @@ function checkSpringFestival() {
     themeEndDate.setHours(0, 0, 0, 0);
     greetingEndDate.setHours(0, 0, 0, 0);
 
-    console.log('[SpringFestival] Checking date:', now.toLocaleDateString());
-    console.log('[SpringFestival] Festival:', festivalDate.toLocaleDateString());
-    console.log('[SpringFestival] Theme Range:', themeStartDate.toLocaleDateString(), '-', themeEndDate.toLocaleDateString());
-    console.log('[SpringFestival] Greeting Range:', festivalDate.toLocaleDateString(), '-', greetingEndDate.toLocaleDateString());
-
     if (isTest || (now >= themeStartDate && now <= themeEndDate)) {
         applySpringFestivalTheme();
     } else {
@@ -299,18 +349,14 @@ function checkSpringFestival() {
     if (isTest || (now >= festivalDate && now <= greetingEndDate)) {
         // Check if already shown in this session (ignore if testing)
         if (!isTest && sessionStorage.getItem('springFestivalShown')) {
-            console.log('[SpringFestival] Already shown in this session');
             return;
         }
-        
-        console.log('[SpringFestival] Showing greeting!');
+
         // Short delay to ensure page is loaded
         setTimeout(() => {
             triggerSpringFestival();
             if (!isTest) sessionStorage.setItem('springFestivalShown', 'true');
         }, 1000);
-    } else {
-        console.log('[SpringFestival] Not in greeting range');
     }
 }
 
@@ -428,6 +474,7 @@ function showConfirmModal(title, message, onConfirm) {
 }
 
 function updateSummary() {
+    ensureStudentManagerReady();
     const students = StudentManager.getStudents();
     const totalStudentsEl = $('totalStudents');
     const totalGroupsEl = $('totalGroups');
@@ -436,6 +483,7 @@ function updateSummary() {
 }
 
 function renderStudentList() {
+    ensureStudentManagerReady();
     const studentList = $('studentList');
     if (!studentList) return;
 
@@ -484,6 +532,7 @@ function renderStudentList() {
 }
 
 function addStudent() {
+    ensureStudentManagerReady();
     const studentId = $('studentId');
     const studentName = $('studentName');
     const addStudentBtn = $('addStudentBtn');
@@ -522,6 +571,7 @@ function addStudent() {
 }
 
 function importStudents() {
+    ensureStudentManagerReady();
     const csvInput = $('csvInput');
     const importBtn = $('importBtn');
     if (!csvInput || !importBtn) return;
@@ -564,6 +614,7 @@ function importStudents() {
 }
 
 function importFromFile() {
+    ensureStudentManagerReady();
     const fileInput = $('fileInput');
     const importFileBtn = $('importFileBtn');
     const fileInfo = $('fileInfo');
@@ -632,6 +683,7 @@ function importFromFile() {
 }
 
 function removeStudent(index) {
+    ensureStudentManagerReady();
     const title = window.i18n ? window.i18n.getTranslation('confirm') : '确认删除';
     const msg = window.i18n ? window.i18n.getTranslation('confirm_delete_student') : '确定要删除这个学生吗？';
     showConfirmModal(title, msg, () => {
@@ -642,6 +694,7 @@ function removeStudent(index) {
 }
 
 function clearStudents() {
+    ensureStudentManagerReady();
     const title = window.i18n ? window.i18n.getTranslation('confirm') : '确认清空';
     const msg = window.i18n ? window.i18n.getTranslation('confirm_clear_students') : '确定要清空所有学生吗？';
     showConfirmModal(title, msg, () => {
@@ -652,6 +705,7 @@ function clearStudents() {
 }
 
 function selectStudentForTracker(index) {
+    ensureStudentManagerReady();
     const students = StudentManager.getStudents();
     if (index < 0 || index >= students.length) return;
     const student = students[index];
@@ -666,6 +720,7 @@ function selectStudentForTracker(index) {
 }
 
 function toggleStudentManagement(event) {
+    ensureStudentManagerReady();
     const container = document.querySelector('.student-management-container');
     const toggleBtn = $('toggleStudentsBtn');
     if (!container || !toggleBtn) return;
@@ -675,6 +730,7 @@ function toggleStudentManagement(event) {
         container.classList.remove('hidden');
         toggleBtn.textContent = window.i18n ? window.i18n.getTranslation('hide_student_management') : '隐藏学生管理';
         renderStudentList();
+        updateSummary();
     } else {
         container.classList.add('hidden');
         toggleBtn.textContent = window.i18n ? window.i18n.getTranslation('manage_students') : '管理学生信息';
@@ -1145,8 +1201,14 @@ function permanentlyCloseAnnouncement() {
 
 async function loadAnnouncement() {
     if (window.location.protocol === 'file:') return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
     try {
-        const response = await fetch('GONGGAO.md?t=' + Date.now());
+        const response = await fetch('GONGGAO.md', {
+            cache: 'no-cache',
+            signal: controller.signal
+        });
+        clearTimeout(timer);
         if (!response.ok) return;
         const content = await response.text();
         if (!content || !content.trim()) return;
@@ -1171,6 +1233,7 @@ async function loadAnnouncement() {
         updateAnnouncementBadge(true);
         showAnnouncementModal();
     } catch {
+        clearTimeout(timer);
         return;
     }
 }
@@ -1253,10 +1316,18 @@ function registerServiceWorker() {
             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
 
-        // 自动更新检查
+        // Reduce background update overhead while keeping SW fresh.
         setInterval(() => {
+            if (document.visibilityState !== 'visible') return;
             registration.update();
-        }, 5 * 60 * 1000); // 每5分钟检查一次
+        }, SW_UPDATE_INTERVAL);
+
+        window.addEventListener('online', () => registration.update());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                registration.update();
+            }
+        });
 
         registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
@@ -1268,8 +1339,8 @@ function registerServiceWorker() {
                 }
             });
         });
-    }).catch(err => {
-        console.log('[SW] Registration failed:', err);
+    }).catch(() => {
+        return;
     });
 }
 
@@ -1374,19 +1445,18 @@ function init() {
             : (currentLang === 'zh' ? '黑夜模式' : 'Dark Mode');
     }
 
-   if (StudentManager && typeof StudentManager.init === 'function') {
-        StudentManager.init();
-    }
-
-    checkSpringFestival(); // 自动检查
+    checkSpringFestival();
     checkTeachersDay();
-    loadAnnouncement();
-    setupPWAInstall();
-    registerServiceWorker();
     bindEventListeners();
-    setupEasterEgg();
-    renderStudentList();
-    updateSummary();
+
+    runWhenIdle(() => {
+        setupEasterEgg();
+    }, 1200);
+
+    runWhenIdle(loadAnnouncement, 2500);
+    runWhenIdle(setupPWAInstall, 3000);
+    runWhenIdle(registerServiceWorker, 3500);
+    runWhenIdle(loadAnalyticsScript, 4000);
 }
 
 window.navigateTo = navigateTo;
@@ -1404,4 +1474,8 @@ window.triggerSpringFestival = triggerSpringFestival;
 window.showSpringFestivalModal = showSpringFestivalModal;
 window.checkWebsiteStatus = checkWebsiteStatus;
 
-window.addEventListener('load', init);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+} else {
+    init();
+}
