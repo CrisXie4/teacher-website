@@ -1,123 +1,144 @@
-// 缓存版本号 - 每次部署时手动更新此版本号
-const CACHE_VERSION = '2.0.9';
-const CACHE_NAME = 'teacher-toolkit-v' + CACHE_VERSION;
+﻿const CACHE_VERSION = '2.0.9';
+const CACHE_NAME = `teacher-toolkit-v${CACHE_VERSION}`;
 
-// 需要缓存的核心资源
-const urlsToCache = [
+const CORE_ASSETS = [
   '/',
   '/index.html',
   '/src/css/styles.css',
+  '/src/css/index.css',
   '/src/js/student-manager.js',
+  '/src/js/i18n.js',
+  '/src/js/index.js',
   '/assets/images/briefcase-192x192.png',
-  '/assets/images/briefcase-512x512.png'
+  '/assets/images/briefcase-512x512.png',
+  '/config/manifest.json'
 ];
 
-// 不需要缓存的路径（始终从网络获取）
-const noCachePaths = [
+const SKIP_CACHE_PATTERNS = [
   '/GONGGAO.md',
   '/api/',
   'umami.is',
   'cloudflareinsights.com'
 ];
 
-// 检查URL是否应该跳过缓存
+const STATIC_ASSET_PATTERN = /\.(?:css|js|mjs|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf)$/i;
+
 function shouldSkipCache(url) {
-  return noCachePaths.some(path => url.includes(path));
+  return SKIP_CACHE_PATTERNS.some(pattern => url.includes(pattern));
 }
 
-// 安装服务工作者
+function isCacheableResponse(response) {
+  return response && response.status === 200 && (response.type === 'basic' || response.type === 'cors');
+}
+
+async function addCoreAssets(cache) {
+  for (const asset of CORE_ASSETS) {
+    try {
+      await cache.add(asset);
+    } catch {
+      // Ignore missing optional assets during install.
+    }
+  }
+}
+
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    if (!shouldSkipCache(request.url) && isCacheableResponse(response)) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (request.mode === 'navigate') {
+      return caches.match('/index.html');
+    }
+    return new Response('Offline', { status: 503, statusText: 'Offline' });
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const networkPromise = fetch(request)
+    .then(response => {
+      if (isCacheableResponse(response)) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+
+  if (cached) {
+    return cached;
+  }
+
+  const networkResponse = await networkPromise;
+  if (networkResponse) {
+    return networkResponse;
+  }
+
+  if (request.mode === 'navigate') {
+    return caches.match('/index.html');
+  }
+
+  return new Response('Offline', { status: 503, statusText: 'Offline' });
+}
+
 self.addEventListener('install', event => {
-  console.log('[SW] Installing new version:', CACHE_VERSION);
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Caching core resources');
-        return cache.addAll(urlsToCache).catch(err => {
-          console.log('[SW] Cache addAll error:', err);
-        });
-      })
+    caches.open(CACHE_NAME).then(cache => addCoreAssets(cache))
   );
 });
 
-// 拦截网络请求 - 使用"网络优先，缓存备用"策略
-self.addEventListener('fetch', event => {
-  const requestUrl = event.request.url;
-  
-  // 只处理 http 和 https 请求
-  if (!requestUrl.startsWith('http')) {
-    return;
-  }
-  
-  // 跳过 POST 请求和其他非 GET 请求
-  if (event.request.method !== 'GET') {
-    return;
-  }
-  
-  // 跳过不需要缓存的路径
-  if (shouldSkipCache(requestUrl)) {
-    return;
-  }
-  
-  event.respondWith(
-    // 始终先尝试网络请求
-    fetch(event.request)
-      .then(response => {
-        // 如果网络请求成功，更新缓存
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            })
-            .catch(err => {
-              console.log('[SW] Cache put error:', err);
-            });
-        }
-        return response;
-      })
-      .catch(() => {
-        // 网络请求失败时，从缓存获取
-        console.log('[SW] Network failed, trying cache for:', requestUrl);
-        return caches.match(event.request).then(cached => {
-          if (cached) return cached;
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-          return cached;
-        });
-      })
-  );
-});
-
-// 激活服务工作者
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating new version:', CACHE_VERSION);
   event.waitUntil(
     Promise.all([
-      // 删除所有旧版本的缓存
       caches.keys().then(cacheNames => {
         return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME && cacheName.startsWith('teacher-toolkit-')) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
+          cacheNames
+            .filter(cacheName => cacheName.startsWith('teacher-toolkit-') && cacheName !== CACHE_NAME)
+            .map(cacheName => caches.delete(cacheName))
         );
       }),
-      // 立即接管所有客户端
       self.clients.claim()
     ])
   );
 });
 
-// 监听来自页面的消息
+self.addEventListener('fetch', event => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+  if (!request.url.startsWith('http')) return;
+  if (shouldSkipCache(request.url)) return;
+
+  const url = new URL(request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  const isStaticAsset = isSameOrigin && STATIC_ASSET_PATTERN.test(url.pathname);
+
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if (isStaticAsset) {
+    event.respondWith(staleWhileRevalidate(request));
+    return;
+  }
+
+  event.respondWith(networkFirst(request));
+});
+
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  if (event.data && event.data.type === 'GET_VERSION') {
+
+  if (event.data && event.data.type === 'GET_VERSION' && event.ports && event.ports[0]) {
     event.ports[0].postMessage({ version: CACHE_VERSION });
   }
 });

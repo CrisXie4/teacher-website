@@ -31,6 +31,7 @@
         }
 
         .header {
+            position: relative;
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             padding: 30px;
@@ -66,6 +67,33 @@
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateX(-5px);
+        }
+
+        .language-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .language-control label {
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .language-control select {
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 4px 6px;
+            font-size: 12px;
+            cursor: pointer;
         }
 
         .main-content {
@@ -256,6 +284,15 @@
             background: #218838;
         }
 
+        .btn-info {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #0284c7;
+        }
+
         .chart-container {
             background: white;
             padding: 30px;
@@ -292,6 +329,16 @@
             margin-top: 5px;
         }
 
+        .feedback-message {
+            margin-top: 12px;
+            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+        }
+
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -302,6 +349,14 @@
                 top: 0;
                 left: 0;
                 margin-bottom: 20px;
+            }
+
+            .language-control {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 12px;
+                justify-content: center;
             }
         }
 
@@ -330,94 +385,130 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="../../index.html" class="back-btn">← 返回主页</a>
-            <h1>📊 图表生成器</h1>
-            <p>自定义数据、颜色和图表类型，轻松创建专业图表</p>
+            <a href="../../index.html" class="back-btn" data-i18n="back_home">← 返回主页</a>
+            <div class="language-control">
+                <label for="languageSelector" data-i18n="language_label">语言</label>
+                <select id="languageSelector">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+            <h1 data-i18n="header_title">📊 图表生成器</h1>
+            <p data-i18n="header_desc">自定义数据、颜色和图表类型，轻松创建专业图表</p>
         </div>
 
         <div class="main-content">
             <div class="control-panel">
                 <!-- 图表类型选择 -->
                 <div class="section">
-                    <div class="section-title">图表类型</div>
+                    <div class="section-title" data-i18n="section_chart_type">图表类型</div>
                     <div class="chart-type-selector">
-                        <button class="chart-type-btn active" data-type="bar">📊 柱状图</button>
-                        <button class="chart-type-btn" data-type="line">📈 折线图</button>
-                        <button class="chart-type-btn" data-type="pie">🥧 饼图</button>
-                        <button class="chart-type-btn" data-type="doughnut">🍩 环形图</button>
-                        <button class="chart-type-btn" data-type="radar">🎯 雷达图</button>
-                        <button class="chart-type-btn" data-type="polarArea">⭕ 极地图</button>
+                        <button class="chart-type-btn active" data-type="bar" data-i18n="chart_type_bar">📊 柱状图</button>
+                        <button class="chart-type-btn" data-type="line" data-i18n="chart_type_line">📈 折线图</button>
+                        <button class="chart-type-btn" data-type="area" data-i18n="chart_type_area">🌊 面积图</button>
+                        <button class="chart-type-btn" data-type="pie" data-i18n="chart_type_pie">🥧 饼图</button>
+                        <button class="chart-type-btn" data-type="doughnut" data-i18n="chart_type_doughnut">🍩 环形图</button>
+                        <button class="chart-type-btn" data-type="radar" data-i18n="chart_type_radar">🎯 雷达图</button>
+                        <button class="chart-type-btn" data-type="polarArea" data-i18n="chart_type_polar">⭕ 极地图</button>
+                        <button class="chart-type-btn" data-type="horizontalBar" data-i18n="chart_type_hbar">↔️ 横向柱状图</button>
+                        <button class="chart-type-btn" data-type="scatter" data-i18n="chart_type_scatter">🔹 散点图</button>
+                        <button class="chart-type-btn" data-type="bubble" data-i18n="chart_type_bubble">🫧 气泡图</button>
                     </div>
                 </div>
 
                 <!-- 图表标题 -->
                 <div class="section">
-                    <div class="section-title">图表信息</div>
+                    <div class="section-title" data-i18n="section_chart_info">图表信息</div>
                     <div class="form-group">
-                        <label>图表标题</label>
-                        <input type="text" id="chartTitle" placeholder="请输入图表标题" value="学生成绩统计">
+                        <label data-i18n="chart_title_label">图表标题</label>
+                        <input type="text" id="chartTitle" data-i18n-placeholder="chart_title_placeholder" placeholder="请输入图表标题" value="学生成绩统计">
                     </div>
                 </div>
 
                 <!-- 数据输入 -->
                 <div class="section">
-                    <div class="section-title">数据设置</div>
+                    <div class="section-title" data-i18n="section_data">数据设置</div>
                     <div class="form-group">
-                        <label>数据输入方式</label>
+                        <label data-i18n="input_method_label">数据输入方式</label>
                         <select id="inputMethod" onchange="toggleInputMethod()">
-                            <option value="manual">手动输入</option>
-                            <option value="upload">上传文件</option>
+                            <option value="manual" data-i18n="input_manual">手动输入</option>
+                            <option value="upload" data-i18n="input_upload">上传文件</option>
                         </select>
                     </div>
                     <div id="manualInput">
                         <div class="form-group">
-                            <label>标签 (用逗号分隔)</label>
-                            <input type="text" id="labels" placeholder="例如: 语文,数学,英语" value="语文,数学,英语,物理,化学">
-                            <div class="help-text">多个标签用逗号分隔</div>
+                            <label data-i18n="labels_label">标签 (用逗号分隔)</label>
+                            <input type="text" id="labels" data-i18n-placeholder="labels_placeholder" placeholder="例如: 语文,数学,英语" value="语文,数学,英语,物理,化学">
+                            <div class="help-text" data-i18n="labels_help">多个标签用逗号分隔</div>
                         </div>
                         <div class="form-group">
-                            <label>数据 (用逗号分隔)</label>
-                            <input type="text" id="dataValues" placeholder="例如: 85,90,78" value="85,92,88,76,81">
-                            <div class="help-text">数据数量要与标签数量一致</div>
+                            <label data-i18n="data_label">数据 (用逗号分隔)</label>
+                            <input type="text" id="dataValues" data-i18n-placeholder="data_placeholder" placeholder="例如: 85,90,78" value="85,92,88,76,81">
+                            <div class="help-text" data-i18n="data_help">数据数量要与标签数量一致</div>
                         </div>
                     </div>
                     <div id="uploadInput" style="display: none;">
                         <div class="form-group">
-                            <label>上传数据文件 (CSV/JSON)</label>
+                            <label data-i18n="upload_label">上传数据文件 (CSV/JSON)</label>
                             <input type="file" id="fileUpload" accept=".csv,.json" onchange="handleFileUpload(event)">
-                            <div class="help-text">支持CSV格式 (标签,数值) 或JSON格式 {"labels": [...], "data": [...]}</div>
+                            <div class="help-text" data-i18n="upload_help">支持CSV格式 (标签,数值) 或JSON格式 {"labels": [...], "data": [...]}</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 颜色设置 -->
                 <div class="section">
-                    <div class="section-title">颜色设置</div>
+                    <div class="section-title" data-i18n="section_colors">颜色设置</div>
                     <div class="form-group">
-                        <label>配色方案</label>
+                        <label data-i18n="color_scheme_label">配色方案</label>
                         <select id="colorScheme">
-                            <option value="custom">自定义</option>
-                            <option value="vibrant">活力彩虹</option>
-                            <option value="pastel">柔和粉彩</option>
-                            <option value="ocean">海洋蓝调</option>
-                            <option value="sunset">日落橙红</option>
-                            <option value="forest">森林绿意</option>
+                            <option value="custom" data-i18n="scheme_custom">自定义</option>
+                            <option value="vibrant" data-i18n="scheme_vibrant">活力彩虹</option>
+                            <option value="pastel" data-i18n="scheme_pastel">柔和粉彩</option>
+                            <option value="ocean" data-i18n="scheme_ocean">海洋蓝调</option>
+                            <option value="sunset" data-i18n="scheme_sunset">日落橙红</option>
+                            <option value="forest" data-i18n="scheme_forest">森林绿意</option>
                         </select>
                     </div>
                     <div id="customColors" class="form-group">
-                        <label>自定义颜色</label>
+                        <label data-i18n="custom_color_label">自定义颜色</label>
                         <div id="colorList"></div>
-                        <button class="add-color-btn" onclick="addColorInput()">+ 添加颜色</button>
+                        <button class="add-color-btn" onclick="addColorInput()" data-i18n="add_color">+ 添加颜色</button>
                     </div>
                     <div class="preset-colors" id="presetColors"></div>
                 </div>
 
+                <!-- 导出设置 -->
+                <div class="section">
+                    <div class="section-title" data-i18n="section_export">导出设置</div>
+                    <div class="form-group">
+                        <label data-i18n="image_format_label">图表图片格式</label>
+                        <select id="imageFormat">
+                            <option value="png">PNG</option>
+                            <option value="jpeg">JPEG</option>
+                            <option value="webp">WebP</option>
+                            <option value="svg">SVG</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="data_format_label">数据文件格式</label>
+                        <select id="dataFormat">
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- 操作按钮 -->
                 <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="updateChart()">🎨 生成图表</button>
-                    <button class="btn btn-success" onclick="downloadChart()">💾 下载图表</button>
-                    <button class="btn btn-secondary" onclick="resetChart()">🔄 重置</button>
+                    <button class="btn btn-primary" onclick="updateChart()" data-i18n="btn_generate">🎨 生成图表</button>
+                    <button class="btn btn-success" onclick="downloadChart()" data-i18n="btn_download">💾 下载图表</button>
+                    <button class="btn btn-info" onclick="exportData()" data-i18n="btn_export_data">📤 导出数据</button>
+                    <button class="btn btn-secondary" onclick="resetChart()" data-i18n="btn_reset">🔄 重置</button>
                 </div>
+                <div id="feedbackMessage" class="feedback-message">准备就绪</div>
             </div>
 
             <div class="chart-container">
@@ -735,5 +826,6 @@
             };
         }
     </script>
+    <script src="../js/chart-generator-page.js?v=2.1.0"></script>
 </body>
 </html>
