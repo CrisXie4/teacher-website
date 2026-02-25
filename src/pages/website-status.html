@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="../../briefcase-192x192.png">
     <style>
         .container {
-            max-width: 1000px;
+            max-width: 1080px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
@@ -63,13 +63,49 @@
 
         .status-message {
             color: #0f172a;
-            font-size: 1.05rem;
-            margin-bottom: 1rem;
-            line-height: 1.6;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .status-meaning {
+            margin: 0 0 1rem 0;
+            color: #334155;
+            line-height: 1.7;
+        }
+
+        .quick-info {
+            display: grid;
+            gap: 0.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-bottom: 1.2rem;
+        }
+
+        .quick-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.8rem 0.9rem;
+        }
+
+        .quick-label {
+            display: block;
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-value {
+            display: block;
+            color: #0f172a;
+            font-weight: 600;
+            word-break: break-all;
         }
 
         .actions {
             display: flex;
+            align-items: center;
             gap: 0.8rem;
             margin-bottom: 1rem;
             flex-wrap: wrap;
@@ -86,17 +122,61 @@
             font-weight: 600;
         }
 
-        .status-detail {
+        .btn:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        .auto-refresh-note {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .tips-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tips-card h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .tips-list {
+            margin: 0;
+            padding-left: 1.2rem;
+            color: #334155;
+            line-height: 1.7;
+        }
+
+        .details-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .details-card summary {
+            padding: 0.9rem 1rem;
+            cursor: pointer;
+            color: #334155;
+            font-weight: 600;
+            background: #f8fafc;
+        }
+
+        .status-detail {
+            margin: 0;
             padding: 1rem;
             white-space: pre-wrap;
             word-break: break-word;
             color: #1e293b;
             font-family: Consolas, "Courier New", monospace;
             line-height: 1.5;
-            min-height: 130px;
+            min-height: 120px;
+            background: #fff;
         }
 
         body.dark-mode .panel {
@@ -112,10 +192,59 @@
             color: #e2e8f0;
         }
 
-        body.dark-mode .status-detail {
+        body.dark-mode .status-meaning {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .quick-item {
             background: #0f172a;
             border-color: #334155;
+        }
+
+        body.dark-mode .quick-label {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .quick-value {
             color: #e2e8f0;
+        }
+
+        body.dark-mode .auto-refresh-note {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .tips-card {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        body.dark-mode .tips-card h2,
+        body.dark-mode .tips-list {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .details-card {
+            border-color: #334155;
+        }
+
+        body.dark-mode .details-card summary {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .status-detail {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .status-message {
+                font-size: 1.05rem;
+            }
         }
     </style>
 </head>
@@ -141,12 +270,39 @@
             </div>
 
             <div id="statusMessage" class="status-message">正在获取网站状态...</div>
+            <p id="statusMeaning" class="status-meaning">系统正在自动检测服务可用性。</p>
+
+            <div class="quick-info">
+                <div class="quick-item">
+                    <span class="quick-label">检测接口</span>
+                    <span id="statusEndpoint" class="quick-value">--</span>
+                </div>
+                <div class="quick-item">
+                    <span class="quick-label">HTTP 状态</span>
+                    <span id="statusHttpCode" class="quick-value">--</span>
+                </div>
+                <div class="quick-item">
+                    <span class="quick-label">响应耗时</span>
+                    <span id="statusLatency" class="quick-value">--</span>
+                </div>
+            </div>
 
             <div class="actions">
                 <button id="refreshBtn" class="btn" type="button">立即刷新</button>
+                <span class="auto-refresh-note">页面每 30 秒自动刷新一次</span>
             </div>
 
-            <div id="statusDetail" class="status-detail">等待状态数据...</div>
+            <div class="tips-card">
+                <h2>建议你这样做</h2>
+                <ul id="statusActions" class="tips-list">
+                    <li>等待检测完成后再判断是否异常。</li>
+                </ul>
+            </div>
+
+            <details class="details-card">
+                <summary>技术详情（给管理员 / 开发者）</summary>
+                <pre id="statusDetail" class="status-detail">等待状态数据...</pre>
+            </details>
         </div>
     </div>
 
