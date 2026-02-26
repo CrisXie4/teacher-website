@@ -16,7 +16,7 @@ const donationConfig = {
 
 const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
-const APP_VERSION = '2.0.9';
+const APP_VERSION = '2.1.0';
 const SW_UPDATE_INTERVAL = 30 * 60 * 1000;
 const UMAMI_WEBSITE_ID = '4a56b2a6-010f-412d-b1ae-59417d30a68d';
 const UMAMI_SCRIPT_URL = 'https://cloud.umami.is/script.js';

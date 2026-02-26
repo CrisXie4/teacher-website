@@ -1,0 +1,632 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang="classroom_game_title">课堂互动游戏 - 教师工具箱</title>
+    <link rel="stylesheet" href="../css/styles.css?v=2.1.0">
+    <script defer src="../js/i18n.js?v=2.1.0"></script>
+    <style>
+        .container {
+            max-width: 1180px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 1.2rem;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+            padding: 1.2rem;
+        }
+
+        .question-box {
+            border: 2px dashed #4b6cb7;
+            border-radius: 12px;
+            padding: 1.1rem;
+            min-height: 120px;
+            background: rgba(75, 108, 183, 0.06);
+            margin: 0.8rem 0;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .status-row {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin: 0.6rem 0;
+        }
+
+        .status-chip {
+            background: #e9f2ff;
+            border: 1px solid #cfe1ff;
+            color: #1f3d7a;
+            border-radius: 999px;
+            padding: 0.35rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .countdown-chip {
+            background: #fff4e5;
+            border-color: #ffd59a;
+            color: #8c5c00;
+        }
+
+        .countdown-chip.alert {
+            background: #ffe9e9;
+            border-color: #ffb1b1;
+            color: #b00020;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 0.8rem;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 999px;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+        }
+
+        .btn.primary { background: linear-gradient(135deg, #4b6cb7, #182848); }
+        .btn.success { background: linear-gradient(135deg, #34a853, #2e7d32); }
+        .btn.warn { background: linear-gradient(135deg, #fb8c00, #ef6c00); }
+        .btn.danger { background: linear-gradient(135deg, #ef5350, #c62828); }
+        .btn.ghost { background: linear-gradient(135deg, #607d8b, #455a64); }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .setting-row input {
+            width: 90px;
+            border: 1px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+        }
+
+        .team-card {
+            border: 1px solid #dfe8f4;
+            border-radius: 12px;
+            padding: 0.75rem;
+            background: #f9fbff;
+        }
+
+        .team-card.active {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.2);
+        }
+
+        .team-card input {
+            width: 100%;
+            border: 1px solid #d4dce8;
+            border-radius: 8px;
+            padding: 0.45rem 0.55rem;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .score {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1b3f8a;
+        }
+
+        .history {
+            margin-top: 0.8rem;
+            max-height: 210px;
+            overflow-y: auto;
+            border-top: 1px dashed #d7dde8;
+            padding-top: 0.6rem;
+        }
+
+        .history-item {
+            font-size: 0.92rem;
+            color: #37474f;
+            margin-bottom: 0.35rem;
+        }
+
+        .back-btn-top {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem;">
+            <button class="back-btn-top" onclick="window.location.href='../../index.html'" data-lang="back_to_home">→ 返回首页</button>
+            <div style="text-align: center; flex: 1;">
+                <h1 data-lang="classroom_game_title" style="margin: 0;">课堂互动游戏</h1>
+                <p data-lang="classroom_game_desc" style="margin: 0.35rem 0 0 0;">随机出题、倒计时与积分榜，快速提升课堂互动</p>
+            </div>
+            <div style="width: 100px;"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="game-layout">
+            <section class="panel">
+                <h2 id="roundTitle">回合控制</h2>
+                <div class="setting-row">
+                    <label id="secondsLabel" for="roundSeconds">回合秒数</label>
+                    <input id="roundSeconds" type="number" min="10" max="180" value="30">
+                </div>
+
+                <div class="status-row">
+                    <span class="status-chip" id="activeTeamChip">当前队伍：-</span>
+                    <span class="status-chip countdown-chip" id="countdownChip">倒计时：30s</span>
+                </div>
+
+                <div class="question-box" id="questionBox">点击“开始回合”随机出题。</div>
+
+                <div class="controls">
+                    <button class="btn primary" id="startRoundBtn">开始回合</button>
+                    <button class="btn success" id="correctBtn" disabled>回答正确 +1</button>
+                    <button class="btn warn" id="passBtn" disabled>跳过</button>
+                    <button class="btn danger" id="wrongBtn" disabled>回答错误 -1</button>
+                    <button class="btn ghost" id="resetScoreBtn">重置积分</button>
+                </div>
+
+                <div class="history" id="historyBox"></div>
+            </section>
+
+            <section class="panel">
+                <h2 id="scoreTitle">队伍积分榜</h2>
+                <div class="team-grid" id="teamGrid"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const pageI18n = {
+            zh: {
+                round_title: '回合控制',
+                seconds_label: '回合秒数',
+                active_team: '当前队伍',
+                countdown: '倒计时',
+                no_team: '-',
+                question_ready: '点击“开始回合”随机出题。',
+                start_round: '开始回合',
+                correct: '回答正确 +1',
+                pass: '跳过',
+                wrong: '回答错误 -1',
+                reset_score: '重置积分',
+                score_title: '队伍积分榜',
+                timer_up: '时间到，本回合结束。',
+                no_prompt: '没有可用题目，请重置后再试。',
+                history_prefix: '历史',
+                result_correct: '回答正确',
+                result_wrong: '回答错误',
+                result_pass: '跳过',
+                reset_done: '积分已重置。',
+                team_default: ['一队', '二队', '三队', '四队']
+            },
+            en: {
+                round_title: 'Round Controls',
+                seconds_label: 'Round Seconds',
+                active_team: 'Active Team',
+                countdown: 'Countdown',
+                no_team: '-',
+                question_ready: 'Click "Start Round" to draw a random prompt.',
+                start_round: 'Start Round',
+                correct: 'Correct +1',
+                pass: 'Pass',
+                wrong: 'Wrong -1',
+                reset_score: 'Reset Scores',
+                score_title: 'Team Scoreboard',
+                timer_up: 'Time is up. Round ended.',
+                no_prompt: 'No prompt available. Reset and try again.',
+                history_prefix: 'History',
+                result_correct: 'Correct',
+                result_wrong: 'Wrong',
+                result_pass: 'Pass',
+                reset_done: 'Scores have been reset.',
+                team_default: ['Team A', 'Team B', 'Team C', 'Team D']
+            },
+            es: {
+                round_title: 'Control de Ronda',
+                seconds_label: 'Segundos por ronda',
+                active_team: 'Equipo activo',
+                countdown: 'Cuenta regresiva',
+                no_team: '-',
+                question_ready: 'Haz clic en "Iniciar ronda" para elegir un reto aleatorio.',
+                start_round: 'Iniciar ronda',
+                correct: 'Correcto +1',
+                pass: 'Saltar',
+                wrong: 'Incorrecto -1',
+                reset_score: 'Reiniciar puntos',
+                score_title: 'Marcador por equipos',
+                timer_up: 'Tiempo terminado. Ronda finalizada.',
+                no_prompt: 'No hay retos disponibles. Reinicia e intenta de nuevo.',
+                history_prefix: 'Historial',
+                result_correct: 'Correcto',
+                result_wrong: 'Incorrecto',
+                result_pass: 'Salto',
+                reset_done: 'Los puntos se reiniciaron.',
+                team_default: ['Equipo A', 'Equipo B', 'Equipo C', 'Equipo D']
+            },
+            fr: {
+                round_title: 'Controle du Tour',
+                seconds_label: 'Secondes par tour',
+                active_team: 'Equipe active',
+                countdown: 'Compte a rebours',
+                no_team: '-',
+                question_ready: 'Cliquez sur "Demarrer" pour tirer une question aleatoire.',
+                start_round: 'Demarrer',
+                correct: 'Bonne reponse +1',
+                pass: 'Passer',
+                wrong: 'Mauvaise reponse -1',
+                reset_score: 'Reinitialiser les points',
+                score_title: 'Tableau des scores',
+                timer_up: 'Temps ecoule. Tour termine.',
+                no_prompt: 'Aucune question disponible. Reinitialisez puis reessayez.',
+                history_prefix: 'Historique',
+                result_correct: 'Bonne reponse',
+                result_wrong: 'Mauvaise reponse',
+                result_pass: 'Passe',
+                reset_done: 'Les scores ont ete reinitialises.',
+                team_default: ['Equipe A', 'Equipe B', 'Equipe C', 'Equipe D']
+            }
+        };
+
+        const promptBank = {
+            zh: [
+                '用 30 秒说出一个你最喜欢的成语并解释。',
+                '请举一个生活中的分数应用场景。',
+                '用英语说出今天你最想感谢的人。',
+                '快速说出 5 个和春天有关的词语。',
+                '用一句话总结今天这节课的重点。',
+                '请用肢体动作表达一个科学现象。',
+                '说出一个你想和同学合作完成的小目标。',
+                '请描述一个让你印象深刻的历史人物。',
+                '请用 20 秒完成一个口算题：36×4。',
+                '请提出一个你想继续研究的问题。'
+            ],
+            en: [
+                'In 30 seconds, explain one idiom you like.',
+                'Give one real-life example of fractions.',
+                'Say one person you want to thank today in English.',
+                'Name 5 words related to spring.',
+                'Summarize today\'s lesson in one sentence.',
+                'Use body language to show one science concept.',
+                'Share one small goal you want to complete with classmates.',
+                'Describe one historical person who impressed you.',
+                'Do this mental math quickly: 36 x 4.',
+                'Ask one question you still want to explore.'
+            ],
+            es: [
+                'En 30 segundos, explica un modismo que te guste.',
+                'Da un ejemplo real del uso de fracciones.',
+                'Di en ingles a quien quieres agradecer hoy.',
+                'Nombra 5 palabras relacionadas con la primavera.',
+                'Resume la clase de hoy en una frase.',
+                'Usa lenguaje corporal para mostrar un concepto de ciencia.',
+                'Comparte una meta pequena para lograr con tu equipo.',
+                'Describe una persona historica que te impresiono.',
+                'Haz este calculo mental: 36 x 4.',
+                'Haz una pregunta que quieras investigar mas.'
+            ],
+            fr: [
+                'En 30 secondes, explique une expression que tu aimes.',
+                'Donne un exemple concret d\'utilisation des fractions.',
+                'Dis en anglais la personne que tu veux remercier aujourd\'hui.',
+                'Donne 5 mots lies au printemps.',
+                'Resume la lecon du jour en une phrase.',
+                'Montre un concept scientifique avec des gestes.',
+                'Partage un petit objectif a realiser en equipe.',
+                'Decris une personne historique qui t\'a marque.',
+                'Fais ce calcul mental: 36 x 4.',
+                'Pose une question que tu veux encore explorer.'
+            ]
+        };
+
+        const state = {
+            teams: [],
+            scores: [0, 0, 0, 0],
+            activeTeamIndex: -1,
+            roundSeconds: 30,
+            remainingSeconds: 30,
+            roundRunning: false,
+            timerId: null,
+            promptPool: [],
+            history: []
+        };
+
+        function currentLang() {
+            const lang = window.i18n && typeof window.i18n.currentLanguage === 'function'
+                ? window.i18n.currentLanguage()
+                : 'zh';
+            return pageI18n[lang] ? lang : 'en';
+        }
+
+        function t(key) {
+            const lang = currentLang();
+            const pack = pageI18n[lang] || pageI18n.en;
+            return pack[key] || pageI18n.en[key] || key;
+        }
+
+        function createTeamCards() {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+            const defaults = t('team_default');
+
+            for (let i = 0; i < 4; i++) {
+                if (!state.teams[i]) {
+                    state.teams[i] = defaults[i] || `Team ${i + 1}`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.dataset.index = String(i);
+                card.innerHTML = `
+                    <input type="text" id="teamName${i}" value="${escapeHtml(state.teams[i])}" maxlength="24">
+                    <div class="score" id="teamScore${i}">${state.scores[i]}</div>
+                `;
+                grid.appendChild(card);
+
+                const input = card.querySelector('input');
+                input.addEventListener('input', () => {
+                    state.teams[i] = input.value.trim() || (t('team_default')[i] || `Team ${i + 1}`);
+                    refreshStatus();
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function refreshTexts() {
+            document.getElementById('roundTitle').textContent = t('round_title');
+            document.getElementById('secondsLabel').textContent = t('seconds_label');
+            document.getElementById('startRoundBtn').textContent = t('start_round');
+            document.getElementById('correctBtn').textContent = t('correct');
+            document.getElementById('passBtn').textContent = t('pass');
+            document.getElementById('wrongBtn').textContent = t('wrong');
+            document.getElementById('resetScoreBtn').textContent = t('reset_score');
+            document.getElementById('scoreTitle').textContent = t('score_title');
+
+            if (!state.roundRunning && state.activeTeamIndex < 0) {
+                document.getElementById('questionBox').textContent = t('question_ready');
+            }
+
+            refreshStatus();
+            renderHistory();
+        }
+
+        function refreshStatus() {
+            const activeName = state.activeTeamIndex >= 0
+                ? (state.teams[state.activeTeamIndex] || t('no_team'))
+                : t('no_team');
+
+            document.getElementById('activeTeamChip').textContent = `${t('active_team')}：${activeName}`;
+            document.getElementById('countdownChip').textContent = `${t('countdown')}：${state.remainingSeconds}s`;
+
+            const chip = document.getElementById('countdownChip');
+            chip.classList.toggle('alert', state.roundRunning && state.remainingSeconds <= 8);
+
+            document.querySelectorAll('.team-card').forEach(card => {
+                const idx = Number(card.dataset.index);
+                card.classList.toggle('active', idx === state.activeTeamIndex);
+            });
+
+            state.scores.forEach((score, i) => {
+                const scoreEl = document.getElementById(`teamScore${i}`);
+                if (scoreEl) scoreEl.textContent = String(score);
+            });
+        }
+
+        function buildPromptPool() {
+            const lang = currentLang();
+            const list = promptBank[lang] || promptBank.en;
+            state.promptPool = [...list];
+        }
+
+        function pickPrompt() {
+            if (state.promptPool.length === 0) {
+                buildPromptPool();
+            }
+            if (state.promptPool.length === 0) return null;
+
+            const index = Math.floor(Math.random() * state.promptPool.length);
+            const prompt = state.promptPool[index];
+            state.promptPool.splice(index, 1);
+            return prompt;
+        }
+
+        function pickTeam() {
+            const options = [0, 1, 2, 3].filter(i => i !== state.activeTeamIndex);
+            const source = options.length ? options : [0, 1, 2, 3];
+            return source[Math.floor(Math.random() * source.length)];
+        }
+
+        function setRoundButtons(running) {
+            document.getElementById('startRoundBtn').disabled = running;
+            document.getElementById('correctBtn').disabled = !running;
+            document.getElementById('passBtn').disabled = !running;
+            document.getElementById('wrongBtn').disabled = !running;
+        }
+
+        function startRound() {
+            if (state.roundRunning) return;
+
+            const secondsInput = document.getElementById('roundSeconds');
+            const parsed = Number(secondsInput.value);
+            state.roundSeconds = Number.isFinite(parsed) ? Math.min(180, Math.max(10, Math.floor(parsed))) : 30;
+            secondsInput.value = String(state.roundSeconds);
+            state.remainingSeconds = state.roundSeconds;
+
+            const prompt = pickPrompt();
+            if (!prompt) {
+                document.getElementById('questionBox').textContent = t('no_prompt');
+                return;
+            }
+
+            state.activeTeamIndex = pickTeam();
+            state.roundRunning = true;
+            document.getElementById('questionBox').textContent = prompt;
+            setRoundButtons(true);
+            refreshStatus();
+
+            state.timerId = setInterval(() => {
+                state.remainingSeconds -= 1;
+                refreshStatus();
+
+                if (state.remainingSeconds <= 0) {
+                    finalizeRound('timer', 0);
+                }
+            }, 1000);
+        }
+
+        function pushHistory(resultKey, scoreDelta) {
+            const teamName = state.teams[state.activeTeamIndex] || t('no_team');
+            const text = `${teamName} - ${t(resultKey)}${scoreDelta ? ` (${scoreDelta > 0 ? '+' : ''}${scoreDelta})` : ''}`;
+            state.history.unshift(text);
+            if (state.history.length > 12) {
+                state.history.length = 12;
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const box = document.getElementById('historyBox');
+            const title = `<strong>${t('history_prefix')}</strong>`;
+
+            if (state.history.length === 0) {
+                box.innerHTML = `${title}<div class="history-item">-</div>`;
+                return;
+            }
+
+            box.innerHTML = title + state.history.map(item => `<div class="history-item">${escapeHtml(item)}</div>`).join('');
+        }
+
+        function finalizeRound(resultType, scoreDelta) {
+            if (!state.roundRunning) return;
+
+            if (state.timerId) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+            }
+
+            if (scoreDelta !== 0 && state.activeTeamIndex >= 0) {
+                state.scores[state.activeTeamIndex] += scoreDelta;
+            }
+
+            if (resultType === 'timer') {
+                document.getElementById('questionBox').textContent = t('timer_up');
+            }
+
+            if (resultType === 'correct') pushHistory('result_correct', scoreDelta);
+            if (resultType === 'wrong') pushHistory('result_wrong', scoreDelta);
+            if (resultType === 'pass') pushHistory('result_pass', scoreDelta);
+            if (resultType === 'timer') pushHistory('result_pass', 0);
+
+            state.roundRunning = false;
+            state.remainingSeconds = state.roundSeconds;
+            setRoundButtons(false);
+            refreshStatus();
+        }
+
+        function resetScores() {
+            state.scores = [0, 0, 0, 0];
+            state.history = [];
+            state.activeTeamIndex = -1;
+            state.roundRunning = false;
+            if (state.timerId) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+            }
+            state.remainingSeconds = Number(document.getElementById('roundSeconds').value) || 30;
+            document.getElementById('questionBox').textContent = t('reset_done');
+            setRoundButtons(false);
+            refreshStatus();
+            renderHistory();
+        }
+
+        function applyLanguageToTeams() {
+            const defaults = t('team_default');
+            for (let i = 0; i < 4; i++) {
+                const input = document.getElementById(`teamName${i}`);
+                if (!input) continue;
+
+                if (!input.value || input.value === pageI18n.en.team_default[i] || input.value === pageI18n.zh.team_default[i] || input.value === pageI18n.es.team_default[i] || input.value === pageI18n.fr.team_default[i]) {
+                    input.value = defaults[i] || `Team ${i + 1}`;
+                }
+                state.teams[i] = input.value.trim() || defaults[i] || `Team ${i + 1}`;
+            }
+        }
+
+        function init() {
+            createTeamCards();
+            buildPromptPool();
+            setRoundButtons(false);
+            refreshTexts();
+            applyLanguageToTeams();
+
+            document.getElementById('startRoundBtn').addEventListener('click', startRound);
+            document.getElementById('correctBtn').addEventListener('click', () => finalizeRound('correct', 1));
+            document.getElementById('passBtn').addEventListener('click', () => finalizeRound('pass', 0));
+            document.getElementById('wrongBtn').addEventListener('click', () => finalizeRound('wrong', -1));
+            document.getElementById('resetScoreBtn').addEventListener('click', resetScores);
+
+            window.addEventListener('languageChanged', () => {
+                buildPromptPool();
+                applyLanguageToTeams();
+                refreshTexts();
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init, { once: true });
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

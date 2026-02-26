@@ -1,4 +1,4 @@
-﻿const CACHE_VERSION = '2.0.9';
+﻿const CACHE_VERSION = '2.1.0';
 const CACHE_NAME = `teacher-toolkit-v${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
@@ -9,6 +9,7 @@ const CORE_ASSETS = [
   '/src/js/student-manager.js',
   '/src/js/i18n.js',
   '/src/js/index.js',
+  '/src/pages/classroom-game.html',
   '/assets/images/briefcase-192x192.png',
   '/assets/images/briefcase-512x512.png',
   '/manifest.json'
@@ -21,7 +22,8 @@ const SKIP_CACHE_PATTERNS = [
   'cloudflareinsights.com'
 ];
 
-const STATIC_ASSET_PATTERN = /\.(?:css|js|mjs|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf)$/i;
+const CRITICAL_ASSET_PATTERN = /\.(?:css|js|mjs|json)$/i;
+const MEDIA_ASSET_PATTERN = /\.(?:png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf)$/i;
 
 function shouldSkipCache(url) {
   return SKIP_CACHE_PATTERNS.some(pattern => url.includes(pattern));
@@ -90,9 +92,7 @@ async function staleWhileRevalidate(request) {
 
 self.addEventListener('install', event => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => addCoreAssets(cache))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => addCoreAssets(cache)));
 });
 
 self.addEventListener('activate', event => {
@@ -118,14 +118,20 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
   const isSameOrigin = url.origin === self.location.origin;
-  const isStaticAsset = isSameOrigin && STATIC_ASSET_PATTERN.test(url.pathname);
+  const isCriticalAsset = isSameOrigin && CRITICAL_ASSET_PATTERN.test(url.pathname);
+  const isMediaAsset = isSameOrigin && MEDIA_ASSET_PATTERN.test(url.pathname);
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request));
     return;
   }
 
-  if (isStaticAsset) {
+  if (isCriticalAsset) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if (isMediaAsset) {
     event.respondWith(staleWhileRevalidate(request));
     return;
   }
