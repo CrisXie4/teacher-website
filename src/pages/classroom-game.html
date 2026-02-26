@@ -108,6 +108,46 @@
             font-size: 0.95rem;
         }
 
+        .setting-row select {
+            border: 1px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.95rem;
+            background: #fff;
+        }
+
+        .question-bank {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: 1px solid #dbe5f4;
+            background: #f7faff;
+        }
+
+        .question-bank h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #17346f;
+        }
+
+        .question-bank-tip {
+            margin: 0 0 0.5rem 0;
+            color: #526274;
+            font-size: 0.9rem;
+        }
+
+        .question-bank textarea {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+            border: 1px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 0.55rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: #fff;
+        }
+
         .team-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -191,14 +231,30 @@
                 <div class="setting-row">
                     <label id="secondsLabel" for="roundSeconds">回合秒数</label>
                     <input id="roundSeconds" type="number" min="10" max="180" value="30">
+                    <label id="modeLabel" for="promptModeSelect">出题模式</label>
+                    <select id="promptModeSelect">
+                        <option value="sequence" id="modeSequenceOption">顺序</option>
+                        <option value="random" id="modeRandomOption">随机</option>
+                    </select>
+                </div>
+
+                <div class="question-bank">
+                    <h3 id="questionBankTitle">老师题库</h3>
+                    <p class="question-bank-tip" id="questionBankTip">每行输入一个问题，先加载题库再开始回合。</p>
+                    <textarea id="teacherQuestions" placeholder="例如：&#10;请解释分数的意义。&#10;请用英语描述今天的天气。&#10;请举一个生活中的杠杆例子。"></textarea>
+                    <div class="controls">
+                        <button class="btn primary" id="loadPromptBtn">加载题库</button>
+                        <button class="btn ghost" id="clearPromptBtn">清空题库</button>
+                    </div>
                 </div>
 
                 <div class="status-row">
                     <span class="status-chip" id="activeTeamChip">当前队伍：-</span>
                     <span class="status-chip countdown-chip" id="countdownChip">倒计时：30s</span>
+                    <span class="status-chip" id="promptCountChip">题目数：0</span>
                 </div>
 
-                <div class="question-box" id="questionBox">点击“开始回合”随机出题。</div>
+                <div class="question-box" id="questionBox">请先输入老师题目并点击“加载题库”，然后开始回合。</div>
 
                 <div class="controls">
                     <button class="btn primary" id="startRoundBtn">开始回合</button>
@@ -223,10 +279,21 @@
             zh: {
                 round_title: '回合控制',
                 seconds_label: '回合秒数',
+                mode_label: '出题模式',
+                mode_random: '随机',
+                mode_sequence: '顺序',
+                question_bank_title: '老师题库',
+                question_bank_tip: '每行输入一个问题，先加载题库再开始回合。',
+                question_input_placeholder: '例如：\n请解释分数的意义。\n请用英语描述今天的天气。\n请举一个生活中的杠杆例子。',
+                load_questions: '加载题库',
+                clear_questions: '清空题库',
+                prompt_count: '题目数',
+                questions_loaded: '题库已加载，共 {count} 题。',
+                questions_cleared: '题库已清空，请重新输入问题。',
                 active_team: '当前队伍',
                 countdown: '倒计时',
                 no_team: '-',
-                question_ready: '点击“开始回合”随机出题。',
+                question_ready: '请先输入老师题目并点击“加载题库”，然后开始回合。',
                 start_round: '开始回合',
                 correct: '回答正确 +1',
                 pass: '跳过',
@@ -235,6 +302,7 @@
                 score_title: '队伍积分榜',
                 timer_up: '时间到，本回合结束。',
                 no_prompt: '没有可用题目，请重置后再试。',
+                no_teacher_questions: '请先输入老师题目并点击“加载题库”。',
                 history_prefix: '历史',
                 result_correct: '回答正确',
                 result_wrong: '回答错误',
@@ -245,10 +313,21 @@
             en: {
                 round_title: 'Round Controls',
                 seconds_label: 'Round Seconds',
+                mode_label: 'Prompt Mode',
+                mode_random: 'Random',
+                mode_sequence: 'Sequence',
+                question_bank_title: 'Teacher Question Bank',
+                question_bank_tip: 'Enter one question per line, then load before starting rounds.',
+                question_input_placeholder: 'Example:\nExplain what a fraction means.\nDescribe today\'s weather in English.\nGive one real-life lever example.',
+                load_questions: 'Load Questions',
+                clear_questions: 'Clear Questions',
+                prompt_count: 'Questions',
+                questions_loaded: 'Question bank loaded: {count} items.',
+                questions_cleared: 'Question bank cleared. Please add questions again.',
                 active_team: 'Active Team',
                 countdown: 'Countdown',
                 no_team: '-',
-                question_ready: 'Click "Start Round" to draw a random prompt.',
+                question_ready: 'Enter teacher questions, click "Load Questions", then start the round.',
                 start_round: 'Start Round',
                 correct: 'Correct +1',
                 pass: 'Pass',
@@ -257,6 +336,7 @@
                 score_title: 'Team Scoreboard',
                 timer_up: 'Time is up. Round ended.',
                 no_prompt: 'No prompt available. Reset and try again.',
+                no_teacher_questions: 'Please enter teacher questions and click "Load Questions" first.',
                 history_prefix: 'History',
                 result_correct: 'Correct',
                 result_wrong: 'Wrong',
@@ -267,10 +347,21 @@
             es: {
                 round_title: 'Control de Ronda',
                 seconds_label: 'Segundos por ronda',
+                mode_label: 'Modo de preguntas',
+                mode_random: 'Aleatorio',
+                mode_sequence: 'Secuencial',
+                question_bank_title: 'Banco de Preguntas del Docente',
+                question_bank_tip: 'Escribe una pregunta por linea y luego carga el banco antes de iniciar.',
+                question_input_placeholder: 'Ejemplo:\nExplica que significa una fraccion.\nDescribe el clima de hoy en ingles.\nDa un ejemplo de palanca en la vida real.',
+                load_questions: 'Cargar Preguntas',
+                clear_questions: 'Limpiar Preguntas',
+                prompt_count: 'Preguntas',
+                questions_loaded: 'Banco cargado: {count} preguntas.',
+                questions_cleared: 'Banco limpiado. Vuelve a ingresar preguntas.',
                 active_team: 'Equipo activo',
                 countdown: 'Cuenta regresiva',
                 no_team: '-',
-                question_ready: 'Haz clic en "Iniciar ronda" para elegir un reto aleatorio.',
+                question_ready: 'Ingresa preguntas, pulsa "Cargar Preguntas" y luego inicia la ronda.',
                 start_round: 'Iniciar ronda',
                 correct: 'Correcto +1',
                 pass: 'Saltar',
@@ -279,6 +370,7 @@
                 score_title: 'Marcador por equipos',
                 timer_up: 'Tiempo terminado. Ronda finalizada.',
                 no_prompt: 'No hay retos disponibles. Reinicia e intenta de nuevo.',
+                no_teacher_questions: 'Primero ingresa preguntas del docente y pulsa "Cargar Preguntas".',
                 history_prefix: 'Historial',
                 result_correct: 'Correcto',
                 result_wrong: 'Incorrecto',
@@ -289,10 +381,21 @@
             fr: {
                 round_title: 'Controle du Tour',
                 seconds_label: 'Secondes par tour',
+                mode_label: 'Mode de questions',
+                mode_random: 'Aleatoire',
+                mode_sequence: 'Sequence',
+                question_bank_title: 'Banque de Questions Enseignant',
+                question_bank_tip: 'Saisissez une question par ligne puis chargez avant de demarrer.',
+                question_input_placeholder: 'Exemple:\nExplique ce qu est une fraction.\nDecris la meteo du jour en anglais.\nDonne un exemple de levier dans la vie quotidienne.',
+                load_questions: 'Charger Questions',
+                clear_questions: 'Vider Questions',
+                prompt_count: 'Questions',
+                questions_loaded: 'Banque chargee: {count} questions.',
+                questions_cleared: 'Banque videe. Veuillez ressaisir les questions.',
                 active_team: 'Equipe active',
                 countdown: 'Compte a rebours',
                 no_team: '-',
-                question_ready: 'Cliquez sur "Demarrer" pour tirer une question aleatoire.',
+                question_ready: 'Saisissez des questions, cliquez sur "Charger Questions", puis demarrez le tour.',
                 start_round: 'Demarrer',
                 correct: 'Bonne reponse +1',
                 pass: 'Passer',
@@ -301,6 +404,7 @@
                 score_title: 'Tableau des scores',
                 timer_up: 'Temps ecoule. Tour termine.',
                 no_prompt: 'Aucune question disponible. Reinitialisez puis reessayez.',
+                no_teacher_questions: 'Veuillez d abord saisir les questions puis cliquer sur "Charger Questions".',
                 history_prefix: 'Historique',
                 result_correct: 'Bonne reponse',
                 result_wrong: 'Mauvaise reponse',
@@ -308,57 +412,6 @@
                 reset_done: 'Les scores ont ete reinitialises.',
                 team_default: ['Equipe A', 'Equipe B', 'Equipe C', 'Equipe D']
             }
-        };
-
-        const promptBank = {
-            zh: [
-                '用 30 秒说出一个你最喜欢的成语并解释。',
-                '请举一个生活中的分数应用场景。',
-                '用英语说出今天你最想感谢的人。',
-                '快速说出 5 个和春天有关的词语。',
-                '用一句话总结今天这节课的重点。',
-                '请用肢体动作表达一个科学现象。',
-                '说出一个你想和同学合作完成的小目标。',
-                '请描述一个让你印象深刻的历史人物。',
-                '请用 20 秒完成一个口算题：36×4。',
-                '请提出一个你想继续研究的问题。'
-            ],
-            en: [
-                'In 30 seconds, explain one idiom you like.',
-                'Give one real-life example of fractions.',
-                'Say one person you want to thank today in English.',
-                'Name 5 words related to spring.',
-                'Summarize today\'s lesson in one sentence.',
-                'Use body language to show one science concept.',
-                'Share one small goal you want to complete with classmates.',
-                'Describe one historical person who impressed you.',
-                'Do this mental math quickly: 36 x 4.',
-                'Ask one question you still want to explore.'
-            ],
-            es: [
-                'En 30 segundos, explica un modismo que te guste.',
-                'Da un ejemplo real del uso de fracciones.',
-                'Di en ingles a quien quieres agradecer hoy.',
-                'Nombra 5 palabras relacionadas con la primavera.',
-                'Resume la clase de hoy en una frase.',
-                'Usa lenguaje corporal para mostrar un concepto de ciencia.',
-                'Comparte una meta pequena para lograr con tu equipo.',
-                'Describe una persona historica que te impresiono.',
-                'Haz este calculo mental: 36 x 4.',
-                'Haz una pregunta que quieras investigar mas.'
-            ],
-            fr: [
-                'En 30 secondes, explique une expression que tu aimes.',
-                'Donne un exemple concret d\'utilisation des fractions.',
-                'Dis en anglais la personne que tu veux remercier aujourd\'hui.',
-                'Donne 5 mots lies au printemps.',
-                'Resume la lecon du jour en une phrase.',
-                'Montre un concept scientifique avec des gestes.',
-                'Partage un petit objectif a realiser en equipe.',
-                'Decris une personne historique qui t\'a marque.',
-                'Fais ce calcul mental: 36 x 4.',
-                'Pose une question que tu veux encore explorer.'
-            ]
         };
 
         const state = {
@@ -369,7 +422,10 @@
             remainingSeconds: 30,
             roundRunning: false,
             timerId: null,
+            promptMode: 'sequence',
+            customPrompts: [],
             promptPool: [],
+            promptCursor: 0,
             history: []
         };
 
@@ -425,6 +481,14 @@
         function refreshTexts() {
             document.getElementById('roundTitle').textContent = t('round_title');
             document.getElementById('secondsLabel').textContent = t('seconds_label');
+            document.getElementById('modeLabel').textContent = t('mode_label');
+            document.getElementById('modeRandomOption').textContent = t('mode_random');
+            document.getElementById('modeSequenceOption').textContent = t('mode_sequence');
+            document.getElementById('questionBankTitle').textContent = t('question_bank_title');
+            document.getElementById('questionBankTip').textContent = t('question_bank_tip');
+            document.getElementById('teacherQuestions').placeholder = t('question_input_placeholder');
+            document.getElementById('loadPromptBtn').textContent = t('load_questions');
+            document.getElementById('clearPromptBtn').textContent = t('clear_questions');
             document.getElementById('startRoundBtn').textContent = t('start_round');
             document.getElementById('correctBtn').textContent = t('correct');
             document.getElementById('passBtn').textContent = t('pass');
@@ -447,6 +511,7 @@
 
             document.getElementById('activeTeamChip').textContent = `${t('active_team')}：${activeName}`;
             document.getElementById('countdownChip').textContent = `${t('countdown')}：${state.remainingSeconds}s`;
+            document.getElementById('promptCountChip').textContent = `${t('prompt_count')}：${state.customPrompts.length}`;
 
             const chip = document.getElementById('countdownChip');
             chip.classList.toggle('alert', state.roundRunning && state.remainingSeconds <= 8);
@@ -462,21 +527,66 @@
             });
         }
 
+        function parseTeacherQuestions(rawText) {
+            return String(rawText || '')
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(Boolean);
+        }
+
         function buildPromptPool() {
-            const lang = currentLang();
-            const list = promptBank[lang] || promptBank.en;
-            state.promptPool = [...list];
+            state.promptPool = [...state.customPrompts];
+            state.promptCursor = 0;
+        }
+
+        function loadTeacherQuestions() {
+            const textarea = document.getElementById('teacherQuestions');
+            const list = parseTeacherQuestions(textarea.value);
+            state.customPrompts = list;
+            buildPromptPool();
+            setRoundButtons(state.roundRunning);
+            refreshStatus();
+
+            const box = document.getElementById('questionBox');
+            if (list.length === 0) {
+                box.textContent = t('no_teacher_questions');
+                return;
+            }
+            box.textContent = t('questions_loaded').replace('{count}', String(list.length));
+        }
+
+        function clearTeacherQuestions() {
+            const textarea = document.getElementById('teacherQuestions');
+            textarea.value = '';
+            state.customPrompts = [];
+            state.promptPool = [];
+            state.promptCursor = 0;
+            setRoundButtons(state.roundRunning);
+            refreshStatus();
+            document.getElementById('questionBox').textContent = t('questions_cleared');
         }
 
         function pickPrompt() {
+            if (state.customPrompts.length === 0) return null;
             if (state.promptPool.length === 0) {
                 buildPromptPool();
             }
             if (state.promptPool.length === 0) return null;
 
-            const index = Math.floor(Math.random() * state.promptPool.length);
-            const prompt = state.promptPool[index];
-            state.promptPool.splice(index, 1);
+            const mode = state.promptMode;
+            if (mode === 'random') {
+                const index = Math.floor(Math.random() * state.promptPool.length);
+                const prompt = state.promptPool[index];
+                state.promptPool.splice(index, 1);
+                return prompt;
+            }
+
+            const prompt = state.promptPool[state.promptCursor] || null;
+            state.promptCursor += 1;
+            if (state.promptCursor >= state.promptPool.length) {
+                state.promptPool = [];
+                state.promptCursor = 0;
+            }
             return prompt;
         }
 
@@ -487,7 +597,8 @@
         }
 
         function setRoundButtons(running) {
-            document.getElementById('startRoundBtn').disabled = running;
+            const hasQuestions = state.customPrompts.length > 0;
+            document.getElementById('startRoundBtn').disabled = running || !hasQuestions;
             document.getElementById('correctBtn').disabled = !running;
             document.getElementById('passBtn').disabled = !running;
             document.getElementById('wrongBtn').disabled = !running;
@@ -495,6 +606,10 @@
 
         function startRound() {
             if (state.roundRunning) return;
+            if (state.customPrompts.length === 0) {
+                document.getElementById('questionBox').textContent = t('no_teacher_questions');
+                return;
+            }
 
             const secondsInput = document.getElementById('roundSeconds');
             const parsed = Number(secondsInput.value);
@@ -604,11 +719,19 @@
 
         function init() {
             createTeamCards();
-            buildPromptPool();
+            const modeSelect = document.getElementById('promptModeSelect');
+            modeSelect.value = state.promptMode;
+            modeSelect.addEventListener('change', () => {
+                state.promptMode = modeSelect.value === 'random' ? 'random' : 'sequence';
+                buildPromptPool();
+            });
+
             setRoundButtons(false);
             refreshTexts();
             applyLanguageToTeams();
 
+            document.getElementById('loadPromptBtn').addEventListener('click', loadTeacherQuestions);
+            document.getElementById('clearPromptBtn').addEventListener('click', clearTeacherQuestions);
             document.getElementById('startRoundBtn').addEventListener('click', startRound);
             document.getElementById('correctBtn').addEventListener('click', () => finalizeRound('correct', 1));
             document.getElementById('passBtn').addEventListener('click', () => finalizeRound('pass', 0));
@@ -616,7 +739,6 @@
             document.getElementById('resetScoreBtn').addEventListener('click', resetScores);
 
             window.addEventListener('languageChanged', () => {
-                buildPromptPool();
                 applyLanguageToTeams();
                 refreshTexts();
             });
