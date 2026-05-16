@@ -15,7 +15,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f0ebe0 0%, #c8c4b8 100%);
             min-height: 100vh;
             color: #333;
             overflow: hidden;
@@ -101,15 +101,15 @@
         }
         
         .btn.save {
-            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            background: linear-gradient(135deg, #3d7a68, #6b8f5a);
         }
         
         .btn.fullscreen {
-            background: linear-gradient(135deg, #9C27B0, #E040FB);
+            background: linear-gradient(135deg, #7a5a82, #9a6aa2);
         }
         
         .btn.eraser {
-            background: linear-gradient(135deg, #FF9800, #FFC107);
+            background: linear-gradient(135deg, #b87240, #c9a24e);
         }
         
         .btn.load {
@@ -158,13 +158,13 @@
             box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
         }
         
-        .black { background-color: #000000; }
-        .red { background-color: #f44336; }
+        .black { background-color: #0a1210; }
+        .red { background-color: #b85a4a; }
         .blue { background-color: #2f5d50; }
-        .green { background-color: #4CAF50; }
+        .green { background-color: #3d7a68; }
         .yellow { background-color: #FFEB3B; }
-        .purple { background-color: #9C27B0; }
-        .orange { background-color: #FF9800; }
+        .purple { background-color: #7a5a82; }
+        .orange { background-color: #b87240; }
         
         .whiteboard-canvas {
             flex: 1;
@@ -339,13 +339,13 @@
             <div class="toolbar-group">
                 <span class="toolbar-group-label">颜色:</span>
                 <div class="color-picker">
-                    <div class="color-option black active" data-color="#000000"></div>
-                    <div class="color-option red" data-color="#f44336"></div>
+                    <div class="color-option black active" data-color="#0a1210"></div>
+                    <div class="color-option red" data-color="#b85a4a"></div>
                     <div class="color-option blue" data-color="#2f5d50"></div>
-                    <div class="color-option green" data-color="#4CAF50"></div>
+                    <div class="color-option green" data-color="#3d7a68"></div>
                     <div class="color-option yellow" data-color="#FFEB3B"></div>
-                    <div class="color-option purple" data-color="#9C27B0"></div>
-                    <div class="color-option orange" data-color="#FF9800"></div>
+                    <div class="color-option purple" data-color="#7a5a82"></div>
+                    <div class="color-option orange" data-color="#b87240"></div>
                 </div>
                 <div class="custom-color-picker">
                     <input type="color" id="customColor" class="custom-color-selector" value="#2f5d50">
@@ -392,7 +392,7 @@
         // 白板变量
         let canvasContext;
         let isDrawing = false;
-        let currentColor = '#000000';
+        let currentColor = '#0a1210';
         let lineWidth = 3;
         let isFullscreen = false;
         let isEraserActive = false;
@@ -699,7 +699,7 @@
                     橡皮擦(开)
                 `;
             } else {
-                eraserBtn.style.background = 'linear-gradient(135deg, #FF9800, #FFC107)';
+                eraserBtn.style.background = 'linear-gradient(135deg, #b87240, #c9a24e)';
                 eraserBtn.innerHTML = `
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L20.59,9.11C21.37,8.32 21.37,7.07 20.59,6.28L15.71,1.41C14.93,0.62 13.67,0.62 12.88,1.41L2.28,12C1.5,12.79 1.5,14.04 2.28,14.83L4.22,15.58Z" fill="white"/>
