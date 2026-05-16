@@ -56,14 +56,14 @@
                 <div id="toolSearchEmptyState" class="tool-search-empty hidden" data-lang="tool_search_no_result">未找到匹配工具，请换一个关键词</div>
             </div>
 
-            <div class="quick-launch">
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/timer.html')" data-lang="quick_chip_timer">课堂计时</button>
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/roll-call.html')" data-lang="quick_chip_rollcall">随机点名</button>
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/whiteboard.html')" data-lang="quick_chip_whiteboard">电子白板</button>
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/grouping.html')" data-lang="quick_chip_grouping">快速分组</button>
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/clock.html')" data-lang="quick_chip_clock">全屏时钟</button>
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/sound-detector.html')" data-lang="quick_chip_sound">声音检测</button>
-                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/classroom-game.html')" data-lang="quick_chip_game">课堂游戏</button>
+            <div class="quick-launch" id="quickLaunch">
+                <button class="quick-launch-chip" type="button" data-tool="timer" onclick="quickLaunch(this, 'src/pages/timer.html')" data-lang="quick_chip_timer">课堂计时</button>
+                <button class="quick-launch-chip" type="button" data-tool="roll-call" onclick="quickLaunch(this, 'src/pages/roll-call.html')" data-lang="quick_chip_rollcall">随机点名</button>
+                <button class="quick-launch-chip" type="button" data-tool="whiteboard" onclick="quickLaunch(this, 'src/pages/whiteboard.html')" data-lang="quick_chip_whiteboard">电子白板</button>
+                <button class="quick-launch-chip" type="button" data-tool="grouping" onclick="quickLaunch(this, 'src/pages/grouping.html')" data-lang="quick_chip_grouping">快速分组</button>
+                <button class="quick-launch-chip" type="button" data-tool="clock" onclick="quickLaunch(this, 'src/pages/clock.html')" data-lang="quick_chip_clock">全屏时钟</button>
+                <button class="quick-launch-chip" type="button" data-tool="sound-detector" onclick="quickLaunch(this, 'src/pages/sound-detector.html')" data-lang="quick_chip_sound">声音检测</button>
+                <button class="quick-launch-chip" type="button" data-tool="classroom-game" onclick="quickLaunch(this, 'src/pages/classroom-game.html')" data-lang="quick_chip_game">课堂游戏</button>
             </div>
         </section>
 

@@ -1482,6 +1482,7 @@ function init() {
 
     applyLanguage();
     enforceClientVersion();
+    sortQuickLaunch();
 
     setupSpringFestivalButton();
 
@@ -1526,6 +1527,35 @@ window.checkSpringFestival = checkSpringFestival;
 window.triggerSpringFestival = triggerSpringFestival;
 window.showSpringFestivalModal = showSpringFestivalModal;
 window.checkWebsiteStatus = checkWebsiteStatus;
+
+/* ── 快捷按钮按使用频率排序 ─────────────────────────────── */
+const QUICK_LAUNCH_KEY = 'teacher_toolkit_quick_usage';
+
+function getQuickUsage() {
+    try {
+        return JSON.parse(localStorage.getItem(QUICK_LAUNCH_KEY)) || {};
+    } catch { return {}; }
+}
+
+function quickLaunch(btn, url) {
+    const tool = btn.dataset.tool;
+    if (tool) {
+        const usage = getQuickUsage();
+        usage[tool] = (usage[tool] || 0) + 1;
+        localStorage.setItem(QUICK_LAUNCH_KEY, JSON.stringify(usage));
+    }
+    navigateTo(url);
+}
+window.quickLaunch = quickLaunch;
+
+function sortQuickLaunch() {
+    const container = document.getElementById('quickLaunch');
+    if (!container) return;
+    const usage = getQuickUsage();
+    const buttons = Array.from(container.querySelectorAll('.quick-launch-chip'));
+    buttons.sort((a, b) => (usage[b.dataset.tool] || 0) - (usage[a.dataset.tool] || 0));
+    buttons.forEach(btn => container.appendChild(btn));
+}
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
