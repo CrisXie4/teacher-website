@@ -5,9 +5,9 @@
     <link rel="dns-prefetch" href="//cloud.umami.is">
     <link rel="preconnect" href="https://cloud.umami.is" crossorigin>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4b6cb7">
-    <meta name="description" content="专为教师设计的实用工具集合">
-    <meta name="keywords" content="教师工具,教学工具,课堂管理,随机点名,计时器,电子白板">
+    <meta name="theme-color" content="#2f5d50">
+    <meta name="description" content="专为教师设计的实用工具集合，覆盖课堂互动、教学演示、学科生成与班级管理。">
+    <meta name="keywords" content="教师工具,教学工具,课堂管理,随机点名,计时器,电子白板,分组,班级管理">
     <meta name="author" content="Teacher Toolkit Team">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="教师工具箱">
@@ -15,282 +15,416 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="assets/images/briefcase-192x192.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/images/briefcase-192x192.png">
-    <title>教师工具箱</title>
-    <link rel="stylesheet" href="src/css/styles.css?v=2.1.0">
-    <link rel="stylesheet" href="src/css/index.css?v=2.1.0">
-    <script defer src="src/js/student-manager.js?v=2.1.0"></script>
-    <script defer src="src/js/i18n.js?v=2.1.0"></script>
-    <script defer src="src/js/index.js?v=2.1.0"></script>
+    <title data-lang="site_title">教师工具箱</title>
+    <link rel="stylesheet" href="src/css/styles.css?v=2.2.0">
+    <link rel="stylesheet" href="src/css/index.css?v=2.2.0">
+    <script defer src="src/js/student-manager.js?v=2.2.0"></script>
+    <script defer src="src/js/i18n.js?v=2.2.0"></script>
+    <script defer src="src/js/index.js?v=2.2.0"></script>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="header-actions">
-                <button class="announcement-center-btn" id="announcementCenterBtn" onclick="openAnnouncementCenter()" title="公告中心" style="display: none;">
-                    📢 <span data-lang="announcement_center">公告</span>
-                    <span class="badge hidden" id="announcementBadge">1</span>
-                </button>
-                <button class="language-switcher" id="languageSwitcher">English</button>
-                <button class="theme-switcher" id="themeSwitcher" data-lang="theme_dark">黑夜模式</button>
-                <button class="spring-festival-trigger" id="springFestivalBtn" style="background: linear-gradient(135deg, #d32f2f, #b71c1c); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: #ffd700; cursor: pointer; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" onclick="triggerSpringFestival()" data-lang="spring_festival">春节</button>
-                <button class="install-pwa-btn" id="installPwaBtn" style="background: linear-gradient(135deg, #4CAF50, #8BC34A); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" title="安装应用到桌面" data-lang="install_pwa">安装应用</button>
-                <button class="egg-button" id="eggButton" style="background: linear-gradient(135deg, #FFD700, #FFA500); border: none; padding: 0.5rem 1rem; border-radius: 20px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(5px); display: none;" onclick="triggerEasterEgg()" data-lang="egg">彩蛋</button>
-            </div>
-            <h1 data-lang="site_title">教师工具箱</h1>
-            <p data-lang="site_subtitle">专为教师设计的实用工具集合</p>
+    <header class="top-bar">
+        <div class="header-actions">
+            <button class="announcement-center-btn" id="announcementCenterBtn" onclick="openAnnouncementCenter()" title="公告中心" style="display: none;">
+                <span aria-hidden="true">讯</span>
+                <span data-lang="announcement_center">公告</span>
+                <span class="badge hidden" id="announcementBadge">1</span>
+            </button>
+            <button class="language-switcher" id="languageSwitcher">English</button>
+            <button class="theme-switcher" id="themeSwitcher" data-lang="theme_dark">深色模式</button>
+            <button class="spring-festival-trigger" id="springFestivalBtn" style="display: none;" onclick="triggerSpringFestival()" data-lang="spring_festival">春节</button>
+            <button class="install-pwa-btn" id="installPwaBtn" style="display: none;" title="安装应用到桌面" data-lang="install_pwa">安装应用</button>
+            <button class="egg-button" id="eggButton" style="display: none;" onclick="triggerEasterEgg()" data-lang="egg">彩蛋</button>
         </div>
     </header>
-    
-    <!-- 隐藏的彩蛋触发元素 -->
-    <div id="easterEggTrigger" style="position: fixed; bottom: 10px; right: 10px; width: 50px; height: 50px; cursor: pointer; z-index: 9999;"></div>
-    
-    <div class="container">
-        <div class="tool-search-wrapper">
-            <label class="tool-search-label sr-only" for="toolSearchInput" data-lang="tool_search_label">搜索工具</label>
-            <div class="tool-search-input-group">
-                <input type="search" id="toolSearchInput" class="tool-search-input" data-lang-placeholder="tool_search_placeholder" placeholder="搜索工具（如：计时、点名、白板）" autocomplete="off">
-                <button type="button" id="toolSearchClearBtn" class="tool-search-clear hidden" data-lang="tool_search_clear">清除</button>
-            </div>
-            <div id="toolSearchEmptyState" class="tool-search-empty hidden" data-lang="tool_search_no_result">未找到匹配工具，请换个关键词</div>
-        </div>
 
-        <!-- 工具卡片 -->
-        <div class="tools-container">
-            <div class="tool-card" id="sound-detector-card">
-                <div class="tool-icon">🔊</div>
-                <h2 data-lang="sound_detector_title">声音检测器</h2>
-                <p data-lang="sound_detector_desc">实时检测环境声音强度，声音越高小球越高</p>
-                <button onclick="navigateTo('src/pages/sound-detector.html')" data-lang="use_now">立即使用</button>
-            </div>
+    <div id="easterEggTrigger" class="easter-egg-trigger" aria-hidden="true"></div>
 
-            <div class="tool-card" id="roll-call-card">
-                <div class="tool-icon">🎲</div>
-                <h2 data-lang="roll_call_title">随机点名器</h2>
-                <p data-lang="roll_call_desc">随机选择学生回答问题，增加课堂互动</p>
-                <button onclick="navigateTo('src/pages/roll-call.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="timer-card">
-                <div class="tool-icon">⏱️</div>
-                <h2 data-lang="timer_title">课堂计时器</h2>
-                <p data-lang="timer_desc">管理课堂活动时间，提高教学效率</p>
-                <button onclick="navigateTo('src/pages/timer.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="clock-card">
-                <div class="tool-icon">🕐</div>
-                <h2 data-lang="clock_title">全屏时钟</h2>
-                <p data-lang="clock_desc">超大显示时钟，支持多种颜色和格式，一键全屏</p>
-                <button onclick="navigateTo('src/pages/clock.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="grouping-card">
-                <div class="tool-icon">👥</div>
-                <h2 data-lang="grouping_title">小组分组器</h2>
-                <p data-lang="grouping_desc">随机分组学生，便于小组活动</p>
-                <button onclick="navigateTo('src/pages/grouping.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="classroom-game-card">
-                <div class="tool-icon">🎮</div>
-                <h2 data-lang="classroom_game_title">课堂互动游戏</h2>
-                <p data-lang="classroom_game_desc">随机出题、倒计时与积分榜，快速提升课堂互动</p>
-                <button onclick="navigateTo('src/pages/classroom-game.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="whiteboard-card">
-                <div class="tool-icon">✏️</div>
-                <h2 data-lang="whiteboard_title">电子白板</h2>
-                <p data-lang="whiteboard_desc">在线绘制和演示，支持多点触控</p>
-                <button onclick="navigateTo('src/pages/whiteboard.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="tracker-card">
-                <div class="tool-icon">📈</div>
-                <h2 data-lang="tracker_title">课堂表现记录器</h2>
-                <p data-lang="tracker_desc">记录学生课堂表现，提升教学效果</p>
-                <button onclick="navigateTo('src/pages/classroom-tracker.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="copybook-card">
-                <div class="tool-icon">✍️</div>
-                <h2 data-lang="copybook_title">临摹本生成器</h2>
-                <p data-lang="copybook_desc">生成中英文临摹本，支持自定义字体</p>
-                <button onclick="navigateTo('src/pages/copybook-generator.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="math-card">
-                <div class="tool-icon">🔢</div>
-                <h2 data-lang="math_title">计算题生成器</h2>
-                <p data-lang="math_desc">生成自定义计算题，支持多种运算符</p>
-                <button onclick="navigateTo('src/pages/math-generator.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="3d-viewer-card">
-                <div class="tool-icon">🧱</div>
-                <h2 data-lang="3d_viewer_title">3D观察物体</h2>
-                <p data-lang="3d_viewer_desc">创建、编辑和观察3D物体，支持多角度查看</p>
-                <button onclick="navigateTo('src/pages/3d-viewer.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="periodic-table-card">
-                <div class="tool-icon">⚛️</div>
-                <h2 data-lang="periodic_table_title">元素周期表</h2>
-                <p data-lang="periodic_table_desc">交互式元素周期表，点击查看元素详情</p>
-                <button onclick="navigateTo('src/pages/periodic-table.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="chart-generator-card">
-                <div class="tool-icon">📊</div>
-                <h2 data-lang="chart_generator_title">图表生成器</h2>
-                <p data-lang="chart_generator_desc">自定义数据、颜色和图表类型，生成专业图表</p>
-                <button onclick="navigateTo('src/pages/chart-generator.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="teacher-camera-card" style="display: none;">
-                <div class="tool-icon">📷</div>
-                <h2 data-lang="teacher_camera_title">教师摄像头</h2>
-                <p data-lang="teacher_camera_desc">将教师手机摄像头画面投屏到电脑上</p>
-                <button onclick="navigateTo('src/pages/teacher-camera-vercel.html')" data-lang="use_now">立即使用</button>
-            </div>
-
-            <div class="tool-card" id="analytics-card">
-                <div class="tool-icon">📊</div>
-                <h2 data-lang="analytics_title">流量统计</h2>
-                <p data-lang="analytics_desc">查看网站访问趋势与关键指标</p>
-                <button onclick="navigateTo('src/pages/analytics.html')" data-lang="analytics_open">打开面板</button>
-            </div>
-
-            <div class="tool-card" id="website-status-card">
-                <div class="tool-icon">🟢</div>
-                <h2 data-lang="website_status_title">网站状态</h2>
-                <p data-lang="website_status_desc">一键检查教师工具箱服务是否在线，并查看状态详情</p>
-                <button onclick="navigateTo('src/pages/website-status.html')" data-lang="website_status_check">查看状态</button>
-            </div>
-
-            <div class="tool-card" id="donation-card">
-                <div class="tool-icon">❤️</div>
-                <h2 data-lang="donation_title">打赏支持</h2>
-                <p data-lang="donation_desc">如果您喜欢这些工具，欢迎打赏支持</p>
-                <button onclick="navigateTo('src/pages/donation.html')" data-lang="support_now">前往支持</button>
-            </div>
-        </div>
-        
-        <!-- 切换学生管理按钮 -->
-        <button id="toggleStudentsBtn" class="btn toggle-students" data-lang="manage_students">管理学生信息</button>
-        
-        <!-- 学生管理区域 -->
-        <div class="student-management-container hidden">
-            <div class="student-management" id="studentManagement">
-                <h2 data-lang="student_management">学生管理</h2>
-            
-            <div class="student-input-section">
-                <div class="input-group">
-                    <input type="text" id="studentId" placeholder="学号（可选）" data-lang-placeholder="student_id_placeholder">
-                    <input type="text" id="studentName" placeholder="学生姓名" data-lang-placeholder="student_name_placeholder">
-                    <button id="addStudentBtn" class="btn add" data-lang="add_student">添加学生</button>
+    <main class="page-home">
+        <section class="container spotlight-panel" data-reveal="up">
+            <div class="tool-search-wrapper" role="search">
+                <div class="search-copy">
+                    <p class="section-eyebrow" data-lang="search_eyebrow">快速检索</p>
+                    <h2 data-lang="search_title">直接搜工具名称或用途</h2>
                 </div>
-                
-                <div class="batch-import">
-                    <h3 data-lang="batch_import_title">批量导入（CSV格式：学号,姓名）</h3>
-                    <textarea id="csvInput" placeholder="例如：&#10;2021001,张三&#10;2021002,李四&#10;2021003,王五" data-lang-placeholder="csv_example"></textarea>
-                    <button id="importBtn" class="btn import" data-lang="import_csv">导入CSV</button>
+                <label class="tool-search-label sr-only" for="toolSearchInput" data-lang="tool_search_label">搜索工具</label>
+                <div class="tool-search-input-group">
+                    <input type="search" id="toolSearchInput" class="tool-search-input" data-lang-placeholder="tool_search_placeholder" placeholder="搜索工具，例如计时、点名、白板" autocomplete="off">
+                    <button type="button" id="toolSearchClearBtn" class="tool-search-clear hidden" data-lang="tool_search_clear">清除</button>
                 </div>
-                
-                <div class="file-import">
-                    <h3 data-lang="file_import_title">文件导入（支持CSV、TXT、JSON格式）</h3>
-                    <input type="file" id="fileInput" accept=".csv,.txt,.json">
-                    <button id="importFileBtn" class="btn import" data-lang="import_file">导入文件</button>
-                    <div id="fileInfo" style="margin-top: 0.8rem; font-size: 1rem; color: #666;"></div>
-                </div>
-                
-                <button id="clearStudentsBtn" class="btn clear" data-lang="clear_students">清空学生列表</button>
+                <div class="tool-search-meta" id="toolSearchMeta" data-lang="search_meta_default">当前共 16 个工具</div>
+                <div id="toolSearchEmptyState" class="tool-search-empty hidden" data-lang="tool_search_no_result">未找到匹配工具，请换一个关键词</div>
             </div>
-            
-            <div class="student-list-container">
-                <div id="studentList">
-                    <div class="empty-list" data-lang="no_students">暂无学生，请添加学生</div>
+
+            <div class="quick-launch">
+                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/roll-call.html')" data-lang="quick_chip_rollcall">随机点名</button>
+                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/timer.html')" data-lang="quick_chip_timer">课堂计时</button>
+                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/whiteboard.html')" data-lang="quick_chip_whiteboard">电子白板</button>
+                <button class="quick-launch-chip" type="button" onclick="navigateTo('src/pages/grouping.html')" data-lang="quick_chip_grouping">快速分组</button>
+                <button class="quick-launch-chip" type="button" onclick="checkWebsiteStatus()" data-lang="quick_chip_status">检查状态</button>
+            </div>
+        </section>
+
+        <section class="container feature-band">
+            <article class="feature-panel" data-reveal="up">
+                <p class="section-eyebrow" data-lang="feature_1_eyebrow">互动</p>
+                <h2 data-lang="feature_1_title">把课堂节奏放在前台</h2>
+                <p data-lang="feature_1_desc">把点名、分组、计时、声音监测整理成一套顺手的启动区，开课就能用。</p>
+            </article>
+            <article class="feature-panel" data-reveal="up">
+                <p class="section-eyebrow" data-lang="feature_2_eyebrow">演示</p>
+                <h2 data-lang="feature_2_title">演示与生成分层清楚</h2>
+                <p data-lang="feature_2_desc">白板、图表、手写、题目生成器统一放到教学制作区，不再四处找入口。</p>
+            </article>
+            <article class="feature-panel" data-reveal="up">
+                <p class="section-eyebrow" data-lang="feature_3_eyebrow">管理</p>
+                <h2 data-lang="feature_3_title">首页就能维护学生数据</h2>
+                <p data-lang="feature_3_desc">名单录入、批量导入、文件导入和汇总都在同一块区域，适合直接备课时处理。</p>
+            </article>
+        </section>
+
+        <section class="container tool-directory" id="tool-directory">
+            <div class="section-heading" data-reveal="up">
+                <p class="section-eyebrow" data-lang="tools_eyebrow">工具目录</p>
+                <h2 data-lang="tools_title">按课堂场景重新组织</h2>
+                <p data-lang="tools_subtitle">不按原来的顺序堆卡片，改成更接近日常使用路径的四个分区。</p>
+            </div>
+
+            <section class="tool-category category-interactive" data-category data-reveal="up">
+                <div class="category-header">
+                    <div class="category-icon">01</div>
+                    <div>
+                        <h3 data-lang="category_interactive">课堂互动与节奏</h3>
+                        <p data-lang="category_interactive_desc">开课即用，高频、快触达。</p>
+                    </div>
+                    <span class="category-count" data-visible-count>6</span>
+                </div>
+                <div class="tools-container">
+                    <article class="tool-card" id="sound-detector-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">声</div>
+                            <span class="tool-chip" data-lang="card_chip_live">实时</span>
+                        </div>
+                        <h2 data-lang="sound_detector_title">声音检测器</h2>
+                        <p data-lang="sound_detector_desc">实时检测环境音量强度，辅助课堂秩序观察。</p>
+                        <button onclick="navigateTo('src/pages/sound-detector.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="roll-call-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">点</div>
+                            <span class="tool-chip" data-lang="card_chip_hot">高频</span>
+                        </div>
+                        <h2 data-lang="roll_call_title">随机点名器</h2>
+                        <p data-lang="roll_call_desc">快速随机抽取学生回答问题，增加课堂参与度。</p>
+                        <button onclick="navigateTo('src/pages/roll-call.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="timer-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">时</div>
+                            <span class="tool-chip" data-lang="card_chip_focus">节奏</span>
+                        </div>
+                        <h2 data-lang="timer_title">课堂计时器</h2>
+                        <p data-lang="timer_desc">控制活动时长，给课堂讨论、练习和展示明确节奏。</p>
+                        <button onclick="navigateTo('src/pages/timer.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="clock-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">钟</div>
+                            <span class="tool-chip" data-lang="card_chip_display">展示</span>
+                        </div>
+                        <h2 data-lang="clock_title">全屏时钟</h2>
+                        <p data-lang="clock_desc">提供清晰的大字号时钟显示，适合投屏与课堂提醒。</p>
+                        <button onclick="navigateTo('src/pages/clock.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="grouping-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">组</div>
+                            <span class="tool-chip" data-lang="card_chip_fast">快速</span>
+                        </div>
+                        <h2 data-lang="grouping_title">小组分组器</h2>
+                        <p data-lang="grouping_desc">一键完成公平分组，适合讨论、合作和竞赛类活动。</p>
+                        <button onclick="navigateTo('src/pages/grouping.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="classroom-game-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">游</div>
+                            <span class="tool-chip" data-lang="card_chip_team">团队</span>
+                        </div>
+                        <h2 data-lang="classroom_game_title">课堂互动游戏</h2>
+                        <p data-lang="classroom_game_desc">随机出题、倒计时与积分榜组合，适合做课堂热身和巩固。</p>
+                        <button onclick="navigateTo('src/pages/classroom-game.html')" data-lang="use_now">立即使用</button>
+                    </article>
+                </div>
+            </section>
+
+            <section class="tool-category category-teaching" data-category data-reveal="up">
+                <div class="category-header">
+                    <div class="category-icon">02</div>
+                    <div>
+                        <h3 data-lang="category_teaching">教学演示与记录</h3>
+                        <p data-lang="category_teaching_desc">讲解、展示、记录在一个工作区。</p>
+                    </div>
+                    <span class="category-count" data-visible-count>5</span>
+                </div>
+                <div class="tools-container">
+                    <article class="tool-card" id="whiteboard-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">板</div>
+                            <span class="tool-chip" data-lang="card_chip_draw">演示</span>
+                        </div>
+                        <h2 data-lang="whiteboard_title">电子白板</h2>
+                        <p data-lang="whiteboard_desc">适合课堂即时书写、圈画讲解和投屏演示。</p>
+                        <button onclick="navigateTo('src/pages/whiteboard.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="tracker-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">记</div>
+                            <span class="tool-chip" data-lang="card_chip_data">记录</span>
+                        </div>
+                        <h2 data-lang="tracker_title">课堂表现记录器</h2>
+                        <p data-lang="tracker_desc">把学生表现、参与度和课堂反馈记录下来，便于课后回看。</p>
+                        <button onclick="navigateTo('src/pages/classroom-tracker.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="chart-generator-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">图</div>
+                            <span class="tool-chip" data-lang="card_chip_visual">可视化</span>
+                        </div>
+                        <h2 data-lang="chart_generator_title">图表生成器</h2>
+                        <p data-lang="chart_generator_desc">把课堂数据、调查结果或练习统计快速转成图表。</p>
+                        <button onclick="navigateTo('src/pages/chart-generator.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="teacher-camera-card" style="display: none;">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">投</div>
+                            <span class="tool-chip" data-lang="card_chip_camera">投屏</span>
+                        </div>
+                        <h2 data-lang="teacher_camera_title">教师摄像头</h2>
+                        <p data-lang="teacher_camera_desc">把手机摄像头画面投到电脑上，适合展示纸面材料或实验过程。</p>
+                        <button onclick="navigateTo('src/pages/teacher-camera-vercel.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="analytics-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">析</div>
+                            <span class="tool-chip" data-lang="card_chip_admin">后台</span>
+                        </div>
+                        <h2 data-lang="analytics_title">流量统计</h2>
+                        <p data-lang="analytics_desc">查看访问趋势和核心指标，便于持续改进站点使用体验。</p>
+                        <button onclick="navigateTo('src/pages/analytics.html')" data-lang="analytics_open">打开面板</button>
+                    </article>
+                </div>
+            </section>
+
+            <section class="tool-category category-subject" data-category data-reveal="up">
+                <div class="category-header">
+                    <div class="category-icon">03</div>
+                    <div>
+                        <h3 data-lang="category_subject">学科生成与素材</h3>
+                        <p data-lang="category_subject_desc">适合备课、练习单与课堂素材制作。</p>
+                    </div>
+                    <span class="category-count" data-visible-count>5</span>
+                </div>
+                <div class="tools-container">
+                    <article class="tool-card" id="copybook-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">帖</div>
+                            <span class="tool-chip" data-lang="card_chip_generate">生成</span>
+                        </div>
+                        <h2 data-lang="copybook_title">临摹本生成器</h2>
+                        <p data-lang="copybook_desc">快速生成适合课堂和作业使用的中英文书写练习页。</p>
+                        <button onclick="navigateTo('src/pages/copybook-generator.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="math-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">题</div>
+                            <span class="tool-chip" data-lang="card_chip_practice">练习</span>
+                        </div>
+                        <h2 data-lang="math_title">计算题生成器</h2>
+                        <p data-lang="math_desc">按难度和运算规则快速生成练习题，适合打印或投屏。</p>
+                        <button onclick="navigateTo('src/pages/math-generator.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="3d-viewer-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">模</div>
+                            <span class="tool-chip" data-lang="card_chip_model">模型</span>
+                        </div>
+                        <h2 data-lang="3d_viewer_title">3D 观察物体</h2>
+                        <p data-lang="3d_viewer_desc">创建并观察基础 3D 物体，适合立体几何和空间认知演示。</p>
+                        <button onclick="navigateTo('src/pages/3d-viewer.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="periodic-table-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">化</div>
+                            <span class="tool-chip" data-lang="card_chip_reference">参考</span>
+                        </div>
+                        <h2 data-lang="periodic_table_title">元素周期表</h2>
+                        <p data-lang="periodic_table_desc">交互式查看元素信息，适合化学课堂即时展示。</p>
+                        <button onclick="navigateTo('src/pages/periodic-table.html')" data-lang="use_now">立即使用</button>
+                    </article>
+
+                    <article class="tool-card" id="website-status-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">检</div>
+                            <span class="tool-chip" data-lang="card_chip_service">服务</span>
+                        </div>
+                        <h2 data-lang="website_status_title">网站状态</h2>
+                        <p data-lang="website_status_desc">一键检查当前服务状态，方便判断接口是否在线。</p>
+                        <button onclick="navigateTo('src/pages/website-status.html')" data-lang="website_status_check">查看状态</button>
+                    </article>
+                </div>
+            </section>
+
+            <section class="tool-category category-system" data-category data-reveal="up">
+                <div class="category-header">
+                    <div class="category-icon">04</div>
+                    <div>
+                        <h3 data-lang="category_system">支持与服务</h3>
+                        <p data-lang="category_system_desc">围绕站点使用本身的补充入口。</p>
+                    </div>
+                    <span class="category-count" data-visible-count>1</span>
+                </div>
+                <div class="tools-container">
+                    <article class="tool-card" id="donation-card">
+                        <div class="tool-card-top">
+                            <div class="tool-icon">赏</div>
+                            <span class="tool-chip" data-lang="card_chip_support">支持</span>
+                        </div>
+                        <h2 data-lang="donation_title">打赏支持</h2>
+                        <p data-lang="donation_desc">如果这些工具对你的教学有帮助，可以在这里支持项目继续维护。</p>
+                        <button onclick="navigateTo('src/pages/donation.html')" data-lang="support_now">前往支持</button>
+                    </article>
+                </div>
+            </section>
+        </section>
+
+        <section class="container workspace-section" id="workspace">
+            <div class="workspace-intro" data-reveal="up">
+                <div>
+                    <p class="section-eyebrow" data-lang="workspace_eyebrow">学生数据</p>
+                    <h2 data-lang="workspace_title">把名单管理也收进首页</h2>
+                    <p data-lang="workspace_subtitle">点名、分组、课堂记录都依赖学生数据，这里直接维护，减少重复录入。</p>
+                </div>
+                <button id="toggleStudentsBtn" class="btn toggle-students" data-lang="manage_students">管理学生信息</button>
+            </div>
+
+            <div class="student-management-container hidden">
+                <div class="student-management" id="studentManagement" data-reveal="up">
+                    <div class="student-management-header">
+                        <div>
+                            <p class="section-eyebrow" data-lang="student_management_eyebrow">名单工作台</p>
+                            <h2 data-lang="student_management">学生管理</h2>
+                        </div>
+                        <p class="student-management-note" data-lang="student_management_note">支持手动录入、CSV 粘贴和文件导入。</p>
+                    </div>
+
+                    <div class="student-layout">
+                        <div class="student-input-section">
+                            <div class="input-group">
+                                <input type="text" id="studentId" placeholder="学号（可选）" data-lang-placeholder="student_id_placeholder">
+                                <input type="text" id="studentName" placeholder="学生姓名" data-lang-placeholder="student_name_placeholder">
+                                <button id="addStudentBtn" class="btn add" data-lang="add_student">添加学生</button>
+                            </div>
+
+                            <div class="batch-import">
+                                <h3 data-lang="batch_import_title">批量导入（CSV 格式：学号,姓名）</h3>
+                                <textarea id="csvInput" placeholder="例如：&#10;2021001,张三&#10;2021002,李四&#10;2021003,王五" data-lang-placeholder="csv_example"></textarea>
+                                <button id="importBtn" class="btn import" data-lang="import_csv">导入 CSV</button>
+                            </div>
+
+                            <div class="file-import">
+                                <h3 data-lang="file_import_title">文件导入（支持 CSV、TXT、JSON）</h3>
+                                <input type="file" id="fileInput" accept=".csv,.txt,.json">
+                                <button id="importFileBtn" class="btn import" data-lang="import_file">导入文件</button>
+                                <div id="fileInfo"></div>
+                            </div>
+
+                            <button id="clearStudentsBtn" class="btn clear" data-lang="clear_students">清空学生列表</button>
+                        </div>
+
+                        <div class="student-side-panel">
+                            <div class="student-list-container">
+                                <div id="studentList">
+                                    <div class="empty-list" data-lang="no_students">暂无学生，请添加学生</div>
+                                </div>
+                            </div>
+
+                            <div class="student-summary">
+                                <div class="summary-card">
+                                    <div class="summary-value" id="totalStudents">0</div>
+                                    <div class="summary-label" data-lang="total_students">总学生数</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value" id="totalGroups">0</div>
+                                    <div class="summary-label" data-lang="suggested_groups">建议分组数</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="student-summary">
-                <div class="summary-card">
-                    <div class="summary-value" id="totalStudents">0</div>
-                    <div class="summary-label" data-lang="total_students">总学生数</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value" id="totalGroups">0</div>
-                    <div class="summary-label" data-lang="suggested_groups">建议分组数</div>
-                </div>
+
+            <button id="feedbackBtn" class="btn feedback" data-lang="feedback">反馈建议</button>
+        </section>
+
+        <section class="container instructions" data-reveal="up">
+            <div class="section-heading">
+                <p class="section-eyebrow" data-lang="instructions_eyebrow">使用建议</p>
+                <h2 data-lang="instructions">使用说明</h2>
+                <p data-lang="instructions_intro">建议按这个顺序使用首页，启动更快，也更不容易漏操作。</p>
             </div>
-        </div>
-    </div>
-        
-        </div>
-        </div>
-        
-        
-        
-        <!-- 反馈建议按钮 -->
-        <button id="feedbackBtn" class="btn feedback" data-lang="feedback">反馈建议</button>
-        
-        
-    </div>
-    
-    <div class="container">
-        <div class="instructions">
-            <h3 data-lang="instructions">使用说明</h3>
             <ol>
-                <li><strong data-lang="student_management_guide">学生管理</strong> - <span data-lang="student_management_desc">点击"管理学生信息"按钮显示学生管理界面，支持单个添加、批量导入和文件导入</span></li>
-                <li><strong data-lang="sound_detector_guide">声音检测器</strong> - <span data-lang="sound_detector_desc2">实时检测环境声音强度，声音越高小球越高，可用于课堂活跃度监测</span></li>
-                <li><strong data-lang="roll_call_guide">随机点名器</strong> - <span data-lang="roll_call_desc2">随机选择学生回答问题，增加课堂互动，支持导入学生名单</span></li>
-                <li><strong data-lang="timer_guide">课堂计时器</strong> - <span data-lang="timer_desc2">管理课堂活动时间，提高教学效率，支持全屏模式和预设时间</span></li>
-                <li><strong data-lang="clock_guide">全屏时钟</strong> - <span data-lang="clock_desc2">超大显示时钟，支持8种颜色主题、12/24小时制切换、一键全屏显示</span></li>
-                <li><strong data-lang="grouping_guide">小组分组器</strong> - <span data-lang="grouping_desc2">随机分组学生，便于小组活动，支持自定义分组人数</span></li>
-                <li><strong data-lang="whiteboard_guide">电子白板</strong> - <span data-lang="whiteboard_desc2">在线绘制和演示，支持多点触控、多种颜色和线条粗细调节</span></li>
-                <li><strong data-lang="tracker_guide">课堂表现记录器</strong> - <span data-lang="tracker_desc2">记录学生课堂表现，帮助教师了解学生参与度</span></li>
-                <li><strong data-lang="feedback_guide">反馈建议</strong> - <span data-lang="feedback_desc">点击"反馈建议"按钮提交您的宝贵意见</span></li>
+                <li><strong data-lang="instruction_1_title">先维护学生名单</strong> <span data-lang="instruction_1_desc">在首页录入或导入学生数据，点名、分组和课堂记录会直接复用。</span></li>
+                <li><strong data-lang="instruction_2_title">再按场景选择工具</strong> <span data-lang="instruction_2_desc">互动区适合开课使用，演示区适合讲解，学科区适合备课与生成。</span></li>
+                <li><strong data-lang="instruction_3_title">用搜索代替翻找</strong> <span data-lang="instruction_3_desc">直接输入“计时”“白板”“分组”等关键词，可以更快定位入口。</span></li>
+                <li><strong data-lang="instruction_4_title">用状态和反馈维持可用性</strong> <span data-lang="instruction_4_desc">如果发现异常，先检查网站状态，再通过反馈入口提交问题。</span></li>
             </ol>
-        </div>
-    </div>
-    
+        </section>
+    </main>
+
     <footer>
         <p data-lang="footer_text">&copy; 2025 教师工具箱 - 专为教师设计</p>
-        <div class="signature-badge">⭐️ Made By CrisXie & Zhang Monday ⭐️</div>
+        <div class="signature-badge">Made By CrisXie &amp; Zhang Monday</div>
     </footer>
-    
-    <!-- 公告弹窗 -->
+
     <div class="announcement-modal-overlay" id="announcementModal">
         <div class="announcement-modal">
             <button class="announcement-modal-close" onclick="closeAnnouncementModal()">&times;</button>
             <div class="announcement-modal-header">
-                <span class="icon">📢</span>
+                <span class="icon">公告</span>
                 <h3 id="announcementModalTitle">公告</h3>
             </div>
-            <div class="announcement-modal-content" id="announcementModalContent">
-                <!-- 公告内容将通过JavaScript动态加载 -->
-            </div>
+            <div class="announcement-modal-content" id="announcementModalContent"></div>
             <div class="announcement-modal-footer">
                 <button class="announcement-modal-btn primary" onclick="closeAnnouncementModal()" id="announcementCloseBtn">我知道了</button>
                 <button class="announcement-modal-btn danger" onclick="permanentlyCloseAnnouncement()" id="announcementPermanentBtn">不再显示此公告</button>
             </div>
         </div>
     </div>
-    
-    <!-- 捐赠提示弹窗 -->
+
     <div class="donation-modal-overlay" id="donationModal">
         <div class="donation-modal">
             <button class="donation-modal-close" onclick="closeDonationModal()">&times;</button>
-            <div class="donation-modal-icon">❤️</div>
+            <div class="donation-modal-icon">支持</div>
             <h3 id="donationModalTitle" data-lang="donation_modal_title">喜欢这个工具吗？</h3>
-            <p id="donationModalMessage" data-lang="donation_modal_message">如果这些工具对您的教学有帮助，欢迎打赏支持作者继续开发更多实用功能！</p>
+            <p id="donationModalMessage" data-lang="donation_modal_message">如果这些工具对您的教学有帮助，欢迎支持作者继续维护与开发。</p>
             <div class="donation-modal-buttons">
                 <button class="donation-modal-btn primary" onclick="goToDonation()" id="donationModalBtn" data-lang="donation_modal_btn">去支持一下</button>
                 <button class="donation-modal-btn secondary" onclick="closeDonationModal()" id="donationModalLater" data-lang="donation_modal_later">下次再说</button>
             </div>
-            <div class="donation-modal-tip" id="donationModalTip" data-lang="donation_modal_tip">💡 您的支持是作者持续更新的动力</div>
+            <div class="donation-modal-tip" id="donationModalTip" data-lang="donation_modal_tip">你的支持会让这个项目更新得更稳定。</div>
         </div>
     </div>
-    
 </body>
 </html>

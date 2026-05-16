@@ -16,7 +16,7 @@ const donationConfig = {
 
 const WEBSITE_STATUS_URL = '/api/status-teachertool';
 const WEBSITE_STATUS_TIMEOUT = 7000;
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.2.0';
 const SW_UPDATE_INTERVAL = 30 * 60 * 1000;
 const UMAMI_WEBSITE_ID = '4a56b2a6-010f-412d-b1ae-59417d30a68d';
 const UMAMI_SCRIPT_URL = 'https://cloud.umami.is/script.js';
@@ -99,8 +99,11 @@ function filterToolCards() {
 
     const clearBtn = $('toolSearchClearBtn');
     const emptyState = $('toolSearchEmptyState');
+    const meta = $('toolSearchMeta');
     const keyword = normalizeSearchText(searchInput.value);
     const cards = Array.from(document.querySelectorAll('.tools-container .tool-card'));
+    const searchableCards = cards.filter(card => card.dataset.searchExcluded !== 'true');
+    const totalCount = searchableCards.length;
     let visibleCount = 0;
 
     cards.forEach(card => {
@@ -117,11 +120,32 @@ function filterToolCards() {
         if (matched) visibleCount++;
     });
 
+    document.querySelectorAll('[data-category]').forEach(category => {
+        const categoryCards = Array.from(category.querySelectorAll('.tool-card'));
+        const visibleInCategory = categoryCards.filter(card => card.style.display !== 'none').length;
+        category.style.display = visibleInCategory > 0 ? '' : 'none';
+
+        const count = category.querySelector('[data-visible-count]');
+        if (count) count.textContent = String(visibleInCategory);
+    });
+
     if (clearBtn) {
         clearBtn.classList.toggle('hidden', keyword.length === 0);
     }
     if (emptyState) {
         emptyState.classList.toggle('hidden', keyword.length === 0 || visibleCount > 0);
+    }
+    if (meta) {
+        const lang = window.i18n ? window.i18n.currentLanguage() : 'zh';
+        if (!keyword) {
+            meta.textContent = window.i18n
+                ? window.i18n.getTranslation('search_meta_default')
+                : `当前共 ${totalCount} 个工具`;
+        } else {
+            meta.textContent = lang === 'zh'
+                ? `找到 ${visibleCount} 个工具`
+                : `${visibleCount} tools found`;
+        }
     }
 }
 
@@ -148,6 +172,34 @@ function setupToolSearch() {
     }
 
     filterToolCards();
+}
+
+function setupScrollReveal() {
+    const revealNodes = Array.from(document.querySelectorAll('[data-reveal]'));
+    if (revealNodes.length === 0) return;
+
+    revealNodes.forEach((node, index) => {
+        node.style.setProperty('--reveal-order', String(index % 6));
+    });
+
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+        revealNodes.forEach(node => node.classList.add('is-visible'));
+        return;
+    }
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+        });
+    }, {
+        threshold: 0.14,
+        rootMargin: '0px 0px -8% 0px'
+    });
+
+    revealNodes.forEach(node => observer.observe(node));
 }
 
 function toggleTheme() {
@@ -556,6 +608,9 @@ function addStudent() {
     if (ok) {
         renderStudentList();
         updateSummary();
+        requestAnimationFrame(() => {
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
         if (studentId) studentId.value = '';
         studentName.value = '';
         studentName.focus();
@@ -1448,6 +1503,7 @@ function init() {
     checkSpringFestival();
     checkTeachersDay();
     bindEventListeners();
+    setupScrollReveal();
 
     runWhenIdle(() => {
         setupEasterEgg();
