@@ -821,39 +821,36 @@ async function checkWebsiteStatus() {
     const title = window.i18n ? window.i18n.getTranslation('website_status_title') : '网站状态';
     const healthy = window.i18n ? window.i18n.getTranslation('website_status_online') : '网站状态正常';
     const unavailable = window.i18n ? window.i18n.getTranslation('website_status_unavailable') : '暂时无法获取网站状态';
-    const httpError = window.i18n ? window.i18n.getTranslation('website_status_http_error') : '状态接口返回错误';
     const timeoutMsg = window.i18n ? window.i18n.getTranslation('website_status_timeout') : '请求超时，请稍后重试';
-    const emptyMsg = window.i18n ? window.i18n.getTranslation('website_status_empty') : '接口已响应，但没有返回详细内容。';
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), WEBSITE_STATUS_TIMEOUT);
 
     try {
         const response = await fetch(WEBSITE_STATUS_URL, {
             method: 'GET',
             cache: 'no-store',
-            signal: controller.signal
+            signal: AbortSignal.timeout(WEBSITE_STATUS_TIMEOUT)
         });
-        clearTimeout(timer);
 
         if (!response.ok) {
-            throw new Error(`${httpError}: HTTP ${response.status}`);
+            throw new Error(`HTTP ${response.status}`);
         }
 
-        const contentType = response.headers.get('content-type') || '';
-        let details = '';
-        if (contentType.includes('application/json')) {
-            const json = await response.json();
-            details = formatStatusPayload(json && Object.prototype.hasOwnProperty.call(json, 'payload') ? json.payload : json);
-        } else {
-            details = (await response.text()).trim();
+        const data = await response.json();
+
+        if (!data.ok) {
+            showCustomModal(title, `${unavailable}\n\n${data.message || '接口返回错误'}`);
+            return;
         }
 
-        if (!details) details = emptyMsg;
-        showCustomModal(title, `${healthy}\n\n${details.slice(0, 1200)}`);
+        const isUp = data.status === 'up';
+        const monitor = data.monitor || '教师工具箱';
+        const uptime = data.uptime24h ? ` (24h 可用率 ${(data.uptime24h * 100).toFixed(2)}%)` : '';
+        const ping = data.ping > 0 ? `\n响应延迟: ${data.ping} ms` : '';
+
+        showCustomModal(title, isUp
+            ? `${healthy}\n\n${monitor} 运行正常${uptime}${ping}`
+            : `${monitor} 当前异常${uptime}`);
     } catch (error) {
-        clearTimeout(timer);
-        const reason = error && error.name === 'AbortError' ? timeoutMsg : '';
+        const reason = error && error.name === 'TimeoutError' ? timeoutMsg : '';
         const message = reason ? `${unavailable}\n${reason}` : unavailable;
         showCustomModal(title, message);
     }
