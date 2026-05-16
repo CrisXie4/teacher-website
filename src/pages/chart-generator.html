@@ -32,7 +32,7 @@
 
         .header {
             position: relative;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #4a8c7a 0%, #00f2fe 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -97,7 +97,7 @@
         }
 
         .control-panel {
-            background: #f8f9fa;
+            background: #f3ede2;
             padding: 25px;
             border-radius: 15px;
             height: fit-content;
@@ -113,7 +113,7 @@
             color: #333;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #4facfe;
+            border-bottom: 2px solid #4a8c7a;
         }
 
         .form-group {
@@ -142,7 +142,7 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #4facfe;
+            border-color: #4a8c7a;
             box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
         }
 
@@ -171,13 +171,13 @@
         }
 
         .chart-type-btn:hover {
-            border-color: #4facfe;
+            border-color: #4a8c7a;
             background: #e3f5ff;
         }
 
         .chart-type-btn.active {
-            border-color: #4facfe;
-            background: #4facfe;
+            border-color: #4a8c7a;
+            background: #4a8c7a;
             color: white;
         }
 
@@ -213,14 +213,14 @@
         }
 
         .add-color-btn {
-            background: #4facfe;
+            background: #4a8c7a;
             color: white;
             width: 100%;
             padding: 10px;
         }
 
         .add-color-btn:hover {
-            background: #2d9cfc;
+            background: #2f5d50;
         }
 
         .remove-color-btn {
@@ -250,7 +250,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #4a8c7a 0%, #00f2fe 100%);
             color: white;
         }
 
@@ -278,12 +278,12 @@
         }
 
         .btn-info {
-            background: #0ea5e9;
+            background: #4a8c7a;
             color: white;
         }
 
         .btn-info:hover {
-            background: #0284c7;
+            background: #2f5d50;
         }
 
         .chart-container {
@@ -551,21 +551,21 @@
 
         function initColorInputs() {
             const colorList = document.getElementById('colorList');
-            const defaultColors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+            const defaultColors = ['#6b8f7b', '#c96b45', '#f093fb', '#4a8c7a', '#43e97b'];
 
             defaultColors.forEach(color => {
                 addColorInput(color);
             });
         }
 
-        function addColorInput(color = '#667eea') {
+        function addColorInput(color = '#6b8f7b') {
             const colorList = document.getElementById('colorList');
             const colorDiv = document.createElement('div');
             colorDiv.className = 'color-inputs';
             colorDiv.innerHTML = `
                 <div class="color-input">
                     <input type="color" class="color-picker" value="${color}">
-                    <input type="text" value="${color}" placeholder="#667eea">
+                    <input type="text" value="${color}" placeholder="#6b8f7b">
                 </div>
                 <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
             `;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="4a56b2a6-010f-412d-b1ae-59417d30a68d"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4b6cb7">
+    <meta name="theme-color" content="#2f5d50">
     <title>教师工具箱 - 观看者（Vercel版）</title>
     <style>
         body {
@@ -18,7 +18,7 @@
 
         body.dark-mode {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #f0f0f0;
+            color: #f3ede2;
         }
 
         .container {
@@ -32,7 +32,7 @@
             width: 100%;
             max-width: 800px;
             border-radius: 12px;
-            border: 3px solid #4b6cb7;
+            border: 3px solid #2f5d50;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             background: #000;
         }
@@ -49,7 +49,7 @@
 
         .dark-mode .status {
             background-color: rgba(30, 30, 46, 0.9);
-            color: #f0f0f0;
+            color: #f3ede2;
         }
 
         .connected {
@@ -71,7 +71,7 @@
 
         .room-input {
             padding: 12px 20px;
-            border: 2px solid #4b6cb7;
+            border: 2px solid #2f5d50;
             border-radius: 50px;
             font-size: 1.2rem;
             text-align: center;
@@ -83,18 +83,18 @@
         }
 
         .room-input:focus {
-            border-color: #182848;
+            border-color: #1a3a2f;
             box-shadow: 0 0 10px rgba(75, 108, 183, 0.3);
         }
 
         .dark-mode .room-input {
             background: rgba(30, 30, 46, 0.8);
-            color: #f0f0f0;
+            color: #f3ede2;
             border-color: #0f3460;
         }
 
         .button {
-            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            background: linear-gradient(135deg, #2f5d50 0%, #1a3a2f 100%);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -132,7 +132,7 @@
         }
 
         header {
-            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            background: linear-gradient(135deg, #2f5d50 0%, #1a3a2f 100%);
             color: white;
             text-align: center;
             padding: 2.5rem 1rem;
@@ -182,12 +182,12 @@
             border-radius: 10px;
             padding: 15px;
             margin: 20px 0;
-            border-left: 4px solid #4b6cb7;
+            border-left: 4px solid #2f5d50;
         }
 
         .dark-mode .info-box {
             background: rgba(30, 30, 46, 0.9);
-            color: #f0f0f0;
+            color: #f3ede2;
         }
 
         .placeholder-video {
@@ -196,7 +196,7 @@
             height: 450px;
             background: #000;
             border-radius: 12px;
-            border: 3px solid #4b6cb7;
+            border: 3px solid #2f5d50;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -326,7 +326,7 @@
         function showConnectionInfo() {
             const placeholder = document.getElementById('videoPlaceholder');
             placeholder.innerHTML = `
-                <div style="text-align: center; color: #4b6cb7;">
+                <div style="text-align: center; color: #2f5d50;">
                     <div style="font-size: 2rem; margin-bottom: 10px;">📹</div>
                     <div>已加入房间 ${currentRoomCode}</div>
                     <div style="font-size: 1rem; margin-top: 10px; color: #666;">
